@@ -67,8 +67,6 @@ public class Task extends BaseEntity {
     public void updateFrom(TaskRequestDto dto) {
         this.category = dto.getCategory();
         this.content = dto.getContent();
-        this.dueDate = dto.getDueDate();
-        this.taskImage = dto.getTaskImage();
         this.scope = dto.getScope();
     }
 
