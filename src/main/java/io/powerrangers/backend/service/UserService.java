@@ -1,6 +1,7 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.Role;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserProfileBaseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -54,7 +57,7 @@ public class UserService {
     public void logout(){}
 
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
-        User user = userRepository.findUserById((userId))
+        User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         checkNicknameDuplication(request.getNickname());
@@ -64,8 +67,9 @@ public class UserService {
         user.changeProfileImage(request.getProfileImage());
     }
 
-    // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
-    public void cancleAccount(){
+    public void cancleAccount(Long userId){
+        userRepository.deleteUserById(userId);
+
 
     }
 

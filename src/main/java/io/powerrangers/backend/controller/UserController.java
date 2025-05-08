@@ -39,4 +39,9 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUserProfile(nickname));
     }
 
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> cancleAccount(@PathVariable Long userId){
+        userService.cancleAccount(userId);
+        return ResponseEntity.ok().build();
+    }
 }
