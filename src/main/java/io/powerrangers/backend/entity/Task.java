@@ -1,5 +1,6 @@
 package io.powerrangers.backend.entity;
 
+import io.powerrangers.backend.dto.TaskRequestDto;
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
 import jakarta.persistence.Column;
@@ -38,7 +39,7 @@ public class Task extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private TaskStatus status = TaskStatus.INCOMPLETE;
 
     @Column(name = "task_image")
     private String taskImage;
@@ -62,4 +63,13 @@ public class Task extends BaseEntity {
         this.scope = scope;
         this.user = user;
     }
+
+    public void updateFrom(TaskRequestDto dto) {
+        this.category = dto.getCategory();
+        this.content = dto.getContent();
+        this.dueDate = dto.getDueDate();
+        this.taskImage = dto.getTaskImage();
+        this.scope = dto.getScope();
+    }
+
 }
