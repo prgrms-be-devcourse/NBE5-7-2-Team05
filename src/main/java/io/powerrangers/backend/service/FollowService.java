@@ -1,6 +1,7 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
@@ -52,6 +53,10 @@ public class FollowService {
     @Transactional
     public void unfollow(Long followingId) {
         User following = userRepository.findById(followingId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // TODO : 임시 코드 지우기
+        User follower = userRepository.findById(followingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
 //        User follower = Authentication의 id를 꺼내서.. ContextService에서 메서드 구현..
