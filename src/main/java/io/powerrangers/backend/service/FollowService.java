@@ -39,7 +39,11 @@ public class FollowService {
             throw new RuntimeException("이미 팔로우한 사용자입니다.");
         }
 
-        return new FollowResponseDto(follow.getId(), follow.getFollower().getId(), follow.getFollower().getId());
+        return FollowResponseDto.builder()
+                .followId(follow.getId())
+                .followerId(follow.getFollower().getId())
+                .followingId(follow.getFollowing().getId())
+                .build();
     }
 
 }
