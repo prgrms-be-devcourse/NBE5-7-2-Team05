@@ -1,0 +1,40 @@
+package io.powerrangers.backend.service;
+
+import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.UserGetProfileResponseDto;
+import io.powerrangers.backend.entity.User;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserGetProfileResponseDto findUserProfile(String nickname){
+        User findUser =
+                userRepository.findUserByNickname(nickname)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
+                .nickname(findUser.getNickname())
+                .intro(findUser.getIntro())
+                .profileImage(findUser.getProfileImage())
+                .build();
+
+        return userGetProfileResponseDto;
+    }
+    
+    // user 로그아웃
+    // user 정보 수정
+    // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
+
+
+}
