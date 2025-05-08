@@ -1,7 +1,6 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
-import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
