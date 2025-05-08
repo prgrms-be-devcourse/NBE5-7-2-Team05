@@ -4,6 +4,7 @@ import io.powerrangers.backend.dao.FollowRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
+import io.powerrangers.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
