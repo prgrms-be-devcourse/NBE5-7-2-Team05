@@ -47,7 +47,7 @@ public class UserService {
         user.changeIntro(request.getIntro());
         user.changeProfileImage(request.getProfileImage());
     }
-    
+
     // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
     public void cancleAccount(){
 
