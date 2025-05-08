@@ -22,7 +22,7 @@ public class UserService {
         return userRepository.findUserByNickname(nickname).isPresent();
     }
 
-    public UserGetProfileResponseDto findUserProfile(String nickname){
+    public UserGetProfileResponseDto searchUserProfile(String nickname){
         User findUser =
                 userRepository.findUserByNickname(nickname)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -39,9 +39,11 @@ public class UserService {
     // user 로그아웃
     public void logout(){}
 
-    public void updateUserProfile(String email,UserUpdateProfileRequestDto request){
-        User user = userRepository.findUserByEmail(email)
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+        User user = userRepository.findUserById((userId))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        checkNicknameDuplication(request.getNickname());
 
         user.changeNickname(request.getNickname());
         user.changeIntro(request.getIntro());
