@@ -2,13 +2,13 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
+import io.powerrangers.backend.dto.UserProfileBaseDto;
+import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -17,6 +17,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    // 닉네임 중복 체크
+    public boolean checkNicknameDuplication(String nickname){
+        return userRepository.findUserByNickname(nickname).isPresent();
+    }
 
     public UserGetProfileResponseDto findUserProfile(String nickname){
         User findUser =
@@ -31,9 +36,12 @@ public class UserService {
 
         return userGetProfileResponseDto;
     }
-    
+
     // user 로그아웃
     // user 정보 수정
+    public void updateUserProfile(UserUpdateProfileRequestDto request){
+
+    }
     // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
 
 
