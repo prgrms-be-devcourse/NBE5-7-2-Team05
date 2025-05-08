@@ -54,6 +54,12 @@ public class User extends BaseEntity {
         this.role = Role.USER;
     }
 
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+    public void changeProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
     public void changeIntro(String intro) {
         this.intro = intro;
     }
