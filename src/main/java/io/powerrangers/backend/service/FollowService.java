@@ -5,6 +5,7 @@ import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,15 @@ public class FollowService {
                         .following(following)
                         .build();
 
-        followRepository.save(follow);
+        if( followRepository.existsByFollowerAndFollowing(follower, following)) {
+            throw new RuntimeException("이미 팔로우한 사용자입니다.");
+        }
+
+        try {
+            followRepository.save(follow);
+        } catch (DataIntegrityViolationException e){
+            throw new RuntimeException("이미 팔로우한 사용자입니다.");
+        }
 
         return new FollowResponseDto(follow.getId(), follow.getFollower().getId(), follow.getFollower().getId());
     }
