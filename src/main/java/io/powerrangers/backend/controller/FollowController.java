@@ -27,7 +27,8 @@ public class FollowController {
     }
 
     @DeleteMapping("/{followingId}")
-    public void unfollow(@PathVariable Long followingId){
+    public ResponseEntity<Void> unfollow(@PathVariable Long followingId){
         followService.unfollow(followingId);
+        return ResponseEntity.noContent().build();
     }
 }

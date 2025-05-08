@@ -55,8 +55,8 @@ public class FollowService {
         User following = userRepository.findById(followingId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        // TODO : 임시 코드 지우기
-        User follower = userRepository.findById(followingId)
+        // TODO : 이후 하드 코딩 지우기
+        User follower = userRepository.findById(1L)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
 //        User follower = Authentication의 id를 꺼내서.. ContextService에서 메서드 구현..
