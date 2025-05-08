@@ -24,9 +24,8 @@ public class FollowController {
         return followService.follow(followRequestDto);
     }
 
-    // TODO : 이후 Authentication에서 ID 받아오기
     @DeleteMapping("/{followingId}")
     public void unfollow(@PathVariable Long followingId){
-        followService.unfollow(follwingId);
+        followService.unfollow(followingId);
     }
 }
