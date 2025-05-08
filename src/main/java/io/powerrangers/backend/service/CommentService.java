@@ -21,13 +21,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CommentService {
 
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public void createComment(Long userId, CommentCreateRequestDto request) {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 Task 없음"));
