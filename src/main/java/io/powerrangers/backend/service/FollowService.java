@@ -19,9 +19,9 @@ public class FollowService {
     @Transactional
     public FollowResponseDto follow(FollowRequestDto request){
         User follower = userRepository.findById(request.getFollowerId())
-                .orElseThrow(() -> new IllegalArgumentException("Follower not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         User following = userRepository.findById(request.getFollowingId())
-                .orElseThrow(() -> new IllegalArgumentException("Following not found"));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Follow follow = Follow.builder()
                         .follower(follower)
