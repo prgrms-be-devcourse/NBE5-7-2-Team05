@@ -2,6 +2,7 @@ package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class CommentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<String> createComment(@RequestBody CommentCreateRequestDto request){
+    public ResponseEntity<String> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request.getUserId(),request);
         return ResponseEntity.ok("Comment created");
     }
