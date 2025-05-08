@@ -1,7 +1,9 @@
 package io.powerrangers.backend.dto;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class FollowResponseDto {
 
     private Long followId;
