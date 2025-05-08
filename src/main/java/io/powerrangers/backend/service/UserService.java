@@ -18,7 +18,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    // 닉네임 중복 체크
     public boolean checkNicknameDuplication(String nickname){
         return userRepository.findUserByNickname(nickname).isPresent();
     }
@@ -38,11 +37,20 @@ public class UserService {
     }
 
     // user 로그아웃
-    // user 정보 수정
-    public void updateUserProfile(UserUpdateProfileRequestDto request){
+    public void logout(){}
+
+    public void updateUserProfile(String email,UserUpdateProfileRequestDto request){
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        user.changeNickname(request.getNickname());
+        user.changeIntro(request.getIntro());
+        user.changeProfileImage(request.getProfileImage());
+    }
+    
+    // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
+    public void cancleAccount(){
 
     }
-    // user 회원 탈퇴 -> access token 삭제 및 Soft Delete
-
 
 }
