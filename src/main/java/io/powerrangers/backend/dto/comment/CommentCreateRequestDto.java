@@ -8,16 +8,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 public class CommentCreateRequestDto {
     @NotNull(message = "유저가 존재하지 않습니다.")
-    private final Long taskId;
+    private Long taskId;
 
     @NotNull(message = "할 일이 존재하지 않습니다.")
-    private final Long userId;
+    private Long userId;
 
-    private final Long parentId;
+    private Long parentId;
 
     @NotBlank(message = "내용을 입력해주세요")
-    private final String content;
+    private String content;
 }
