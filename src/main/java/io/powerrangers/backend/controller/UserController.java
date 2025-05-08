@@ -1,5 +1,6 @@
 package io.powerrangers.backend.controller;
 
+import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,11 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<?> updateUserProfile(@PathVariable Long userId, @RequestBody UserUpdateProfileRequestDto request){
+    public ResponseEntity<UserUpdateProfileRequestDto> updateUserProfile(
+            @PathVariable Long userId,
+            @RequestBody UserUpdateProfileRequestDto request
+    ){
+        userService.updateUserProfile(userId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -24,15 +29,14 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getUserProfile(@PathVariable Long userId){
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserGetProfileResponseDto> getUserProfile(@PathVariable Long userId){
+
+        return ResponseEntity.ok(userService.getUserProfile(userId));
     }
 
-
-
     @GetMapping()
-    public ResponseEntity<?> searchUserProfile(@RequestParam String nickname){
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserGetProfileResponseDto> searchUserProfile(@RequestParam String nickname){
+        return ResponseEntity.ok(userService.searchUserProfile(nickname));
     }
 
 }
