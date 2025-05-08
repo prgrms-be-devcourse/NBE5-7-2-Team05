@@ -3,6 +3,7 @@ package io.powerrangers.backend.controller;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,11 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logoutUser(){
+    public ResponseEntity<Void> logoutUser(HttpServletRequest request){
+        /*
+        String token = jwtUtil.extractTokenFromHeader(request);
+        userService.logout(token);
+         */
         return ResponseEntity.ok().build();
     }
 
