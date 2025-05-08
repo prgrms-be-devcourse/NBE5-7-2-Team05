@@ -22,6 +22,20 @@ public class UserService {
         return userRepository.findUserByNickname(nickname).isPresent();
     }
 
+    public UserGetProfileResponseDto getUserProfile(Long userId){
+        User findUser =
+                userRepository.findUserById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
+                .nickname(findUser.getNickname())
+                .intro(findUser.getIntro())
+                .profileImage(findUser.getProfileImage())
+                .build();
+
+        return userGetProfileResponseDto;
+    }
+
     public UserGetProfileResponseDto searchUserProfile(String nickname){
         User findUser =
                 userRepository.findUserByNickname(nickname)
