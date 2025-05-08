@@ -41,4 +41,11 @@ public class Comment extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
+
+    public Comment(Task task, User user, Comment parent, String content) {
+        this.task = task;
+        this.user = user;
+        this.parent = parent;
+        this.content = content;
+    }
 }
