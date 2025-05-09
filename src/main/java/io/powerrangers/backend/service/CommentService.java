@@ -1,5 +1,7 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.TaskRepository;
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
 import io.powerrangers.backend.entity.Comment;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /***
@@ -63,7 +66,7 @@ public class CommentService {
 
     private CommentResponseDto toDto(Comment parent, List<Comment> allComments) {
         List<CommentResponseDto> childrenDtos = allComments.stream()
-                .filter(c -> parent.equals(c.getParent()))
+                .filter(c -> c.getParent() != null && Objects.equals(parent.getId(), c.getParent().getId()))
                 .map(child -> toDto(child, allComments))
                 .collect(Collectors.toList());
 
