@@ -30,7 +30,7 @@ public class RefreshTokenRepositoryAdapter implements TokenRepository {
     }
 
     @Override
-    public boolean isTokenBlackList(String refreshToken) {
+    public boolean tokenBlackList(String refreshToken) {
         return refreshTokenBlackListRepository.existsByRefreshToken_RefreshToken(refreshToken);
     }
 
