@@ -2,7 +2,6 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
-import io.powerrangers.backend.dto.UserProfileBaseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +15,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -194,12 +192,12 @@ class UserServiceTests {
 
     @Test
     @DisplayName("회원 탈퇴 성공 테스트")
-    void cancleAccount_success_test() {
+    void cancelAccount_success_test() {
         // given
         Long userId = 1L;
 
         // when
-        userService.cancleAccount(userId);
+        userService.cancelAccount(userId);
 
         // then
         verify(userRepository, times(1)).deleteUserById(userId);
@@ -207,13 +205,13 @@ class UserServiceTests {
 
     @Test
     @DisplayName("존재하지 않는 회원 탈퇴 실패 테스트")
-    void cancleAccount_fail_NotExistUser_test() throws Exception{
+    void cancelAccount_fail_NotExistUser_test() throws Exception{
         // given
         Long userId = 999L;
         given(userRepository.findUserById(userId)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> userService.cancleAccount(userId))
+        assertThatThrownBy(() -> userService.cancelAccount(userId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("존재하지 않는 사용자입니다.");
 
