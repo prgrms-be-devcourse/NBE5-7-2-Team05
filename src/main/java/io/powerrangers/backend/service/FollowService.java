@@ -1,11 +1,15 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
+import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import io.powerrangers.backend.entity.User;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -67,5 +71,17 @@ public class FollowService {
 
         followRepository.delete(follow);
     }
+
+    @Transactional(readOnly=true)
+    public List<UserFollowResponseDto> findFollowers(Long userId){
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
+
+        // 팔로잉에 userId가 있어야 한다.
+        List<UserFollowResponseDto> followers = followRepository.findFollowersByUser(userId);
+
+        return followers;
+    }
+
 
 }

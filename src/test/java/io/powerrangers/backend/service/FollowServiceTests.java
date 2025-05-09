@@ -1,17 +1,22 @@
 package io.powerrangers.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.powerrangers.backend.dao.FollowRepository;
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
+import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import io.powerrangers.backend.entity.User;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -143,4 +148,36 @@ class FollowServiceTests {
         // verify() : 특정 메서드가 실제로 호출됐는지 검증
         verify(followRepository, times(1)).delete(follow);
     }
+
+    @Test
+    @DisplayName("팔로워 조회")
+    void follower_list_test() throws Exception {
+
+        Long myId = 1L;
+        User me = mock(User.class);
+        when(userRepository.findById(myId)).thenReturn(Optional.of(me));
+
+        UserFollowResponseDto follower1 = UserFollowResponseDto.builder()
+                        .id(2L)
+                        .intro("안녕하세요. 유저 2입니다.")
+                        .profileImage("img2")
+                        .build();
+        UserFollowResponseDto follower2 = UserFollowResponseDto.builder()
+                        .id(3L)
+                        .intro("안녕하세요. 유저 3입니다.")
+                        .profileImage("img3")
+                        .build();
+
+        List<UserFollowResponseDto> followersOfMine = List.of(follower1, follower2);
+
+        when(followRepository.findFollowersByUser(myId)).thenReturn(followersOfMine);
+
+        List<UserFollowResponseDto> followers = followService.findFollowers(myId);
+
+        assertThat(followers).hasSize(2);
+        assertThat(followers.get(0)).isEqualTo(follower1);
+        assertThat(followers.get(1)).isEqualTo(follower2);
+
+    }
+
 }
