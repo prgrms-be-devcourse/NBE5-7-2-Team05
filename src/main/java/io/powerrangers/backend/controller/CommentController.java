@@ -1,14 +1,14 @@
 package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
+import io.powerrangers.backend.dto.comment.CommentResponseDto;
 import io.powerrangers.backend.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,5 +26,11 @@ public class CommentController {
     public ResponseEntity<String> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request.getUserId(),request);
         return ResponseEntity.ok("Comment created");
+    }
+
+    @GetMapping("/{taskId}")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long taskId){
+        List<CommentResponseDto> comments = commentService.getComments(taskId);
+        return ResponseEntity.ok(comments);
     }
 }

@@ -1,15 +1,15 @@
-package io.powerrangers.backend;
+package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
+import io.powerrangers.backend.dto.comment.CommentResponseDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
-import io.powerrangers.backend.repository.CommentRepository;
-import io.powerrangers.backend.repository.TaskRepository;
-import io.powerrangers.backend.repository.UserRepository;
-import io.powerrangers.backend.service.CommentService;
+import io.powerrangers.backend.dao.CommentRepository;
+import io.powerrangers.backend.dao.TaskRepository;
+import io.powerrangers.backend.dao.UserRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -138,5 +138,29 @@ public class CommentServiceTests {
         assertThat(reply.getParent().getId()).isEqualTo(parent.getId());
 
         assertThat(child.getParent().getId()).isEqualTo(reply.getParent().getId());
+    }
+
+    @Test
+    @DisplayName("조회 검증")
+    void 조회(){
+        Comment parent = new Comment(testTask, testUser, null, "부모 댓글입니다.");
+        commentRepository.save(parent);
+
+        Comment child1 = new Comment(testTask, testUser, parent, "대댓글입니다");
+        commentRepository.save(child1);
+
+        Comment child2 = new Comment(testTask, testUser, parent, "불라불라");
+        commentRepository.save(child2);
+
+        List<CommentResponseDto> result = commentService.getComments(testTask.getId());
+
+        assertThat(result).hasSize(1); // 부모 댓글 하나
+        CommentResponseDto parentDto = result.get(0);
+        assertThat(parentDto.getContent()).isEqualTo("부모 댓글입니다.");
+
+        assertThat(parentDto.getChildren()).hasSize(2);
+        assertThat(parentDto.getChildren())
+                .extracting(CommentResponseDto::getContent)
+                .containsExactlyInAnyOrder("대댓글입니다", "불라불라");
     }
 }
