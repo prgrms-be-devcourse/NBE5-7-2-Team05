@@ -2,11 +2,15 @@ package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
+import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
+import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.service.FollowService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,5 +34,11 @@ public class FollowController {
     public ResponseEntity<Void> unfollow(@PathVariable Long followingId){
         followService.unfollow(followingId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<List<UserFollowResponseDto>> getFollowers(@PathVariable Long userId){
+
+        return ResponseEntity.ok(followService.findFollowers(userId));
     }
 }

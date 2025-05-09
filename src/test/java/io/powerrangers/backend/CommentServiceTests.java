@@ -1,14 +1,14 @@
 package io.powerrangers.backend;
 
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
-import io.powerrangers.backend.repository.CommentRepository;
-import io.powerrangers.backend.repository.TaskRepository;
-import io.powerrangers.backend.repository.UserRepository;
+import io.powerrangers.backend.dao.CommentRepository;
+import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.service.CommentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
