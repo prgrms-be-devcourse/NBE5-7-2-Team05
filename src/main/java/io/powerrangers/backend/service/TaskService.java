@@ -1,5 +1,6 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
