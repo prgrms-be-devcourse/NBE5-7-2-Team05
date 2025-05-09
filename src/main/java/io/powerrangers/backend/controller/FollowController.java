@@ -41,4 +41,10 @@ public class FollowController {
 
         return ResponseEntity.ok(followService.findFollowers(userId));
     }
+
+    @GetMapping("/{userId}/followings")
+    public ResponseEntity<List<UserFollowResponseDto>> getFollowings(@PathVariable Long userId){
+        return ResponseEntity.ok(followService.findFollowings(userId));
+    }
+
 }
