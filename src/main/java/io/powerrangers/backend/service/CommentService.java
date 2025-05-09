@@ -4,6 +4,7 @@ import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
+import io.powerrangers.backend.dto.comment.CommentUpdateRequestDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -63,6 +65,16 @@ public class CommentService {
                 .map(parent -> toDto(parent, allComments))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void updateComment(Long commentid, CommentUpdateRequestDto request) throws NoSuchElementException {
+        Comment comment = commentRepository.findById(commentid)
+                .orElseThrow(()-> new NoSuchElementException("댓글이 없습니다.."));
+
+        //작성자 검증기능 추후에 구현 해야함
+        comment.updateContent(request.getContent());
+    }
+
 
     private CommentResponseDto toDto(Comment parent, List<Comment> allComments) {
         List<CommentResponseDto> childrenDtos = allComments.stream()
