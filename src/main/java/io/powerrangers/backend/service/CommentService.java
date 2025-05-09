@@ -4,7 +4,7 @@ import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
-import io.powerrangers.backend.dao.CommentRepository;
+import io.powerrangers.backend.repository.CommentRepository;
 import io.powerrangers.backend.repository.TaskRepository;
 import io.powerrangers.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
