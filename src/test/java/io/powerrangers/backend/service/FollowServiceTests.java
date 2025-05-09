@@ -180,4 +180,39 @@ class FollowServiceTests {
 
     }
 
+    @Test
+    @DisplayName("팔로잉 목록 조회 테스트")
+    void following_list_test() throws Exception {
+
+        Long myId = 1L;
+        User me = mock(User.class);
+        when(userRepository.findById(myId)).thenReturn(Optional.of(me));
+
+        UserFollowResponseDto following_1 = UserFollowResponseDto.builder()
+                .id(2L)
+                .nickname("user_2")
+                .intro("안녕하세요. 유저 2입니다.")
+                .profileImage("img2")
+                .build();
+
+        UserFollowResponseDto following_2 = UserFollowResponseDto.builder()
+                .id(3L)
+                .nickname("user_3")
+                .intro("안녕하세요. 유저 3입니다.")
+                .profileImage("img3")
+                .build();
+
+        List<UserFollowResponseDto> followingsOfMine = List.of(following_1, following_2);
+
+        when(followRepository.findFollowingsByUser(myId)).thenReturn(followingsOfMine);
+
+        List<UserFollowResponseDto> followings = followService.findFollowings(myId);
+
+        assertThat(followings).hasSize(2);
+        assertThat(followings.get(0)).isEqualTo(following_1);
+        assertThat(followings.get(1)).isEqualTo(following_2);
+
+
+    }
+
 }
