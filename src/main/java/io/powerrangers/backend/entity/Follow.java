@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"follwer_id", "following_id"})
+                @UniqueConstraint(columnNames = {"follower_id", "following_id"})
         }
 )
 public class Follow {
