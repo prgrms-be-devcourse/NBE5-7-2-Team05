@@ -45,8 +45,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> cancleAccount(@PathVariable Long userId){
-        userService.cancleAccount(userId);
+    public ResponseEntity<?> cancelAccount(@PathVariable Long userId){
+        userService.cancelAccount(userId);
         return ResponseEntity.ok().build();
     }
 }
