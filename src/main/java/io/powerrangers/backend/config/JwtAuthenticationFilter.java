@@ -29,12 +29,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final List<String> WHITE_LIST = List.of(
-            "/test/**"
+            "/test/**",
+            "/favicon.ico",
+            "/index.html",
+            "/css/**",
+            "/js/**"
     );
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        log.error("filter에서 문제 발생! uri = {}", request.getRequestURI());
         String token = resolveToken(request);
         if (token != null && jwtProvider.validateToken(token)) {
             TokenBody tokenBody = jwtProvider.parseToken(token);

@@ -33,7 +33,11 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers("/admin/**")
                                     .hasAuthority("ADMIN")
-                                .requestMatchers("/test/**")
+                                .requestMatchers("/test/**",
+                                        "/index.html",
+                                        "/favicon.ico",
+                                        "/css/**",
+                                        "/js/**")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()
