@@ -77,7 +77,7 @@ public class UserService {
     public void cancelAccount(Long userId){
         User user = userRepository.findUserById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        userRepository.deleteUserById(userId);
+        userRepository.deleteById(userId);
     }
 
 }

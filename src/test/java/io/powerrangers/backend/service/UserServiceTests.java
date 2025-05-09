@@ -231,7 +231,7 @@ class UserServiceTests {
         userService.cancelAccount(userId);
 
         // then
-        verify(userRepository, times(1)).deleteUserById(userId);
+        verify(userRepository, times(1)).deleteById(userId);
     }
 
     @Test
@@ -246,7 +246,7 @@ class UserServiceTests {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("존재하지 않는 사용자입니다.");
 
-        verify(userRepository, never()).deleteUserById(anyLong());
+        verify(userRepository, never()).deleteById(anyLong());
 
     }
 }
