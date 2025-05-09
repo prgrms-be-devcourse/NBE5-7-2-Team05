@@ -4,6 +4,7 @@ import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
+import io.powerrangers.backend.dto.comment.CommentUpdateRequestDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
@@ -162,5 +163,34 @@ public class CommentServiceTests {
         assertThat(parentDto.getChildren())
                 .extracting(CommentResponseDto::getContent)
                 .containsExactlyInAnyOrder("대댓글입니다", "불라불라");
+    }
+
+    @Test
+    @DisplayName("댓글 수정 테스트")
+    void 댓글수정() {
+        Comment parent = new Comment(testTask, testUser, null, "부모댓글");
+        commentRepository.save(parent);
+        Comment child1 = new Comment(testTask, testUser, parent, "자식댓글");
+        commentRepository.save(child1);
+
+        String newContent="아싸 수정됐다.";
+        CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
+                .content(newContent)
+                .build();
+        commentService.updateComment(parent.getId(),dto);
+
+        Comment updatedParent = commentRepository.findById(parent.getId())
+                .orElseThrow(() -> new RuntimeException("댓글 수정 실패"));
+
+        assertThat(updatedParent.getContent()).isEqualTo(newContent);
+    }
+
+    @Test
+    @DisplayName("댓글 수정 본인 댓글이 아닌경우")
+    void 댓글수정2(){
+        /*
+        * TODO: 사용자 검증으로 본인의 댓글인지 판단하고 예외를 터트리는 테스트를 만들자 (아직 기능 미구현)
+        *
+        * */
     }
 }
