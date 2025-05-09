@@ -29,12 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final List<String> WHITE_LIST = List.of(
-            "/test/**"
+            "/test/**",
+            "/favicon.ico",
+            "/index.html",
+            "/css/**",
+            "/js/**"
     );
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
         String token = resolveToken(request);
         if (token != null && jwtProvider.validateToken(token)) {
             TokenBody tokenBody = jwtProvider.parseToken(token);
@@ -62,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("authorization");
+        String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
