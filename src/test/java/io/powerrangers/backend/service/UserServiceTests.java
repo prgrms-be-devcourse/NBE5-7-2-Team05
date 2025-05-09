@@ -1,8 +1,11 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.RefreshTokenRepository;
+import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,13 @@ class UserServiceTests {
 
     @InjectMocks
     private UserService userService;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private TokenRepository refreshTokenRepositoryAdapter;
+
 
     @Test
     @DisplayName("닉네임 중복 없을 경우 확인 테스트")
@@ -247,6 +257,37 @@ class UserServiceTests {
                 .hasMessage("존재하지 않는 사용자입니다.");
 
         verify(userRepository, never()).deleteById(anyLong());
+
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공 테스트")
+    void logout_success_test() throws Exception{
+        // given
+        String refreshTokenValue = "refreshTokenValue";
+        User user = User.builder()
+                .provider("provider")
+                .nickname("nickname")
+                .providerId("providerId")
+                .email("email")
+                .profileImage("profileImage")
+                .build();
+        user.setIntro("intro");
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .refreshToken(refreshTokenValue)
+                .build();
+
+        given(refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)).willReturn(false);
+        given(refreshTokenRepository.findUserByRefreshToken(refreshTokenValue)).willReturn(Optional.of(user));
+        given(refreshTokenRepositoryAdapter.addBlackList(any(RefreshToken.class))).willReturn(null);
+
+        // when
+        userService.logout(refreshTokenValue);
+
+        // then
+        verify(refreshTokenRepositoryAdapter).addBlackList(any(RefreshToken.class));
 
     }
 }
