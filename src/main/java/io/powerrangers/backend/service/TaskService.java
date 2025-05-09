@@ -1,8 +1,6 @@
 package io.powerrangers.backend.service;
 
-import io.powerrangers.backend.dto.TaskRequestDto;
-import io.powerrangers.backend.dto.TaskResponseDto;
-import io.powerrangers.backend.dto.TaskStatus;
+import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.repository.TaskRepository;
@@ -22,7 +20,7 @@ public class TaskService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createTask(TaskRequestDto dto) {
+    public void createTask(TaskCreateRequestDto dto) {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -48,13 +46,13 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTask(Long id, TaskRequestDto dto) {
+    public void updateTask(Long id, TaskUpdateRequestDto dto) {
         Task task = getTaskIfOwner(id, dto.getUserId());
         task.updateFrom(dto);
     }
 
     @Transactional
-    public void removeTask(Long id, TaskRequestDto dto) {
+    public void removeTask(Long id, TaskCreateRequestDto dto) {
         Task task = getTaskIfOwner(id, dto.getUserId());
         taskRepository.delete(task);
     }

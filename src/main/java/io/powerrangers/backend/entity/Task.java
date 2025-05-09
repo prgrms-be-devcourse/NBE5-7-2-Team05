@@ -1,8 +1,9 @@
 package io.powerrangers.backend.entity;
 
-import io.powerrangers.backend.dto.TaskRequestDto;
+import io.powerrangers.backend.dto.TaskCreateRequestDto;
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
+import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -63,7 +64,7 @@ public class Task extends BaseEntity {
         this.user = user;
     }
 
-    public void updateFrom(TaskRequestDto dto) {
+    public void updateFrom(TaskUpdateRequestDto dto) {
         this.category = dto.getCategory();
         this.content = dto.getContent();
         this.scope = dto.getScope();

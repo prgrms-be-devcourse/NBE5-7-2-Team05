@@ -1,9 +1,6 @@
 package io.powerrangers.backend.service;
 
-import io.powerrangers.backend.dto.TaskRequestDto;
-import io.powerrangers.backend.dto.TaskResponseDto;
-import io.powerrangers.backend.dto.TaskScope;
-import io.powerrangers.backend.dto.TaskStatus;
+import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.repository.TaskRepository;
@@ -62,7 +59,7 @@ class TaskServiceTest {
     @Test
     @DisplayName("할 일 추가")
     void addTask() {
-        TaskRequestDto dto = TaskRequestDto.builder()
+        TaskCreateRequestDto dto = TaskCreateRequestDto.builder()
                 .category("공부")
                 .content("알고리즘 공부")
                 .dueDate(LocalDateTime.now().plusDays(1))
@@ -93,13 +90,10 @@ class TaskServiceTest {
         Long taskId = task.getId();
         Long userId = user.getId();
 
-        TaskRequestDto updateDto = TaskRequestDto.builder()
+        TaskUpdateRequestDto updateDto = TaskUpdateRequestDto.builder()
                 .userId(userId)
                 .category("운동")
                 .content("헬스장 가기")
-                .dueDate(LocalDateTime.now().plusDays(1))
-                .status(TaskStatus.COMPLETE)
-                .taskImage(null)
                 .scope(TaskScope.PRIVATE)
                 .build();
 
@@ -117,7 +111,7 @@ class TaskServiceTest {
         Long taskId = task.getId();
         Long userId = user.getId();
 
-        TaskRequestDto deleteDto = TaskRequestDto.builder()
+        TaskCreateRequestDto deleteDto = TaskCreateRequestDto.builder()
                 .userId(userId)
                 .build();
 
