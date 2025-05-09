@@ -144,6 +144,37 @@ class UserServiceTests {
     }
 
     @Test
+    @DisplayName("UserProfile Update 닉네임을 변경하지 않았을 때 성공 테스트")
+    void updateUserProfile_success_notChangedNickname_test() throws Exception{
+        // given
+        User user = User.builder()
+                .nickname("oldNickname")
+                .profileImage("oldImage")
+                .provider("provider")
+                .providerId("providerId")
+                .email("test@email.com")
+                .build();
+        user.changeIntro("oldIntro");
+
+        UserUpdateProfileRequestDto request = UserUpdateProfileRequestDto.builder()
+                .nickname("oldNickname")
+                .intro("newIntro")
+                .profileImage("newImage")
+                .build();
+
+        given(userRepository.findUserById(1L)).willReturn(Optional.of(user));
+
+        // when
+        userService.updateUserProfile(1L, request);
+
+        // then
+        assertThat(user.getNickname()).isEqualTo("oldNickname");
+        assertThat(user.getIntro()).isEqualTo("newIntro");
+        assertThat(user.getProfileImage()).isEqualTo("newImage");
+
+    }
+
+    @Test
     @DisplayName("UserProfile Update 존재하지 않는 사용자일 경우 예외 발생 테스트")
     void updateUserProfile_fail_userNotFound_test(){
         // given
