@@ -63,10 +63,6 @@ public class JwtProvider {
     }
 
     public boolean validateToken(String token) {
-        if(tokenRepository.isTokenBlackList(token)){
-            return false;
-        }
-
         try {
             JwtParser parser = Jwts.parser()
                     .verifyWith(getSecretKey())
