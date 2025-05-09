@@ -8,7 +8,6 @@ import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.CommentRepository;
-import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.service.CommentService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
