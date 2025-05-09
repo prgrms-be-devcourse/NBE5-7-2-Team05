@@ -127,4 +127,14 @@ class TaskServiceTest {
         assertThat(exists).isFalse();
     }
 
+    @Test
+    @DisplayName("할 일 완료")
+    void completeTask() {
+        Long taskId = task.getId();
+        Long userId = user.getId();
+
+        taskService.completeTask(taskId, userId);
+        assertThat(taskRepository.findById(taskId).get().getStatus()).isEqualTo(TaskStatus.COMPLETE);
+
+    }
 }
