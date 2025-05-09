@@ -1,8 +1,11 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.RefreshTokenRepository;
+import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TokenRepository refreshTokenRepositoryAdapter;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -51,14 +56,6 @@ public class UserService {
         return userGetProfileResponseDto;
     }
 
-    // user 로그아웃
-    @Transactional
-    public void logout(String accessToken){
-        /*
-        tokenBlacklistService.blacklist(accessToken);
-         */
-    }
-
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
         User user = userRepository.findById(userId)
@@ -80,4 +77,21 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+
+    // user 로그아웃
+    @Transactional
+    public void logout(String refreshTokenValue){
+        if(refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
+            throw new IllegalArgumentException("블랙리스트에 등록된 토큰입니다.");
+        };
+
+        User optionalUser = refreshTokenRepository.findUserByRefreshToken(refreshTokenValue)
+                .orElseThrow(() -> new IllegalArgumentException("value에 해당하는 토큰이 없습니다."));
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(optionalUser)
+                .refreshToken(refreshTokenValue)
+                .build();
+        refreshTokenRepositoryAdapter.addBlackList(refreshToken);
+    }
 }

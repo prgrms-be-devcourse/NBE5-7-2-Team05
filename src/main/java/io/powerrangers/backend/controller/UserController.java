@@ -1,5 +1,6 @@
 package io.powerrangers.backend.controller;
 
+import io.powerrangers.backend.dto.LogoutResponseDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
@@ -24,15 +25,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logoutUser(HttpServletRequest request){
-        /*
-        String token = jwtUtil.extractTokenFromHeader(request);
-        userService.logout(token);
-         */
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/{userId}")
     public ResponseEntity<UserGetProfileResponseDto> getUserProfile(@PathVariable Long userId){
 
@@ -47,6 +39,12 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logoutUser(@RequestBody LogoutResponseDto logoutResponseDto){
+        userService.logout(logoutResponseDto.getRefreshToken());
         return ResponseEntity.ok().build();
     }
 }
