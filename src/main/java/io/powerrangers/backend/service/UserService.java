@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-// TODO: 본인 닉네임 중복 제외 로직 추가
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -66,9 +64,7 @@ public class UserService {
         User user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-
-
-        if(checkNicknameDuplication(request.getNickname())){
+        if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
             throw new IllegalArgumentException("닉네임이 중복됩니다.");
         }
 
