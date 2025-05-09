@@ -18,13 +18,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
-        return userRepository.findUserByNickname(nickname).isPresent();
+        return userRepository.findByNickname(nickname).isPresent();
     }
 
     @Transactional(readOnly = true)
     public UserGetProfileResponseDto getUserProfile(Long userId){
         User findUser =
-                userRepository.findUserById(userId)
+                userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
@@ -39,7 +39,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserGetProfileResponseDto searchUserProfile(String nickname){
         User findUser =
-                userRepository.findUserByNickname(nickname)
+                userRepository.findByNickname(nickname)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
@@ -61,7 +61,7 @@ public class UserService {
 
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
-        User user = userRepository.findUserById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
@@ -75,7 +75,7 @@ public class UserService {
 
     @Transactional
     public void cancelAccount(Long userId){
-        User user = userRepository.findUserById(userId)
+        User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         userRepository.deleteById(userId);
     }
