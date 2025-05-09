@@ -1,7 +1,9 @@
 package io.powerrangers.backend.entity;
 
+import io.powerrangers.backend.dto.TaskCreateRequestDto;
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
+import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,10 +15,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -38,7 +38,8 @@ public class Task extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    @Setter
+    private TaskStatus status = TaskStatus.INCOMPLETE;
 
     @Column(name = "task_image")
     private String taskImage;
@@ -62,4 +63,11 @@ public class Task extends BaseEntity {
         this.scope = scope;
         this.user = user;
     }
+
+    public void updateFrom(TaskUpdateRequestDto dto) {
+        this.category = dto.getCategory();
+        this.content = dto.getContent();
+        this.scope = dto.getScope();
+    }
+
 }
