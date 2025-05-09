@@ -1,15 +1,19 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
+import io.powerrangers.backend.dto.comment.CommentResponseDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
-import io.powerrangers.backend.repository.CommentRepository;
+import io.powerrangers.backend.dao.CommentRepository;
 import io.powerrangers.backend.repository.TaskRepository;
 import io.powerrangers.backend.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /***
  TODO:
@@ -43,6 +47,34 @@ public class CommentService {
 
         Comment comment = new Comment(task, user, parent, request.getContent());
         commentRepository.save(comment);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> getComments(Long taskId){
+        List<Comment> allComments = commentRepository.findByTaskId(taskId);
+
+        // 부모 댓글만 필터링
+        List<Comment> parentComments = allComments.stream()
+                .filter(c -> c.getParent() == null)
+                .collect(Collectors.toList());
+
+        return parentComments.stream()
+                .map(parent -> toDto(parent, allComments))
+                .collect(Collectors.toList());
+    }
+
+    private CommentResponseDto toDto(Comment parent, List<Comment> allComments) {
+        List<CommentResponseDto> childrenDtos = allComments.stream()
+                .filter(c -> parent.equals(c.getParent()))
+                .map(child -> toDto(child, allComments))
+                .collect(Collectors.toList());
+
+        return CommentResponseDto.builder()
+                .id(parent.getId())
+                .content(parent.getContent())
+                .nickname(parent.getUser().getNickname())
+                .children(childrenDtos)
+                .build();
     }
 
 }
