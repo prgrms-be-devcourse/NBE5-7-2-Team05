@@ -2,11 +2,13 @@ package io.powerrangers.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Setter;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Builder
+@Getter
+@Builder(toBuilder = true)
 @AllArgsConstructor
+@NoArgsConstructor(force = true)
 public class UserUpdateProfileRequestDto{
 
     private final String nickname;
