@@ -1,7 +1,9 @@
 package io.powerrangers.backend.controller;
 
+import io.powerrangers.backend.dao.CommentRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
+import io.powerrangers.backend.dto.comment.CommentUpdateRequestDto;
 import io.powerrangers.backend.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +34,12 @@ public class CommentController {
     public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long taskId){
         List<CommentResponseDto> comments = commentService.getComments(taskId);
         return ResponseEntity.ok(comments);
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<Void> updateComment(@PathVariable Long commentId,
+                                              @Valid @RequestBody CommentUpdateRequestDto request){
+        commentService.updateComment(commentId, request);
+        return ResponseEntity.noContent().build();
     }
 }
