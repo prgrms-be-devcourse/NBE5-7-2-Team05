@@ -68,9 +68,9 @@ public class UserService {
             throw new IllegalArgumentException("닉네임이 중복됩니다.");
         }
 
-        user.changeNickname(request.getNickname());
-        user.changeIntro(request.getIntro());
-        user.changeProfileImage(request.getProfileImage());
+        user.setNickname(request.getNickname());
+        user.setIntro(request.getIntro());
+        user.setProfileImage(request.getProfileImage());
     }
 
     @Transactional

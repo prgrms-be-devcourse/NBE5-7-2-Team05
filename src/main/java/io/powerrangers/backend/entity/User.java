@@ -8,13 +8,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
@@ -53,14 +51,5 @@ public class User extends BaseEntity {
         this.email = email;
         this.role = Role.USER;
     }
-
-    public void changeNickname(String nickname) {
-        this.nickname = nickname;
-    }
-    public void changeProfileImage(String profileImage) {
-        this.profileImage = profileImage;
-    }
-    public void changeIntro(String intro) {
-        this.intro = intro;
-    }
+    
 }
