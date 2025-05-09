@@ -1,11 +1,13 @@
 package io.powerrangers.backend.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import io.powerrangers.backend.dto.TaskRequestDto;
 import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +42,11 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{taskId}/complete")
+    public ResponseEntity<Void> completeTask(@PathVariable Long taskId, @RequestBody TaskRequestDto dto) {
+        taskService.completeTask(taskId, dto.getUserId());
+        return ResponseEntity.ok().build();
+    }
 }
 
 

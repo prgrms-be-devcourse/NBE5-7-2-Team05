@@ -70,4 +70,7 @@ public class Task extends BaseEntity {
         this.scope = dto.getScope();
     }
 
+    public void changeStatus(TaskStatus status) {
+        this.status = TaskStatus.COMPLETE;
+    }
 }

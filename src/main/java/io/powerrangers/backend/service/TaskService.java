@@ -2,6 +2,7 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dto.TaskRequestDto;
 import io.powerrangers.backend.dto.TaskResponseDto;
+import io.powerrangers.backend.dto.TaskStatus;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.repository.TaskRepository;
@@ -63,6 +64,12 @@ public class TaskService {
         }
         return task;
     }
+
+    public void completeTask(Long taskId, Long userId) {
+        Task task = getTaskIfOwner(taskId, userId);
+        task.changeStatus(TaskStatus.COMPLETE);
+    }
+
 }
 
 
