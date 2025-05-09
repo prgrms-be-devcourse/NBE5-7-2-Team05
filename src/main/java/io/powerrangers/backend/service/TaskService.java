@@ -69,11 +69,15 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeTask(Long taskId, Long userId) {
+    public void changeStatus(Long taskId, Long userId) {
         Task task = getTaskIfOwner(taskId, userId);
-        task.changeStatus(TaskStatus.COMPLETE);
+        TaskStatus status = task.getStatus();
+        if (status == TaskStatus.INCOMPLETE) {
+            task.setStatus(TaskStatus.COMPLETE);
+        } else {
+            task.setStatus(TaskStatus.INCOMPLETE);
+        }
     }
-
 }
 
 

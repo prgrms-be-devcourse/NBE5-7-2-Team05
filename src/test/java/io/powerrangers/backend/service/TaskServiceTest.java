@@ -133,8 +133,11 @@ class TaskServiceTest {
         Long taskId = task.getId();
         Long userId = user.getId();
 
-        taskService.completeTask(taskId, userId);
+        taskService.changeStatus(taskId, userId);
         assertThat(taskRepository.findById(taskId).get().getStatus()).isEqualTo(TaskStatus.COMPLETE);
+
+        taskService.changeStatus(taskId, userId);
+        assertThat(taskRepository.findById(taskId).get().getStatus()).isEqualTo(TaskStatus.INCOMPLETE);
 
     }
 }

@@ -40,9 +40,9 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{taskId}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable Long taskId, @RequestBody TaskRequestDto dto) {
-        taskService.completeTask(taskId, dto.getUserId());
+    @PatchMapping("/{taskId}/status")
+    public ResponseEntity<Void> changeStatus(@PathVariable Long taskId, @RequestBody TaskRequestDto dto) {
+        taskService.changeStatus(taskId, dto.getUserId());
         return ResponseEntity.ok().build();
     }
 }

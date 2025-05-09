@@ -14,10 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -39,6 +37,7 @@ public class Task extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Setter
     private TaskStatus status = TaskStatus.INCOMPLETE;
 
     @Column(name = "task_image")
@@ -70,7 +69,4 @@ public class Task extends BaseEntity {
         this.scope = dto.getScope();
     }
 
-    public void changeStatus(TaskStatus status) {
-        this.status = TaskStatus.COMPLETE;
-    }
 }
