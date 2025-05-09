@@ -45,10 +45,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         );
 
         if (findUser.getProvider().equals(provider)) {
-            userDetails.changeId(findUser.getId());
-            userDetails.changeRole(findUser.getRole());
             log.info("userDetails = {}", userDetails);
-            return userDetails;
+            return userDetails.setId(findUser.getId()).setRole(findUser.getRole());
         } else {
             throw new OAuth2AuthenticationException("User already registered with another provider.");
         }

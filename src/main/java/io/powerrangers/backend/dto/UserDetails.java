@@ -8,19 +8,26 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Accessors(chain = true)
 public class UserDetails implements OAuth2User {
+    @Setter
     private Long id;
+
     private String name;
     private String email;
     private String providerId;
     private String profileImage;
     private Map<String, Object> attributes;
+
+    @Setter
     private Role role;
 
     public static UserDetails from(User user) {
@@ -46,13 +53,5 @@ public class UserDetails implements OAuth2User {
         this.providerId = providerId;
         this.attributes = attributes;
         this.profileImage = profileImage;
-    }
-
-    public void changeId(Long id) {
-        this.id = id;
-    }
-
-    public void changeRole(Role role) {
-        this.role = role;
     }
 }
