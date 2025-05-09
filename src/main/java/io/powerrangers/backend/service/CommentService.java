@@ -1,11 +1,12 @@
 package io.powerrangers.backend.service;
 
-import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.CommentRepository;
+import io.powerrangers.backend.repository.TaskRepository;
+import io.powerrangers.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

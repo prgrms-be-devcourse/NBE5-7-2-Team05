@@ -1,4 +1,4 @@
-package io.powerrangers.backend.dao;
+package io.powerrangers.backend.repository;
 
 import io.powerrangers.backend.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
