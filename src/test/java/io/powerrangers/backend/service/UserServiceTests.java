@@ -3,6 +3,7 @@ package io.powerrangers.backend.service;
 import io.powerrangers.backend.dao.RefreshTokenRepository;
 import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
@@ -13,7 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -272,6 +277,7 @@ class UserServiceTests {
                 .email("email")
                 .profileImage("profileImage")
                 .build();
+        user.setId(1L);
         user.setIntro("intro");
 
         RefreshToken refreshToken = RefreshToken.builder()
@@ -279,15 +285,22 @@ class UserServiceTests {
                 .refreshToken(refreshTokenValue)
                 .build();
 
+        UserDetails userDetails = UserDetails.from(user);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, List.of() );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         given(refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)).willReturn(false);
-        given(refreshTokenRepository.findUserByRefreshToken(refreshTokenValue)).willReturn(Optional.of(user));
+        given(refreshTokenRepositoryAdapter.findValidRefreshToken(user.getId()))
+                .willReturn(Optional.of(refreshToken));
         given(refreshTokenRepositoryAdapter.addBlackList(any(RefreshToken.class))).willReturn(null);
 
         // when
-        userService.logout(refreshTokenValue);
+        userService.logout();
 
         // then
         verify(refreshTokenRepositoryAdapter).addBlackList(any(RefreshToken.class));
 
+        SecurityContextHolder.clearContext();
     }
 }

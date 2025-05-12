@@ -7,10 +7,14 @@ import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,7 +23,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -80,18 +83,16 @@ public class UserService {
 
     // user 로그아웃
     @Transactional
-    public void logout(String refreshTokenValue){
-        if(refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
-            throw new IllegalArgumentException("블랙리스트에 등록된 토큰입니다.");
-        };
+    public void logout(){
+        log.info("logout start");
+        Long userId = ContextUtil.getCurrentUserId();
+        log.info("logout userId = {}", userId);
+        RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
 
-        User optionalUser = refreshTokenRepository.findUserByRefreshToken(refreshTokenValue)
-                .orElseThrow(() -> new IllegalArgumentException("value에 해당하는 토큰이 없습니다."));
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                .user(optionalUser)
-                .refreshToken(refreshTokenValue)
-                .build();
-        refreshTokenRepositoryAdapter.addBlackList(refreshToken);
+        String refreshTokenValue = refreshToken.getRefreshToken();
+        if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
+            refreshTokenRepositoryAdapter.addBlackList(refreshToken);
+        }
     }
 }

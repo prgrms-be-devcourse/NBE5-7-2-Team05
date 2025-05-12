@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = resolveToken(request);
+        log.info("token = {}", token);
         if (token != null && jwtProvider.validateToken(token)) {
             TokenBody tokenBody = jwtProvider.parseToken(token);
             UserDetails userDetails = customOauth2UserService.getUserDetails(tokenBody.getUserId());
@@ -50,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-            log.error("filter 에서 문제 발생!");
+            log.error("filter 에서 문제 발생! token = {}", token);
             throw new RuntimeException("문제가 있는 토큰입니다.");
         }
 
@@ -66,7 +67,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+        log.info("bearerToken = {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+
             return bearerToken.substring(7);
         }
         return null;
