@@ -23,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -79,7 +80,6 @@ public class UserService {
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         userRepository.deleteById(userId);
     }
-
 
     // user 로그아웃
     @Transactional
