@@ -4,6 +4,8 @@ import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class UserService {
     public UserGetProfileResponseDto getUserProfile(Long userId){
         User findUser =
                 userRepository.findUserById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
                 .nickname(findUser.getNickname())
@@ -40,7 +42,7 @@ public class UserService {
     public UserGetProfileResponseDto searchUserProfile(String nickname){
         User findUser =
                 userRepository.findUserByNickname(nickname)
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
                 .nickname(findUser.getNickname())
@@ -62,10 +64,10 @@ public class UserService {
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
         User user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
-            throw new IllegalArgumentException("닉네임이 중복됩니다.");
+            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
         }
 
         user.setNickname(request.getNickname());
@@ -76,7 +78,7 @@ public class UserService {
     @Transactional
     public void cancelAccount(Long userId){
         User user = userRepository.findUserById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         userRepository.deleteById(userId);
     }
 

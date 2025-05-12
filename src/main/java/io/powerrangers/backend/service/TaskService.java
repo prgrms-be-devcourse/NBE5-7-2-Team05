@@ -5,6 +5,8 @@ import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.TaskRepository;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class TaskService {
     @Transactional
     public void createTask(TaskCreateRequestDto dto) {
         User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Task task = Task.builder()
                 .category(dto.getCategory())
@@ -59,9 +61,9 @@ public class TaskService {
 
     private Task getTaskIfOwner(Long id, Long userId) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("할 일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
         if (!task.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("할 일의 소유자가 아닙니다.");
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
         return task;
     }
