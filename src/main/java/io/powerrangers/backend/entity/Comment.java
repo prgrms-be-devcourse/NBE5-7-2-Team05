@@ -48,4 +48,13 @@ public class Comment extends BaseEntity {
         this.parent = parent;
         this.content = content;
     }
+
+    public void updateContent(String content){
+        this.content = content;
+    }
+
+    //추후 토큰 연관해서 변경예정
+    public boolean Authored(Long userId){
+        return this.user.getId().equals(userId);
+    }
 }
