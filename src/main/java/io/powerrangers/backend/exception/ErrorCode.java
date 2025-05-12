@@ -9,7 +9,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // 400 Bad Request
-    INVALID_REQUEST(400, "잘못된 입력값입니다."),
+    INVALID_REQUEST(400, "요청 데이터가 올바르지 않습니다."),
+
+    // 401 Unauthorized
+    UNAUTHORIZED(401, "유효하지 않은 인증입니다."),
 
     // 403 Forbidden
     NOT_THE_OWNER(403,"할 일에 대한 권한이 없습니다."),
