@@ -1,8 +1,12 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.RefreshTokenRepository;
+import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -27,12 +35,19 @@ class UserServiceTests {
     @InjectMocks
     private UserService userService;
 
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private TokenRepository refreshTokenRepositoryAdapter;
+
+
     @Test
     @DisplayName("닉네임 중복 없을 경우 확인 테스트")
     void checkNicknameDuplication_noExist_test() {
         //given
         String nickname = "testNickname";
-        given(userRepository.findUserByNickname(nickname)).willReturn(Optional.empty());
+        given(userRepository.findByNickname(nickname)).willReturn(Optional.empty());
 
         //when
         boolean result = userService.checkNicknameDuplication(nickname);
@@ -47,7 +62,7 @@ class UserServiceTests {
         //given
         String nickname = "testNickName";
         User mockUser = mock(User.class);
-        given(userRepository.findUserByNickname(nickname)).willReturn(Optional.of(mockUser));
+        given(userRepository.findByNickname(nickname)).willReturn(Optional.of(mockUser));
 
         //when
         boolean result = userService.checkNicknameDuplication(nickname);
@@ -63,8 +78,8 @@ class UserServiceTests {
     void getUserProfile_success_test() {
         // given
         User user = new User("testUser1","imagePath","provider","providerId","test@email.com");
-        user.changeIntro("test123");
-        given(userRepository.findUserById(1L)).willReturn(Optional.of(user));
+        user.setIntro("test123");
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
         // when
         UserGetProfileResponseDto userProfile = userService.getUserProfile(1L);
@@ -80,7 +95,7 @@ class UserServiceTests {
     @DisplayName("UserProfile을 가져오지 못할 경우 테스트")
     void getUserProfile_fail_test() {
         // given
-        given(userRepository.findUserById(1L)).willReturn(Optional.empty());
+        given(userRepository.findById(1L)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.getUserProfile(1L))
@@ -93,8 +108,8 @@ class UserServiceTests {
     void searchUserProfile_success_test() {
         // given
         User user = new User("testUser1","imagePath","provider","providerId","test@email.com");
-        user.changeIntro("test123");
-        given(userRepository.findUserByNickname("testUser1")).willReturn(Optional.of(user));
+        user.setIntro("test123");
+        given(userRepository.findByNickname("testUser1")).willReturn(Optional.of(user));
 
         // when
         UserGetProfileResponseDto userSearch = userService.searchUserProfile("testUser1");
@@ -110,7 +125,7 @@ class UserServiceTests {
     @DisplayName("검색하여 UserProfile을 제대로 가져오지 못한 경우 테스트")
     void searchUserProfile_fail_test() {
         // given
-        given(userRepository.findUserByNickname("testUser1")).willReturn(Optional.empty());
+        given(userRepository.findByNickname("testUser1")).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.searchUserProfile("testUser1"))
@@ -123,7 +138,7 @@ class UserServiceTests {
     void updateUserProfile_success_test() {
         // given
         User user = new User("oldNickname", "oldImage", "provider", "providerId", "test@email.com");
-        user.changeIntro("oldIntro");
+        user.setIntro("oldIntro");
 
         UserUpdateProfileRequestDto request = UserUpdateProfileRequestDto.builder()
                 .intro("newIntro")
@@ -131,8 +146,8 @@ class UserServiceTests {
                 .profileImage("newImage")
                 .build();
 
-        given(userRepository.findUserById(1L)).willReturn(Optional.of(user));
-        given(userRepository.findUserByNickname("newNickname")).willReturn(Optional.empty());
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findByNickname("newNickname")).willReturn(Optional.empty());
         // when
         userService.updateUserProfile(1L, request);
 
@@ -154,7 +169,7 @@ class UserServiceTests {
                 .providerId("providerId")
                 .email("test@email.com")
                 .build();
-        user.changeIntro("oldIntro");
+        user.setIntro("oldIntro");
 
         UserUpdateProfileRequestDto request = UserUpdateProfileRequestDto.builder()
                 .nickname("oldNickname")
@@ -162,7 +177,7 @@ class UserServiceTests {
                 .profileImage("newImage")
                 .build();
 
-        given(userRepository.findUserById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
         // when
         userService.updateUserProfile(1L, request);
@@ -186,7 +201,7 @@ class UserServiceTests {
                 .profileImage("newImagePath")
                 .build();
 
-        given(userRepository.findUserById(invalidUserId)).willReturn(Optional.empty());
+        given(userRepository.findById(invalidUserId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.updateUserProfile(invalidUserId,request))
@@ -203,7 +218,7 @@ class UserServiceTests {
         String duplicateNickname = "existingNickname";
 
         User user = new User("testUser1","imagePath","provider","providerId","test@email.com");
-        user.changeIntro("test123");
+        user.setIntro("test123");
 
         UserUpdateProfileRequestDto request = UserUpdateProfileRequestDto.builder()
                 .intro("existIntro")
@@ -211,8 +226,8 @@ class UserServiceTests {
                 .nickname(duplicateNickname)
                 .build();
 
-        given(userRepository.findUserById(userId)).willReturn(Optional.of(user));
-        given(userRepository.findUserByNickname(duplicateNickname)).willReturn(Optional.of(user));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.findByNickname(duplicateNickname)).willReturn(Optional.of(user));
 
         // when & then
         assertThatThrownBy(() -> userService.updateUserProfile(1L, request))
@@ -239,7 +254,7 @@ class UserServiceTests {
     void cancelAccount_fail_NotExistUser_test() throws Exception{
         // given
         Long userId = 999L;
-        given(userRepository.findUserById(userId)).willReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> userService.cancelAccount(userId))
@@ -248,5 +263,44 @@ class UserServiceTests {
 
         verify(userRepository, never()).deleteById(anyLong());
 
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공 테스트")
+    void logout_success_test() throws Exception{
+        // given
+        String refreshTokenValue = "refreshTokenValue";
+        User user = User.builder()
+                .provider("provider")
+                .nickname("nickname")
+                .providerId("providerId")
+                .email("email")
+                .profileImage("profileImage")
+                .build();
+        user.setId(1L);
+        user.setIntro("intro");
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .user(user)
+                .refreshToken(refreshTokenValue)
+                .build();
+
+        UserDetails userDetails = UserDetails.from(user);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, List.of() );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        given(refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)).willReturn(false);
+        given(refreshTokenRepositoryAdapter.findValidRefreshToken(user.getId()))
+                .willReturn(Optional.of(refreshToken));
+        given(refreshTokenRepositoryAdapter.addBlackList(any(RefreshToken.class))).willReturn(null);
+
+        // when
+        userService.logout();
+
+        // then
+        verify(refreshTokenRepositoryAdapter).addBlackList(any(RefreshToken.class));
+
+        SecurityContextHolder.clearContext();
     }
 }

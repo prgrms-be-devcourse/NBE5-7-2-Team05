@@ -1,13 +1,20 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dao.RefreshTokenRepository;
+import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -15,16 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TokenRepository refreshTokenRepositoryAdapter;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
-        return userRepository.findUserByNickname(nickname).isPresent();
+        return userRepository.findByNickname(nickname).isPresent();
     }
 
     @Transactional(readOnly = true)
     public UserGetProfileResponseDto getUserProfile(Long userId){
         User findUser =
-                userRepository.findUserById(userId)
+                userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
@@ -39,7 +48,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserGetProfileResponseDto searchUserProfile(String nickname){
         User findUser =
-                userRepository.findUserByNickname(nickname)
+                userRepository.findByNickname(nickname)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
@@ -51,17 +60,9 @@ public class UserService {
         return userGetProfileResponseDto;
     }
 
-    // user 로그아웃
-    @Transactional
-    public void logout(String accessToken){
-        /*
-        tokenBlacklistService.blacklist(accessToken);
-         */
-    }
-
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
-        User user = userRepository.findUserById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
@@ -75,9 +76,23 @@ public class UserService {
 
     @Transactional
     public void cancelAccount(Long userId){
-        User user = userRepository.findUserById(userId)
+        User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
         userRepository.deleteById(userId);
     }
 
+    // user 로그아웃
+    @Transactional
+    public void logout(){
+        log.info("logout start");
+        Long userId = ContextUtil.getCurrentUserId();
+        log.info("logout userId = {}", userId);
+        RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
+
+        String refreshTokenValue = refreshToken.getRefreshToken();
+        if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
+            refreshTokenRepositoryAdapter.addBlackList(refreshToken);
+        }
+    }
 }
