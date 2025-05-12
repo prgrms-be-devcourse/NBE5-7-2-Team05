@@ -55,13 +55,7 @@ public class TaskController {
 
     @PatchMapping("/{taskId}/image")
     public ResponseEntity<?> uploadImage(@RequestPart("image") MultipartFile file, @PathVariable Long taskId, @RequestPart TaskCreateRequestDto dto) {
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body("파일이 비어 있습니다.");
-        }
-        if (!file.getContentType().startsWith("image/")) {
-            return ResponseEntity.badRequest().body("이미지 파일만 업로드할 수 있습니다.");
-        }
-
+        taskService.validFile(file);
         try {
             String imageUrl = s3Service.upload(file);
             taskService.updateTaskImage(taskId, imageUrl);
