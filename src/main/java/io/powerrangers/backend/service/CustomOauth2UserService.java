@@ -3,6 +3,8 @@ package io.powerrangers.backend.service;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,7 +22,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     public UserDetails getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("존재하지 않는 유저입니다."));
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return UserDetails.from(user);
     }
 
