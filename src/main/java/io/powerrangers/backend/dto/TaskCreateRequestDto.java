@@ -1,6 +1,7 @@
 package io.powerrangers.backend.dto;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +16,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(force = true)
 public class TaskCreateRequestDto {
 
-    @NotNull(message="카테고리를 지정하지 않았습니다")
+    @NotBlank(message="카테고리를 지정하지 않았습니다.")
     private final String category;
 
-    @NotNull(message="내용을 지정하지 않았습니다")
+    @NotBlank(message="내용을 지정하지 않았습니다.")
     private final String content;
 
     @NotNull(message = "기한을 지정하지 않았습니다")
