@@ -1,7 +1,5 @@
 package io.powerrangers.backend.service;
 
-import io.powerrangers.backend.dao.RefreshTokenRepository;
-import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;

@@ -78,6 +78,15 @@ public class TaskService {
             task.setStatus(TaskStatus.INCOMPLETE);
         }
     }
+
+    @Transactional
+    public void updateTaskImage(Long taskId, String imageUrl) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 task가 존재하지 않습니다: " + taskId));
+
+        task.setTaskImage(imageUrl);
+    }
+
 }
 
 
