@@ -1,5 +1,7 @@
 package io.powerrangers.backend.controller;
 
+import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dao.CommentRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
@@ -26,15 +28,15 @@ public class CommentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<String> createComment(@Valid @RequestBody CommentCreateRequestDto request){
+    public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request.getUserId(),request);
-        return ResponseEntity.ok("Comment created");
+        return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
     }
 
     @GetMapping("/{taskId}")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long taskId){
+    public ResponseEntity<BaseResponse<List<CommentResponseDto>>> getComments(@PathVariable Long taskId){
         List<CommentResponseDto> comments = commentService.getComments(taskId);
-        return ResponseEntity.ok(comments);
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, comments);
     }
 
     @PutMapping("/{commentId}")

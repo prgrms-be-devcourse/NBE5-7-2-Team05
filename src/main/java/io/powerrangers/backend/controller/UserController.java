@@ -1,6 +1,7 @@
 package io.powerrangers.backend.controller;
 
-import io.powerrangers.backend.dto.LogoutRequestDto;
+import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
@@ -16,29 +17,28 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserUpdateProfileRequestDto> updateUserProfile(
+    public ResponseEntity<BaseResponse<?>> updateUserProfile(
             @PathVariable Long userId,
             @RequestBody UserUpdateProfileRequestDto request
     ){
         userService.updateUserProfile(userId, request);
-        return ResponseEntity.ok().build();
+        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserGetProfileResponseDto> getUserProfile(@PathVariable Long userId){
-
-        return ResponseEntity.ok(userService.getUserProfile(userId));
+    public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> getUserProfile(@PathVariable Long userId){
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.getUserProfile(userId));
     }
 
     @GetMapping()
-    public ResponseEntity<UserGetProfileResponseDto> searchUserProfile(@RequestParam String nickname){
-        return ResponseEntity.ok(userService.searchUserProfile(nickname));
+    public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> searchUserProfile(@RequestParam String nickname){
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.searchUserProfile(nickname));
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> cancelAccount(@PathVariable Long userId){
+    public ResponseEntity<BaseResponse<?>> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
-        return ResponseEntity.ok().build();
+        return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
     }
 
     @PostMapping("/logout")

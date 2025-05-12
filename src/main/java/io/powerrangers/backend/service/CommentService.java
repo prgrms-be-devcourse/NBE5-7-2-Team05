@@ -10,6 +10,8 @@ import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.CommentRepository;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,15 +40,15 @@ public class CommentService {
     @Transactional
     public void createComment(Long userId, CommentCreateRequestDto request) {
         Task task = taskRepository.findById(request.getTaskId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 Task 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자 없음"));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Comment parent = null;
         if (request.getParentId() != null) {
             parent = commentRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 부모 댓글 없음"));
+                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         }
 
         Comment comment = new Comment(task, user, parent, request.getContent());
@@ -55,6 +57,9 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long taskId){
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
         List<Comment> allComments = commentRepository.findByTaskId(taskId);
 
         // 부모 댓글만 필터링

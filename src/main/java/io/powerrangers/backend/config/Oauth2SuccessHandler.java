@@ -5,6 +5,8 @@ import io.powerrangers.backend.dto.TokenPair;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import io.powerrangers.backend.service.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -38,7 +40,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         Authentication authentication) throws IOException, ServletException {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
         User findUser = userRepository.findById(principal.getId()).orElseThrow(
-                () -> new RuntimeException("존재하지 않는 유저입니다."));
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         HashMap<String, String> paramsMap = new HashMap<>();
         Optional<RefreshToken> validRefreshToken = jwtProvider.findValidRefreshToken(principal.getId());

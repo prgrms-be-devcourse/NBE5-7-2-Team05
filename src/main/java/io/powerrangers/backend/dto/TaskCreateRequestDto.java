@@ -1,6 +1,7 @@
 package io.powerrangers.backend.dto;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,25 +16,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(force = true)
 public class TaskCreateRequestDto {
 
-    @NotNull(message="카테고리를 지정하지 않았습니다")
+    @NotBlank(message="카테고리를 지정하지 않았습니다.")
     private final String category;
 
-    @NotNull(message="내용을 지정하지 않았습니다")
+    @NotBlank(message="내용을 지정하지 않았습니다.")
     private final String content;
 
-    @NotNull(message = "기한을 지정하지 않았습니다")
-    @Future(message = "기한은 미래로 지정해야 합니다")
+    @NotNull(message = "기한을 지정하지 않았습니다.")
+    @Future(message = "기한은 미래로 지정해야 합니다.")
     private final LocalDateTime dueDate;
 
-    @NotNull(message = "상태를 지정하지 않았습니다")
+    @NotNull(message = "상태를 지정하지 않았습니다.")
     private final TaskStatus status;
 
     private final String taskImage;
 
-    @NotNull(message = "공개 범위를 지정하지 않았습니다")
+    @NotNull(message = "공개 범위를 지정하지 않았습니다.")
     private final TaskScope scope;
 
-    @NotNull(message = "사용자 ID를 지정하지 않았습니다")
+    @NotNull(message = "사용자 ID를 지정하지 않았습니다.")
     private final Long userId;  // 시큐리티 적용 전 테스트용 사용자 ID
 
 }
