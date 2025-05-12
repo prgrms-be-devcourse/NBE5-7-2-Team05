@@ -5,6 +5,7 @@ import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.comment.CommentCreateRequestDto;
 import io.powerrangers.backend.dto.comment.CommentResponseDto;
 import io.powerrangers.backend.dto.comment.CommentUpdateRequestDto;
+import io.powerrangers.backend.dto.comment.CommentUpdateResponseDto;
 import io.powerrangers.backend.entity.Comment;
 import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
@@ -67,12 +68,14 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment(Long commentid, CommentUpdateRequestDto request) throws NoSuchElementException {
+    public CommentUpdateResponseDto updateComment(Long commentid, CommentUpdateRequestDto request) throws NoSuchElementException {
         Comment comment = commentRepository.findById(commentid)
                 .orElseThrow(()-> new NoSuchElementException("댓글이 없습니다.."));
 
         //작성자 검증기능 추후에 구현 해야함
         comment.updateContent(request.getContent());
+
+        return CommentUpdateResponseDto.from(comment);
     }
 
 
