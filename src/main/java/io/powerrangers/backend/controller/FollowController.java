@@ -8,6 +8,7 @@ import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.service.FollowService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class FollowController {
 
     // TODO : 이후 Authentication에서 ID 받아오기
     @PostMapping
-    public ResponseEntity<BaseResponse<FollowResponseDto>> follow(@RequestBody FollowRequestDto followRequestDto){
+    public ResponseEntity<BaseResponse<FollowResponseDto>> follow(@Valid @RequestBody FollowRequestDto followRequestDto){
         return BaseResponse.ok(SuccessCode.ADDED_SUCCESS, followService.follow(followRequestDto));
     }
 
