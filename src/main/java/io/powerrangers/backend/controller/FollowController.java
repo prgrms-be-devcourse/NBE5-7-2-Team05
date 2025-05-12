@@ -5,8 +5,6 @@ import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.UserFollowResponseDto;
-import io.powerrangers.backend.entity.Follow;
-import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.service.FollowService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -30,23 +28,23 @@ public class FollowController {
     // TODO : 이후 Authentication에서 ID 받아오기
     @PostMapping
     public ResponseEntity<BaseResponse<FollowResponseDto>> follow(@Valid @RequestBody FollowRequestDto followRequestDto){
-        return BaseResponse.ok(SuccessCode.ADDED_SUCCESS, followService.follow(followRequestDto));
+        return BaseResponse.success(SuccessCode.ADDED_SUCCESS, followService.follow(followRequestDto));
     }
 
     @DeleteMapping("/{followingId}")
     public ResponseEntity<BaseResponse<?>> unfollow(@PathVariable Long followingId){
         followService.unfollow(followingId);
-        return BaseResponse.ok(SuccessCode.DELETED_SUCCESS);
+        return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
     }
 
     @GetMapping("/{userId}/followers")
     public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowers(@PathVariable Long userId){
-        return BaseResponse.ok(SuccessCode.GET_SUCCESS, followService.findFollowers(userId));
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowers(userId));
     }
 
     @GetMapping("/{userId}/followings")
     public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowings(@PathVariable Long userId){
-        return BaseResponse.ok(SuccessCode.GET_SUCCESS, followService.findFollowings(userId));
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(userId));
     }
 
 }

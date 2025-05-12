@@ -2,7 +2,6 @@ package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.SuccessCode;
-import io.powerrangers.backend.dto.LogoutRequestDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
@@ -23,23 +22,23 @@ public class UserController {
             @RequestBody UserUpdateProfileRequestDto request
     ){
         userService.updateUserProfile(userId, request);
-        return BaseResponse.ok(SuccessCode.MODIFIED_SUCCESS);
+        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> getUserProfile(@PathVariable Long userId){
-        return BaseResponse.ok(SuccessCode.GET_SUCCESS, userService.getUserProfile(userId));
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.getUserProfile(userId));
     }
 
     @GetMapping()
     public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> searchUserProfile(@RequestParam String nickname){
-        return BaseResponse.ok(SuccessCode.GET_SUCCESS, userService.searchUserProfile(nickname));
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.searchUserProfile(nickname));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<BaseResponse<?>> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
-        return BaseResponse.ok(SuccessCode.DELETED_SUCCESS);
+        return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
     }
 
     @PostMapping("/logout")

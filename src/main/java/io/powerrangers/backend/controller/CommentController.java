@@ -27,12 +27,12 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request.getUserId(),request);
-        return BaseResponse.ok(SuccessCode.ADDED_SUCCESS);
+        return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<BaseResponse<List<CommentResponseDto>>> getComments(@PathVariable Long taskId){
         List<CommentResponseDto> comments = commentService.getComments(taskId);
-        return BaseResponse.ok(SuccessCode.GET_SUCCESS, comments);
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, comments);
     }
 }
