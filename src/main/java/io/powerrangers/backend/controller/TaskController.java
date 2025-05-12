@@ -22,7 +22,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<?>> createTask(@RequestBody @Valid TaskCreateRequestDto dto) {
+    public ResponseEntity<BaseResponse<?>> createTask(@Valid @RequestBody TaskCreateRequestDto dto) {
         taskService.createTask(dto);
         return BaseResponse.ok(SuccessCode.ADDED_SUCCESS);
     }
@@ -33,19 +33,19 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}")
-    public ResponseEntity<BaseResponse<?>> updateTask(@PathVariable Long taskId, @RequestBody @Valid TaskUpdateRequestDto dto) {
+    public ResponseEntity<BaseResponse<?>> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskUpdateRequestDto dto) {
         taskService.updateTask(taskId, dto);
         return BaseResponse.ok(SuccessCode.MODIFIED_SUCCESS);
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<BaseResponse<?>> removeTask(@PathVariable Long taskId, @RequestBody @Valid TaskCreateRequestDto dto) {
+    public ResponseEntity<BaseResponse<?>> removeTask(@PathVariable Long taskId, @Valid @RequestBody TaskCreateRequestDto dto) {
         taskService.removeTask(taskId, dto);
         return BaseResponse.ok(SuccessCode.DELETED_SUCCESS);
     }
 
     @PatchMapping("/{taskId}/status")
-    public ResponseEntity<BaseResponse<?>> changeStatus(@PathVariable Long taskId, @RequestBody @Valid TaskCreateRequestDto dto) {
+    public ResponseEntity<BaseResponse<?>> changeStatus(@PathVariable Long taskId, @Valid @RequestBody TaskCreateRequestDto dto) {
         taskService.changeStatus(taskId, dto.getUserId());
         return BaseResponse.ok(SuccessCode.MODIFIED_SUCCESS);
     }

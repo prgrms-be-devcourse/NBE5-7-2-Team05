@@ -54,6 +54,9 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long taskId){
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
         List<Comment> allComments = commentRepository.findByTaskId(taskId);
 
         // 부모 댓글만 필터링
