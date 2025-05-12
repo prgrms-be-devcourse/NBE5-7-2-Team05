@@ -1,4 +1,4 @@
-package io.powerrangers.backend.global;
+package io.powerrangers.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

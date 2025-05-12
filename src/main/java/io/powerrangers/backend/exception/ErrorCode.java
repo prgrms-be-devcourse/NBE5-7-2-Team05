@@ -2,6 +2,7 @@ package io.powerrangers.backend.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -28,5 +29,9 @@ public enum ErrorCode {
 
     private final int status;
     private final String message;
+
+    public HttpStatus getStatus() {
+        return HttpStatus.valueOf(status);
+    }
 
 }
