@@ -29,12 +29,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     private final List<String> WHITE_LIST = List.of(
-            "/test/**",
-            "/favicon.ico",
-            "/index.html",
-            "/css/**",
-            "/js/**"
+            "/",                  // 루트 요청 (홈 화면)
+            "/test/**",           // 테스트용 API
+            "/favicon.ico",       // 즐겨찾기 아이콘
+            "/index.html",        // 정적 index
+            "/css/**",            // 정적 CSS
+            "/default-ui.css",
+            "/js/**",             // 정적 JS
+            "/webjars/**",        // 의존성 리소스(js 라이브러리 등)
+            "/error",             // 에러 페이지 (Spring 내부에서 요청)
+            "/login",             // 로그인 페이지
+            "/oauth2/**",         // OAuth2 관련 리디렉션 URL
+            "/.well-known/appspecific/com.chrome.devtools.json" // 크롬에서 날라오는 백엔드용 요청..?
     );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
