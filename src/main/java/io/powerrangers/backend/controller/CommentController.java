@@ -24,7 +24,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
-        commentService.createComment(request.getUserId(),request);
+        commentService.createComment(request);
         return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
     }
 
