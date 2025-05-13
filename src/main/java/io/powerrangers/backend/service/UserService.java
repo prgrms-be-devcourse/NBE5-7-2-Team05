@@ -1,8 +1,11 @@
 package io.powerrangers.backend.service;
 
+import com.nimbusds.jose.proc.SecurityContext;
 import io.powerrangers.backend.dao.RefreshTokenRepository;
 import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.Role;
+import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +27,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtProvider jwtProvider;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -94,5 +98,27 @@ public class UserService {
         if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
             refreshTokenRepositoryAdapter.addBlackList(refreshToken);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public String reissueAccessToken(String refreshTokenValue){
+        refreshTokenValue = refreshTokenValue.substring(7);
+
+        if(!jwtProvider.validateToken(refreshTokenValue)){
+            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+        }
+
+        TokenBody tokenBody = jwtProvider.parseToken(refreshTokenValue);
+        Long userId = tokenBody.getUserId();
+        Role role = Role.valueOf(tokenBody.getRole());
+
+        RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
+
+        if(!refreshTokenValue.equals(refreshToken.getRefreshToken())){
+            throw new IllegalArgumentException("토큰 정보가 일치하지 않습니다.");
+        }
+        String reissueAccessToken = jwtProvider.issueAccessToken(userId, role);
+        return reissueAccessToken;
     }
 }
