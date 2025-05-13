@@ -10,23 +10,23 @@ public class ContextUtil {
     private ContextUtil() {
     }
 
-    public static Long getCurrentUserId() {
+    private static UserDetails getUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("인증된 사용자가 없습니다.");
         }
 
         UserDetails principal = (UserDetails) authentication.getPrincipal();
+        return principal;
+    }
+
+    public static Long getCurrentUserId() {
+        UserDetails principal = getUserDetails();
         return principal.getId();
     }
 
     public static Role getCurrentUserRole(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("인증된 사용자가 없습니다.");
-        }
-
-        UserDetails principal = (UserDetails) authentication.getPrincipal();
+        UserDetails principal = getUserDetails();
         return principal.getRole();
     }
 }
