@@ -11,6 +11,8 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.CommentRepository;
 import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.exception.CustomException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest
 @DisplayName("댓글기능 테스트")
@@ -113,11 +116,11 @@ public class CommentServiceTests {
 
     @Test
     @DisplayName("부모 댓글 있는 상태에서 대댓글2 작성 검증")
-    void 대댓글2(){
+    void 대댓글2() {
         //given
         Comment parent = new Comment(testTask, testUser, null, "부모 댓글입니다.");
         commentRepository.save(parent);
-        Comment child = new Comment(testTask, testUser, parent , "대댓글입니다");
+        Comment child = new Comment(testTask, testUser, parent, "대댓글입니다");
         commentRepository.save(child);
 
         CommentCreateRequestDto dto = new CommentCreateRequestDto(testTask.getId(), testUser.getId(), parent.getId(), "대댓글2입니다");
@@ -143,7 +146,7 @@ public class CommentServiceTests {
 
     @Test
     @DisplayName("조회 검증")
-    void 조회(){
+    void 조회() {
         Comment parent = new Comment(testTask, testUser, null, "부모 댓글입니다.");
         commentRepository.save(parent);
 
@@ -173,11 +176,11 @@ public class CommentServiceTests {
         Comment child1 = new Comment(testTask, testUser, parent, "자식댓글");
         commentRepository.save(child1);
 
-        String newContent="아싸 수정됐다.";
+        String newContent = "아싸 수정됐다.";
         CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
                 .content(newContent)
                 .build();
-        commentService.updateComment(parent.getId(),dto);
+        commentService.updateComment(parent.getId(), dto);
 
         Comment updatedParent = commentRepository.findById(parent.getId())
                 .orElseThrow(() -> new RuntimeException("댓글 수정 실패"));
@@ -187,10 +190,49 @@ public class CommentServiceTests {
 
     @Test
     @DisplayName("댓글 수정 본인 댓글이 아닌경우")
-    void 댓글수정2(){
+    void 댓글수정2() {
         /*
-        * TODO: 사용자 검증으로 본인의 댓글인지 판단하고 예외를 터트리는 테스트를 만들자 (아직 기능 미구현)
-        *
-        * */
+         * TODO: 사용자 검증으로 본인의 댓글인지 판단하고 예외를 터트리는 테스트를 만들자 (아직 기능 미구현)
+         *
+         * */
+    }
+
+    @Test
+    @DisplayName("댓글 삭제")
+    void 댓글삭제() {
+        Comment parent = new Comment(testTask, testUser, null, "삭제할 댓글입니다.");
+        commentRepository.save(parent);
+
+        commentService.deleteComment(parent.getId());
+
+        boolean exists = commentRepository.existsById(parent.getId());
+        assertThat(exists).isFalse();
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 본인이 아닌 경우")
+    void 댓글삭제권한X() {
+        Comment parent = new Comment(testTask, testUser, null, "삭제할 댓글입니다.");
+        commentRepository.save(parent);
+
+        User attacker = User.builder()
+                .nickname("hacker")
+                .email("bad@naver.com")
+                .provider("naver")
+                .providerId("hacker123")
+                .profileImage("http://image.url")
+                .build();
+        userRepository.save(attacker);
+
+        //Todo: 예외부 구현
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 존재하지 않는 댓글 예외")
+    void 삭제시댓글없음() {
+        Long nonexistentId = 999L;
+
+        assertThatThrownBy(() -> commentService.deleteComment(nonexistentId))
+                .isInstanceOf(CustomException.class);
     }
 }
