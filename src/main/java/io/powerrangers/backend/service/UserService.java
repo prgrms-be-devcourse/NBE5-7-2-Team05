@@ -25,11 +25,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
         return userRepository.findByNickname(nickname).isPresent();
+    }
+
+    public boolean identified(Long userId) {
+        if(ContextUtil.getCurrentUserId().equals(userId)) {
+            return true;
+        }
+        return false;
     }
 
     @Transactional(readOnly = true)
@@ -64,6 +70,9 @@ public class UserService {
 
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+        if(!identified(userId)){
+            new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -78,7 +87,10 @@ public class UserService {
 
     @Transactional
     public void cancelAccount(Long userId){
-        User user = userRepository.findById(userId)
+        if(!identified(userId)){
+            new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
+        userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         userRepository.deleteById(userId);
     }

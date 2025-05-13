@@ -22,11 +22,6 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    /***
-     *
-     * @param request <- 현재 userid를 requestbody로 받는중. 추후 리팩토링
-     * @return
-     */
     @PostMapping
     public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request.getUserId(),request);
