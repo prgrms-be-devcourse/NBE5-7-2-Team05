@@ -10,7 +10,7 @@ public class ContextUtil {
     private ContextUtil() {
     }
 
-    private static Long getCurrentUserId() {
+    public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("인증된 사용자가 없습니다.");
