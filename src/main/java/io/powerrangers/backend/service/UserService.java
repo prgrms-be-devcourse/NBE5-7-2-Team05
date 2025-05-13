@@ -113,10 +113,10 @@ public class UserService {
         Role role = Role.valueOf(tokenBody.getRole());
 
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("인증에 실패 했습니다."));
 
         if(!refreshTokenValue.equals(refreshToken.getRefreshToken())){
-            throw new IllegalArgumentException("토큰 정보가 일치하지 않습니다.");
+            throw new IllegalArgumentException("인증에 실패 했습니다.");
         }
         String reissueAccessToken = jwtProvider.issueAccessToken(userId, role);
         return reissueAccessToken;
