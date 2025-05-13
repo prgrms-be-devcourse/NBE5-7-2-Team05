@@ -4,6 +4,8 @@ import io.powerrangers.backend.dto.LogoutRequestDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +46,16 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logoutUser(){
         userService.logout();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<String> reissueToken(
+            @RequestHeader("Authorization") String refreshToken
+            ,HttpServletResponse response
+    ){
+        String newAccessToken = userService.reissueAccessToken(refreshToken);
+        response.setHeader("Authorization", "Bearer " + newAccessToken);
         return ResponseEntity.ok().build();
     }
 }
