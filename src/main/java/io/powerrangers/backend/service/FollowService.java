@@ -24,10 +24,9 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
-    // TODO : follower는 이후 Authentication에서 ID 받아오기
     @Transactional
     public FollowResponseDto follow(FollowRequestDto request){
-        User follower = userRepository.findById(request.getFollowerId())
+        User follower = userRepository.findById(ContextUtil.getCurrentUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User following = userRepository.findById(request.getFollowingId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -54,19 +53,12 @@ public class FollowService {
                 .build();
     }
 
-    // TODO : follower는 이후 Authentication에서 ID 받아오기
     @Transactional
     public void unfollow(Long followingId) {
+        User follower = userRepository.findById(ContextUtil.getCurrentUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User following = userRepository.findById(followingId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        // TODO : 이후 하드 코딩 지우기
-        User follower = userRepository.findById(1L)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-//        User follower = Authentication의 id를 꺼내서.. ContextService에서 메서드 구현..
-//        User follower = userRepository.findById(ContextService.getCurrentId())
-//                          .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Follow follow = followRepository.findByFollowerAndFollowing(follower, following)
                 .orElseThrow(() -> new CustomException(ErrorCode.FOLLOW_NOT_FOUND));
