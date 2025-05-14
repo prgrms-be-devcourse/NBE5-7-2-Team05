@@ -27,6 +27,9 @@ public enum ErrorCode {
     DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
     ALREADY_FOLLOWED(HttpStatus.CONFLICT, "이미 팔로우한 사용자입니다."),
 
+    // 415 Unsupported Media Type
+    UNSUPPORTED_RESOURCE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 파일 형식입니다. 이미지 파일만 업로드해주세요."),
+
     // 500 INTERNAL_SERVER ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서버 에러입니다. 서버 팀에게 문의해주세요.");
 

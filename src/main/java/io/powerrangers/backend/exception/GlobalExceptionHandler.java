@@ -1,6 +1,7 @@
 package io.powerrangers.backend.exception;
 
 import io.powerrangers.backend.dto.BaseResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,13 @@ public class GlobalExceptionHandler {
         return BaseResponse.error(ErrorCode.INVALID_REQUEST.getMessage(), ErrorCode.INVALID_REQUEST.getStatus());
     }
 
-    @ExceptionHandler({Exception.class})
+    @ExceptionHandler({IOException.class})
+    protected ResponseEntity<BaseResponse<?>> handleIOException(Exception e) {
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        return BaseResponse.error(errorCode.getMessage(), errorCode.getStatus());
+    }
+
+    @ExceptionHandler({IOException.class, Exception.class})
     protected ResponseEntity<BaseResponse<?>> handleException(Exception e) {
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         return BaseResponse.error(errorCode.getMessage(), errorCode.getStatus());
