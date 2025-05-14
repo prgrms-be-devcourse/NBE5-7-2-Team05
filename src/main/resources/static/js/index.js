@@ -108,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.removeItem("refreshToken");
 
                 alert("성공적으로 로그아웃 되었습니다.");
-                // 별도로 로그인 화면으로 이동시키지 않으면 이동하지 않음
-                window.location.href = "/login";
+                // 별도로 로그인 화면으로 이동시키지 않으면 이동하지 않음, 뒤로 가기 방지
+                window.location.replace("/login");
             });
         }
     });
