@@ -34,7 +34,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
-        return userRepository.findByNickname(nickname).isPresent();
+        return userRepository.existsByNickname(nickname);
     }
 
     public boolean identified(Long userId) {
@@ -60,18 +60,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserGetProfileResponseDto searchUserProfile(String nickname){
-        User findUser =
-                userRepository.findByNickname(nickname)
-                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
-                .nickname(findUser.getNickname())
-                .intro(findUser.getIntro())
-                .profileImage(findUser.getProfileImage())
-                .build();
-
-        return userGetProfileResponseDto;
+    public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
+        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname);
+        return userList;
     }
 
     @Transactional

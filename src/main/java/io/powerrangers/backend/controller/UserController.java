@@ -7,6 +7,7 @@ import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> searchUserProfile(@RequestParam String nickname){
+    public ResponseEntity<BaseResponse<List<UserGetProfileResponseDto>>> searchUserProfile(@RequestParam String nickname){
         return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.searchUserProfile(nickname));
     }
 
