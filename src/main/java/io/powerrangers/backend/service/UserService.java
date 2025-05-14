@@ -86,9 +86,15 @@ public class UserService {
             throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
         }
 
-        user.setNickname(request.getNickname());
-        user.setIntro(request.getIntro());
-        user.setProfileImage(request.getProfileImage());
+        if(!user.getNickname().equals(request.getNickname())){
+            user.setNickname(request.getNickname());
+        }
+        if(!user.getIntro().equals(request.getIntro())){
+            user.setIntro(request.getIntro());
+        }
+        if(!user.getProfileImage().equals(request.getProfileImage())){
+            user.setProfileImage(request.getProfileImage());
+        }
     }
 
     @Transactional
