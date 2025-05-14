@@ -97,28 +97,16 @@ public class UserService {
         if(!identified(userId)){
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
-
         // 존재하는 계정인가
         userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        // 사용자의 RefreshToken 얻어서 -> BlackList로 (예외 및 로그아웃과 중복되는 코드는 이후 리팩토링 예정.. logout이 최신 버전이 아니라)
-        RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
-
-        String refreshTokenValue = refreshToken.getRefreshToken();
-
-        if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
-            refreshTokenRepositoryAdapter.addBlackList(refreshToken);
-        }
-
+        // 사용자의 리프레시 토큰 블랙리스트에 추가
+        findRefreshTokenAndAddToBlackList(userId);
         // 사용자의 refreshToken -> User에 null 입력
-        List<RefreshToken> refreshTokens = refreshTokenRepositoryAdapter.findAllRefreshTokensByUserId(
-                userId);
+        List<RefreshToken> refreshTokens = refreshTokenRepositoryAdapter.findAllRefreshTokensByUserId(userId);
         for(RefreshToken token : refreshTokens) {
             token.setUser(null);
         }
-
         userRepository.deleteById(userId);
     }
 
@@ -128,10 +116,16 @@ public class UserService {
         log.info("logout start");
         Long userId = ContextUtil.getCurrentUserId();
         log.info("logout userId = {}", userId);
+        findRefreshTokenAndAddToBlackList(userId);
+    }
+
+    @Transactional
+    protected void findRefreshTokenAndAddToBlackList(Long userId) {
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
 
         String refreshTokenValue = refreshToken.getRefreshToken();
+
         if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
             refreshTokenRepositoryAdapter.addBlackList(refreshToken);
         }
