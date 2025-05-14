@@ -38,8 +38,8 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<BaseResponse<?>> removeTask(@PathVariable Long taskId, @Valid @RequestBody TaskCreateRequestDto dto) {
-        taskService.removeTask(taskId, dto);
+    public ResponseEntity<BaseResponse<?>> removeTask(@PathVariable Long taskId) {
+        taskService.removeTask(taskId);
         return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
     }
 
