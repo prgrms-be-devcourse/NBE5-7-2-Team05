@@ -60,7 +60,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
-        List<UserGetProfileResponseDto> userList = userRepository.findByNickname("%" + nickname.trim() + "%");
+        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
         return userList;
     }
 
