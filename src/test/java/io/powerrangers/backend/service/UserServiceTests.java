@@ -1,11 +1,7 @@
 package io.powerrangers.backend.service;
 
-import io.powerrangers.backend.dao.RefreshTokenRepository;
-import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
-import io.powerrangers.backend.dto.UserDetails;
-import io.powerrangers.backend.dto.UserGetProfileResponseDto;
-import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +19,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -40,6 +37,9 @@ class UserServiceTests {
 
     @Mock
     private TokenRepository refreshTokenRepositoryAdapter;
+
+    @Mock
+    private JwtProvider jwtProvider;
 
 
     @Test
@@ -302,5 +302,35 @@ class UserServiceTests {
         verify(refreshTokenRepositoryAdapter).addBlackList(any(RefreshToken.class));
 
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    @DisplayName("access token 재발급 성공 테스트")
+    void reissue_success_test () throws Exception{
+        // given
+        String bearerToken = "Bearer valid.refresh.token";
+        String pureToken = "valid.refresh.token";
+
+        TokenBody tokenBody = TokenBody.builder()
+                .userId(1L)
+                .role("USER")
+                .build();
+
+        RefreshToken mockRefreshToken = RefreshToken.builder()
+                .refreshToken(pureToken)
+                .build();
+
+        given(jwtProvider.validateToken(pureToken)).willReturn(true);
+        given(jwtProvider.parseToken(pureToken)).willReturn(tokenBody);
+        given(refreshTokenRepositoryAdapter.findValidRefreshToken(1L))
+                .willReturn(Optional.of(mockRefreshToken));
+        given(jwtProvider.issueAccessToken(1L, Role.USER)).willReturn("new.access.token");
+
+        // when
+        String accessToken = userService.reissueAccessToken(bearerToken);
+        // then
+        assertEquals("new.access.token", accessToken);
+
+
     }
 }

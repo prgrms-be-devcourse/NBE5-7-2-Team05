@@ -87,7 +87,18 @@ public class CommentService {
         return CommentUpdateResponseDto.from(comment);
     }
 
+    @Transactional
+    public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                        .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
+        /***
+         * Todo: 토큰 기반 작성자 검증, 어드민도 추가
+         * ***/
+        commentRepository.deleteById(commentId);
+    }
+    
+    //조회 메서드에서 트리형태로 반환하기 위한 private 메서드
     private CommentResponseDto toDto(Comment parent, List<Comment> allComments) {
         List<CommentResponseDto> childrenDtos = allComments.stream()
                 .filter(c -> c.getParent() != null && Objects.equals(parent.getId(), c.getParent().getId()))

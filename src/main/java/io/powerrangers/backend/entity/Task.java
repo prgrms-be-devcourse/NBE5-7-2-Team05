@@ -44,6 +44,7 @@ public class Task extends BaseEntity {
     @Setter
     private TaskStatus status = TaskStatus.INCOMPLETE;
 
+    @Setter
     @Column(name = "task_image")
     private String taskImage;
 

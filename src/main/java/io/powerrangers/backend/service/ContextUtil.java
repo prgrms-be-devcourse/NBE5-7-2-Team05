@@ -1,5 +1,6 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.dto.Role;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
