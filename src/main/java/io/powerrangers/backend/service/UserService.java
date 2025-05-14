@@ -82,11 +82,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
-            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
-        }
-
         if(!user.getNickname().equals(request.getNickname())){
+            if(checkNicknameDuplication(request.getNickname())){
+                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            }
             user.setNickname(request.getNickname());
         }
         if(!user.getIntro().equals(request.getIntro())){
