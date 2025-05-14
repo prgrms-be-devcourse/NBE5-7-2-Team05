@@ -39,10 +39,8 @@ public class UserService {
     }
 
     public boolean identified(Long userId) {
-        if(ContextUtil.getCurrentUserId().equals(userId)) {
-            return true;
-        }
-        return false;
+        log.info("identified() 비교 중: {} vs {}", ContextUtil.getCurrentUserId(), userId);
+        return ContextUtil.getCurrentUserId().equals(userId);
     }
 
     @Transactional(readOnly = true)
@@ -62,17 +60,18 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
-        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname);
+        List<UserGetProfileResponseDto> userList = userRepository.findByNickname("%" + nickname.trim() + "%");
         return userList;
     }
 
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         if(!identified(userId)){
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if(!Objects.equals(user.getNickname(), request.getNickname())){
             if(checkNicknameDuplication(request.getNickname())){
