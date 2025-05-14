@@ -115,8 +115,7 @@ public class UserService {
         findRefreshTokenAndAddToBlackList(userId);
     }
 
-    @Transactional
-    protected void findRefreshTokenAndAddToBlackList(Long userId) {
+    private void findRefreshTokenAndAddToBlackList(Long userId) {
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
 
