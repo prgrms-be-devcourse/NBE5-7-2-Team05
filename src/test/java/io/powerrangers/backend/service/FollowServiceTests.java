@@ -57,14 +57,14 @@ class FollowServiceTests {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(ContextUtil.getCurrentUserId()).thenReturn(me.getId());
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(me));
         when(userRepository.findById(2L)).thenReturn(Optional.of(target));
 
         when(followRepository.existsByFollowerAndFollowing(me, target))
                 .thenReturn(false);
 
-        FollowRequestDto requestDto = new FollowRequestDto(target.getId());
+        FollowRequestDto requestDto = new FollowRequestDto(me.getId(), target.getId());
 
         // when
         followService.follow(requestDto);
@@ -102,7 +102,7 @@ class FollowServiceTests {
 
         assertThatThrownBy(
                 () -> {
-                    followService.follow(new FollowRequestDto(target.getId()));
+                    followService.follow(new FollowRequestDto(me.getId(), target.getId()));
                 }
         ).isInstanceOf(RuntimeException.class);
 
