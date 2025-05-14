@@ -10,11 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class CommentCreateRequestDto {
-    @NotNull(message = "유저가 존재하지 않습니다.")
-    private final Long taskId;
-
     @NotNull(message = "할 일이 존재하지 않습니다.")
-    private final Long userId;
+    private final Long taskId;
 
     private final Long parentId;
 

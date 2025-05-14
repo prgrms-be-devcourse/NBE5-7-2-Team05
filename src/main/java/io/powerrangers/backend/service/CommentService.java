@@ -38,11 +38,11 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createComment(Long userId, CommentCreateRequestDto request) {
+    public void createComment(CommentCreateRequestDto request) {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(ContextUtil.getCurrentUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Comment parent = null;
@@ -73,12 +73,16 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto request) throws NoSuchElementException {
+    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto request){
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new NoSuchElementException("댓글이 없습니다.."));
+                .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        Long userId = ContextUtil.getCurrentUserId();
 
-        //작성자 검증기능 추후에 구현 해야함
-        comment.updateContent(request.getContent());
+        if(comment.getUser().getId() != userId){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
+
+        comment.setContent(request.getContent());
 
         return CommentUpdateResponseDto.from(comment);
     }

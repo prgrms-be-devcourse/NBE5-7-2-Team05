@@ -24,7 +24,9 @@ public class TaskService {
 
     @Transactional
     public void createTask(TaskCreateRequestDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+        Long userId = ContextUtil.getCurrentUserId();
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Task task = Task.builder()
@@ -50,19 +52,20 @@ public class TaskService {
 
     @Transactional
     public void updateTask(Long id, TaskUpdateRequestDto dto) {
-        Task task = getTaskIfOwner(id, dto.getUserId());
+        Task task = getTaskIfOwner(id);
         task.updateFrom(dto);
     }
 
     @Transactional
-    public void removeTask(Long id, TaskCreateRequestDto dto) {
-        Task task = getTaskIfOwner(id, dto.getUserId());
+    public void removeTask(Long id) {
+        Task task = getTaskIfOwner(id);
         taskRepository.delete(task);
     }
 
-    private Task getTaskIfOwner(Long id, Long userId) {
+    private Task getTaskIfOwner(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+        Long userId = ContextUtil.getCurrentUserId();
         if (!task.getUser().getId().equals(userId)) {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
@@ -70,8 +73,8 @@ public class TaskService {
     }
 
     @Transactional
-    public void changeStatus(Long taskId, Long userId) {
-        Task task = getTaskIfOwner(taskId, userId);
+    public void changeStatus(Long taskId) {
+        Task task = getTaskIfOwner(taskId);
         TaskStatus status = task.getStatus();
         if (status == TaskStatus.INCOMPLETE) {
             task.setStatus(TaskStatus.COMPLETE);

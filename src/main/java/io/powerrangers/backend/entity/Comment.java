@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -39,6 +40,7 @@ public class Comment extends BaseEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children;
 
+    @Setter
     @Column(nullable = false)
     private String content;
 
@@ -49,12 +51,4 @@ public class Comment extends BaseEntity {
         this.content = content;
     }
 
-    public void updateContent(String content){
-        this.content = content;
-    }
-
-    //추후 토큰 연관해서 변경예정
-    public boolean Authored(Long userId){
-        return this.user.getId().equals(userId);
-    }
 }

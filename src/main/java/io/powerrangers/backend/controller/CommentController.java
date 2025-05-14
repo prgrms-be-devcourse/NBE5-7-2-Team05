@@ -22,14 +22,9 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    /***
-     *
-     * @param request <- 현재 userid를 requestbody로 받는중. 추후 리팩토링
-     * @return
-     */
     @PostMapping
     public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
-        commentService.createComment(request.getUserId(),request);
+        commentService.createComment(request);
         return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
     }
 
@@ -40,10 +35,10 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommentUpdateResponseDto> updateComment(@PathVariable Long commentId,
+    public ResponseEntity<BaseResponse<CommentUpdateResponseDto>> updateComment(@PathVariable Long commentId,
                                               @Valid @RequestBody CommentUpdateRequestDto request){
         CommentUpdateResponseDto response = commentService.updateComment(commentId, request);
-        return ResponseEntity.ok(response);
+        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS, response);
     }
 
     @DeleteMapping("/{commentId}")

@@ -4,6 +4,7 @@ import io.powerrangers.backend.dto.TaskCreateRequestDto;
 import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.TaskStatus;
 import io.powerrangers.backend.dto.TaskUpdateRequestDto;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,8 +15,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 
+import java.util.List;
 import lombok.*;
 
 @Entity
@@ -52,6 +55,9 @@ public class Task extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "task", cascade= CascadeType.REMOVE)
+    private List<Comment> comments;
 
     @Builder
     public Task(String category, String content, LocalDateTime dueDate, TaskStatus status, String taskImage,

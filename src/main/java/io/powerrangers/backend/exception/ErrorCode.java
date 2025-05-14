@@ -15,7 +15,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "유효하지 않은 인증입니다."),
 
     // 403 Forbidden
-    NOT_THE_OWNER(HttpStatus.UNAUTHORIZED,"할 일에 대한 권한이 없습니다."),
+    NOT_THE_OWNER(HttpStatus.FORBIDDEN,"해당 작업에 대한 권한이 없습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
