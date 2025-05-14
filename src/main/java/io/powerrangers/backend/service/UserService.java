@@ -14,6 +14,7 @@ import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -73,16 +74,16 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if(!user.getNickname().equals(request.getNickname())){
+        if(!Objects.equals(user.getNickname(), request.getNickname())){
             if(checkNicknameDuplication(request.getNickname())){
                 throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
             }
             user.setNickname(request.getNickname());
         }
-        if(!user.getIntro().equals(request.getIntro())){
+        if(!Objects.equals(user.getIntro(), request.getIntro())){
             user.setIntro(request.getIntro());
         }
-        if(!user.getProfileImage().equals(request.getProfileImage())){
+        if(!Objects.equals(user.getProfileImage(), request.getProfileImage())){
             user.setProfileImage(request.getProfileImage());
         }
     }
