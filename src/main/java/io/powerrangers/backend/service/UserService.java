@@ -72,7 +72,7 @@ public class UserService {
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
         if(!identified(userId)){
-            new CustomException(ErrorCode.NOT_THE_OWNER);
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -90,7 +90,7 @@ public class UserService {
     public void cancelAccount(Long userId){
         // 계정 주인인지 확인
         if(!identified(userId)){
-            new CustomException(ErrorCode.NOT_THE_OWNER);
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
         // 존재하는 계정인가
