@@ -121,6 +121,12 @@ document.getElementById("profileBtn").addEventListener("click", () => {
 
 // 로그인하면 로컬 스토리지에 accessToken, refreshToken을 저장할 수 있게 해준다.
 window.onload = async () => {
+    // 이미 accessToken이 저장되어 있으면 아무것도 하지 않음 (새로고침 방지)
+    if (localStorage.getItem('accessToken')) {
+        return;
+    }
+
+    // 새로운 로그인 이라면 토큰 값을 저장해줘야 한다.
     const urlParams = new URLSearchParams(window.location.search);
     const accessToken = urlParams.get('accessToken');
     const refreshToken = urlParams.get('refreshToken');
