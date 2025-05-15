@@ -128,8 +128,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public String reissueAccessToken(String refreshTokenValue){
-        refreshTokenValue = refreshTokenValue.substring(7);
-
         if(!jwtProvider.validateToken(refreshTokenValue)){
             throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
         }
