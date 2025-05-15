@@ -64,6 +64,11 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        getRedirectStrategy().sendRedirect(request, response, BASE_URL);
+        String url = UriComponentsBuilder.fromUriString(BASE_URL)
+                .queryParam("userId", findUser.getId())
+                .build()
+                .toString();
+
+        getRedirectStrategy().sendRedirect(request, response, url);
     }
 }
