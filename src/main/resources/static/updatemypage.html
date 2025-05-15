@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>마이페이지 수정</title>
+  <link rel="stylesheet" href="/static/css/updatemypage.css">
+</head>
+<body>
+
+<header>
+  <h1><span th:text="${nickname}">파워레인저</span>'s My Page</h1>
+  <a th:href="@{/}">
+    <img src="/images/home-icon.png" alt="홈으로" class="home-icon">
+  </a>
+</header>
+
+<div class="edit-layout">
+  <!-- 프로필 이미지 왼쪽 영역 -->
+  <section class="profile-image-section">
+    <img id="preview-img" class="profile-img" src="/images/sample.jpg" alt="프로필 이미지">
+
+    <input type="file" id="image-input" accept="image/*" style="display: none;">
+    <div class="img-buttons">
+      <label for="image-input" class="image-upload-button">변경하기</label>
+      <button type="button" class="image-delete-button">삭제하기</button>
+    </div>
+
+  </section>
+
+  <!-- 프로필 수정 정보 영역 -->
+  <section class="profile-info-section">
+    <h2>Profile</h2>
+
+    <div class="form-row row-two-inputs">
+      <div class="input-group">
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" name="nickname" value="파워레인저">
+        <p class="hint">닉네임은 중복될 수 없으며, 20자 이내로 설정해주세요.</p>
+      </div>
+      <div class="input-group">
+        <label for="email">이메일</label>
+        <input type="email" id="email" name="email" value="abc@gmail.com" readonly>
+        <p class="hint">이메일은 변경할 수 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="intro">자기소개</label>
+      <textarea id="intro" name="intro" rows="4">기존 자기소개 내용</textarea>
+      <p class="hint">자신을 잘 표현할 수 있는 내용을 작성해주세요.</p>
+    </div>
+
+    <div class="form-buttons">
+      <button id="save-btn">수정하기</button>
+      <button type="button" onclick="history.back()">취소하기</button>
+    </div>
+  </section>
+</div>
+
+<script th:inline="javascript">
+  const userId = /*[[${userId}]]*/ 1;
+</script>
+<script src="/js/updateMypage.js"></script>
+
+</body>
+</html>
