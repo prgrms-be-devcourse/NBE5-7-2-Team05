@@ -14,10 +14,10 @@ public class CookieFactory {
 
     public static ResponseCookie createAccessCookie(String value) {
         return ResponseCookie.from(ACCESS_TOKEN, value)
-                .httpOnly(true)
-                .path("/")
-                .sameSite("Lax")
-                .maxAge(ACCESS_TOKEN_EXPIRATION)
+                .httpOnly(true) // 프론트에서 js로 쿠키 접근 x
+                .path("/") // 모든 경로에서 쿠키 사용 가능
+                .sameSite("Lax") // 같은 도메인에서 get/post 는 쿠키 전송이 가능함
+                .maxAge(ACCESS_TOKEN_EXPIRATION) // 쿠키 유효시간
                 .build();
     }
 
