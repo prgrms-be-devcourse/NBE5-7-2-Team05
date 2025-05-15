@@ -40,6 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/error",             // 에러 페이지 (Spring 내부에서 요청)
             "/login",             // 로그인 페이지
             "/oauth2/**",         // OAuth2 관련 리디렉션 URL
+            "/search.html",            // 검색 페이지
+            "/follow-list.html",       // 팔로우 목록 페이지
             "/.well-known/appspecific/com.chrome.devtools.json" // 크롬에서 날라오는 백엔드용 요청..?
     );
 

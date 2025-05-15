@@ -39,7 +39,9 @@ public class SecurityConfig {
                                         "/index.html",
                                         "/favicon.ico",
                                         "/css/**",
-                                        "/js/**")
+                                        "/js/**",
+                                        "/search.html",
+                                        "/follow-list.html")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()
