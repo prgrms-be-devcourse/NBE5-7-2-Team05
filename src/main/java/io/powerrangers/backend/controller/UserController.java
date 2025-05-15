@@ -4,11 +4,13 @@ import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,16 +49,23 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logoutUser(){
         userService.logout();
-        return ResponseEntity.ok().build();
+        ResponseCookie deleteAccessCookie = CookieFactory.deleteAccessCookie();
+        ResponseCookie deleteRefreshCookie = CookieFactory.deleteRefreshCookie();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefreshCookie.toString())
+                .build();
     }
 
     @PostMapping("/reissue")
     public ResponseEntity<String> reissueToken(
-            @RequestHeader("Authorization") String refreshToken
-            ,HttpServletResponse response
+            @CookieValue(value = CookieFactory.REFRESH_TOKEN, required = false) String refreshToken
     ){
         String newAccessToken = userService.reissueAccessToken(refreshToken);
-        response.setHeader("Authorization", "Bearer " + newAccessToken);
-        return ResponseEntity.ok().build();
+        ResponseCookie accessCookie = CookieFactory.createAccessCookie(newAccessToken);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .build();
     }
 }

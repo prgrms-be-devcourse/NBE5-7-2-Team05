@@ -128,8 +128,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public String reissueAccessToken(String refreshTokenValue){
-        refreshTokenValue = refreshTokenValue.substring(7);
-
         if(!jwtProvider.validateToken(refreshTokenValue)){
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
