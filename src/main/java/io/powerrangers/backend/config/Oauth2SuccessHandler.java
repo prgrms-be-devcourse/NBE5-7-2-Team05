@@ -35,8 +35,6 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     // 추후 userService로 바꾸면 좋을 듯
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private static final String ACCESS_TOKEN = "accessToken";
-    private static final String REFRESH_TOKEN = "refreshToken";
     private static final String BASE_URL = "http://localhost:8080/index.html";
 
     @Override
