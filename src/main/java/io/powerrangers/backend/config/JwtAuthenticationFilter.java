@@ -3,10 +3,12 @@ package io.powerrangers.backend.config;
 import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.CustomOauth2UserService;
 import io.powerrangers.backend.service.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -40,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/error",             // 에러 페이지 (Spring 내부에서 요청)
             "/login",             // 로그인 페이지
             "/oauth2/**",         // OAuth2 관련 리디렉션 URL
+            "/users/reissue",     // access token 재발급 요청
             "/.well-known/appspecific/com.chrome.devtools.json" // 크롬에서 날라오는 백엔드용 요청..?
     );
 
@@ -73,10 +76,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-
-            return bearerToken.substring(7);
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(CookieFactory.ACCESS_TOKEN)) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }

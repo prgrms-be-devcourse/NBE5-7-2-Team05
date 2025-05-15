@@ -39,7 +39,8 @@ public class SecurityConfig {
                                         "/index.html",
                                         "/favicon.ico",
                                         "/css/**",
-                                        "/js/**")
+                                        "/js/**",
+                                        "/users/reissue")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()
