@@ -47,9 +47,4 @@ public class FollowController {
         return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(userId));
     }
 
-    @GetMapping("/me/followings")
-    public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getCurrentUserFollowings(){
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(ContextUtil.getCurrentUserId()));
-    }
-
 }

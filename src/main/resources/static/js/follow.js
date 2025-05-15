@@ -78,7 +78,13 @@ async function loadFollowList(type) {
 // 현재 로그인한 사용자의 팔로잉 목록 가져오기
 async function getCurrentUserFollowings() {
     try {
-        const response = await fetch('/follow/me/followings', {
+        const currentUserId = localStorage.getItem('userId');
+        if (!currentUserId) {
+            console.error('로컬 스토리지에 userId가 없습니다.');
+            return [];
+        }
+
+        const response = await fetch(`/follow/${currentUserId}/followings`, {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
