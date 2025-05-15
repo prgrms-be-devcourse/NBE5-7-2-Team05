@@ -84,8 +84,8 @@
 }
 
 .follow-button.not-following {
-    background-color: #1da1f2;
-    color: white;
+    background-color: #f4d6d6;
+    color: #000000;
 }
 
 .follow-button:hover {

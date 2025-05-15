@@ -21,40 +21,7 @@
     </div>
 
     <script src="js/auth.js"></script>
-    <script>
-        AUTH.initTokenFromUrl();
-    </script>
     <script src="js/search.js"></script>
     <script src="js/follow.js"></script>
-    <script>
-        function getQueryParams() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                query: params.get("query"),
-                accessToken: params.get("accessToken"),
-                refreshToken: params.get("refreshToken")
-            };
-        }
-
-        function initSearchPage() {
-            const { query, accessToken, refreshToken } = getQueryParams();
-
-            if (accessToken && refreshToken) {
-                localStorage.setItem("accessToken", accessToken);
-                localStorage.setItem("refreshToken", refreshToken);
-                console.log("✅ 토큰 저장 완료");
-            } else {
-                console.warn("❗ 토큰 없음. 로그인 필요");
-            }
-
-            if (query) {
-                console.log("🔍 검색어:", query);
-                // 나중에 API 호출해서 검색결과 그려주면 됨
-                document.getElementById("searchInput").value = query;
-            }
-        }
-
-        initSearchPage();
-    </script>
 </body>
 </html> 

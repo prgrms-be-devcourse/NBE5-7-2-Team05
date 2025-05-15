@@ -1,36 +1,71 @@
 // 검색 기능 관리
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
+
+    // URL에서 검색어 파라미터 처리
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+
+    // 검색어가 있으면 검색 수행
+    if (searchQuery) {
+        searchInput.value = searchQuery;
+        try {
+            const response = await fetch(`/users?nickname=${encodeURIComponent(searchQuery)}`, {
+                credentials: 'include',
+                headers: AUTH.getAuthHeader()
+            });
+
+            console.log('검색 응답:', response);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('검색 실패 응답:', errorText);
+                throw new Error('검색 요청 실패');
+            }
+
+            const result = await response.json();
+            console.log('검색 결과:', result);
+
+            if (result.status !== 200 || !result.data) {
+                throw new Error('검색 결과 없음');
+            }
+
+            displaySearchResults(result.data);
+        } catch (error) {
+            console.error('초기 검색 실패:', error);
+            searchResults.innerHTML = '<p class="error-message">검색 중 오류가 발생했습니다.</p>';
+        }
+    }
 
     // 검색 폼 제출 처리
     searchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const searchTerm = searchInput.value.trim();
-        
         if (!searchTerm) return;
-
+        
         try {
-            // 토큰 유효성 검사 및 갱신
-            await AUTH.ensureValidToken();
-
             const response = await fetch(`/users?nickname=${encodeURIComponent(searchTerm)}`, {
-                headers: {
-                    ...AUTH.getAuthHeader()
-                }
+                credentials: 'include',
+                headers: AUTH.getAuthHeader()
             });
 
-            if (!response.ok) throw new Error('검색 실패');
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('검색 실패 응답:', errorText);
+                throw new Error('검색 요청 실패');
+            }
 
             const result = await response.json();
+            console.log('검색 결과:', result);
+
             if (result.status !== 200 || !result.data) {
-                throw new Error('검색 실패');
+                throw new Error('검색 결과 없음');
             }
 
             displaySearchResults(result.data);
         } catch (error) {
-            console.error('검색 중 오류 발생:', error);
+            console.error('검색 실패:', error);
             searchResults.innerHTML = '<p class="error-message">검색 중 오류가 발생했습니다.</p>';
         }
     });
@@ -38,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 검색 결과 표시
     function displaySearchResults(users) {
         if (!Array.isArray(users)) {
-            users = [users]; // 단일 사용자 결과를 배열로 변환
+            users = [users];
         }
         
         searchResults.innerHTML = users.map(user => `

@@ -6,6 +6,7 @@ import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.service.FollowService;
+import io.powerrangers.backend.service.ContextUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,11 @@ public class FollowController {
     @GetMapping("/{userId}/followings")
     public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowings(@PathVariable Long userId){
         return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(userId));
+    }
+
+    @GetMapping("/me/followings")
+    public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getCurrentUserFollowings(){
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(ContextUtil.getCurrentUserId()));
     }
 
 }
