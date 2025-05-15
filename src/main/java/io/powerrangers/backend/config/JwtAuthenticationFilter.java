@@ -3,6 +3,9 @@ package io.powerrangers.backend.config;
 import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.AuthTokenException;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import io.powerrangers.backend.service.CustomOauth2UserService;
 import io.powerrangers.backend.service.JwtProvider;
 import jakarta.servlet.FilterChain;
@@ -11,11 +14,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import javax.security.sasl.AuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -46,23 +52,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String token = resolveToken(request);
-        if (token != null && jwtProvider.validateToken(token)) {
-            TokenBody tokenBody = jwtProvider.parseToken(token);
-            UserDetails userDetails = customOauth2UserService.getUserDetails(tokenBody.getUserId());
+        try {
+            String token = resolveToken(request);
+            if (token != null && jwtProvider.validateToken(token)) {
+                TokenBody tokenBody = jwtProvider.parseToken(token);
+                UserDetails userDetails = customOauth2UserService.getUserDetails(tokenBody.getUserId());
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else {
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                filterChain.doFilter(request, response);
+            } else {
+                throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
+            }
+        } catch (AuthTokenException e) {
             log.error("filter 에서 문제 발생!");
-            throw new RuntimeException("문제가 있는 토큰입니다.");
+            log.error("인증 처리 중 에러 발생");
+            handleAuthTokenException(response, e);
         }
+    }
 
-        filterChain.doFilter(request, response);
+    private void handleAuthTokenException(HttpServletResponse response, AuthTokenException e) throws IOException {
+        String message = e.getErrorCode().getMessage();
+        if(!Objects.equals(e.getProvider(), null)){
+            message += " : " + e.getProvider();
+        }
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+                String.format("{\"errorCode\": \"%s\", \"message\": \"%s\"}",
+                        e.getErrorCode().getStatus(), message)
+        );
+
     }
 
     @Override

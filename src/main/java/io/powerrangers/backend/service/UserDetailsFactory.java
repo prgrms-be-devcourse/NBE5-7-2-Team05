@@ -1,6 +1,9 @@
 package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dto.UserDetails;
+import io.powerrangers.backend.exception.AuthTokenException;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -39,7 +42,7 @@ public class UserDetailsFactory {
                         .attributes(attributes)
                         .build();
             }
-            default -> throw new IllegalArgumentException("Unsupported provider: " + providerId);
+            default -> throw new AuthTokenException(ErrorCode.UNSUPPORTED_PROVIDER, providerId);
         }
     }
 }
