@@ -41,7 +41,7 @@ public class SecurityConfig {
                                         "/css/**",
                                         "/js/**",
                                         "/search.html",
-                                        "/follow-list.html")
+                                        "/follow-list.html",
                                         "/js/**",
                                         "/users/reissue")
                                     .permitAll()
