@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const accessToken = localStorage.getItem("accessToken");
+    // ✅ accessToken 가져오기 (쿠키에서)
+    const accessToken = getCookie("accessToken");
 
     if (!accessToken) {
         alert("로그인이 필요합니다.");
@@ -7,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // ✅ accessToken에서 userId(sub) 추출
+    // ✅ JWT에서 userId(sub) 추출
     let userId = null;
     try {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
@@ -29,22 +30,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
-            },
-            credentials: "include"
+            }
         });
 
-        const json = await res.json();
-        const result = json?.result;
-
-        if (!res.ok || !result) throw new Error("유저 정보 불러오기 실패");
+        const { result } = await res.json();
+        if (!res.ok || !result) throw new Error("유저 정보 없음");
 
         document.getElementById("nickname").value = result.nickname || "";
-        document.getElementById("email").value = result.email || "";  // ✅ 여기 id="" → "email"로 수정
         document.getElementById("intro").value = result.intro || "";
         previewImg.src = result.profileImage || "/images/default-profile.png";
-
     } catch (err) {
-        console.error("유저 정보를 불러오지 못했습니다.", err);
+        console.error("유저 정보 불러오기 실패:", err);
         alert("유저 정보를 불러오지 못했습니다.");
     }
 
@@ -60,23 +56,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // ✅ 이미지 삭제 버튼
+    // ✅ 이미지 삭제
     document.querySelector(".image-delete-button").addEventListener("click", () => {
         previewImg.src = "/images/default-profile.png";
         imageInput.value = "";
     });
 
-    // ✅ 프로필 수정 버튼
+    // ✅ 수정 버튼 클릭
     document.getElementById("save-btn").addEventListener("click", async () => {
         const nickname = document.getElementById("nickname").value;
         const intro = document.getElementById("intro").value;
         const profileImage = previewImg.src;
 
-        const body = {
-            nickname,
-            intro,
-            profileImage
-        };
+        const body = { nickname, intro, profileImage };
 
         try {
             const res = await fetch(`/users/${userId}`, {
@@ -85,17 +77,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                     "Authorization": `Bearer ${accessToken}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(body),
-                credentials: "include"
+                body: JSON.stringify(body)
             });
 
             if (!res.ok) throw new Error("수정 실패");
 
             alert("프로필이 수정되었습니다.");
-            location.href = "/mypage";
+            window.location.href = "/mypage";
         } catch (err) {
-            console.error("수정 중 오류 발생", err);
+            console.error("프로필 수정 오류:", err);
             alert("수정 중 오류가 발생했습니다.");
         }
     });
 });
+
+// ✅ 쿠키에서 accessToken 꺼내는 함수
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
