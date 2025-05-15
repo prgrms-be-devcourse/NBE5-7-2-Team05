@@ -1,0 +1,168 @@
+/* 기본 설정 */
+body {
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+    background-color: #fefefe;
+}
+
+/* 헤더 */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 24px;
+}
+
+.home-icon {
+    width: 30px;
+    cursor: pointer;
+}
+
+/* 전체 레이아웃 */
+.edit-layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* 왼쪽 프로필 이미지 영역 */
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+}
+
+/* 버튼 영역 */
+.img-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.image-upload-button,
+.image-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background-color: #f8d7da;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    min-width: 90px;
+    height: 36px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
+    line-height: 1;
+}
+
+.image-upload-button:hover,
+.image-delete-button:hover {
+    background-color: #f1c4c9;
+}
+
+/* 오른쪽 프로필 정보 영역 */
+.profile-info-section {
+    flex: 1;
+    background-color: #e6e6e6; /* 회색 배경 */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05); /* 살짝 그림자 */
+}
+
+.profile-info-section h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* 폼 구조 */
+.form-row {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* 설명 텍스트 */
+.hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+    height: 18px;  /* 고정된 높이 */
+    line-height: 1.4;
+    overflow: hidden;  /* 텍스트가 길어져도 줄바꿈 되지 않음 */
+}
+
+/* 하단 수정/취소 버튼 */
+.form-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.form-buttons button {
+    padding: 10px 15px;
+    background-color: #f8d7da;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form-buttons button:hover {
+    background-color: #f1c4c9;
+}
+
+/* 두 개의 입력 필드 나란히 정렬 */
+.row-two-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.input-group {
+    width: 48%;  /* 두 input 크기 맞추기 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 스타일 변경을 위한 추가 클래스 */
+.input-group input {
+    height: 36px;  /* input의 높이 맞추기 */
+}
