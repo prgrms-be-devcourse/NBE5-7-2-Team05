@@ -3,6 +3,9 @@ package io.powerrangers.backend.config;
 import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.AuthTokenException;
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
 import io.powerrangers.backend.service.CustomOauth2UserService;
 import io.powerrangers.backend.service.JwtProvider;
 import jakarta.servlet.FilterChain;
@@ -57,12 +60,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails.getAuthorities()
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
         } else {
             log.error("filter 에서 문제 발생!");
-            throw new RuntimeException("문제가 있는 토큰입니다.");
+            handleAuthTokenException(response, new AuthTokenException(ErrorCode.INVALID_TOKEN));
         }
+    }
 
-        filterChain.doFilter(request, response);
+    private void handleAuthTokenException(HttpServletResponse response, AuthTokenException e) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+                String.format("{\"errorCode\": \"%s\", \"message\": \"%s\"}",
+                        e.getErrorCode().getStatus(), e.getErrorCode().getMessage())
+        );
+
     }
 
     @Override

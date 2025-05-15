@@ -3,6 +3,7 @@ package io.powerrangers.backend.exception;
 import io.powerrangers.backend.dto.BaseResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({CustomException.class})
+    @ExceptionHandler({CustomException.class, AuthTokenException.class})
     protected ResponseEntity<BaseResponse<?>> handleCustomException(CustomException e) {
-        return BaseResponse.error(e.getErrorCode().getMessage(), e.getErrorCode().getStatus());
+        String message = e.getMessage();
+        if(!Objects.equals(e.getProvider(), null)){
+            message += " : " + e.getProvider();
+        }
+        return BaseResponse.error(message, e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
@@ -38,12 +43,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
     protected ResponseEntity<BaseResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return BaseResponse.error(ErrorCode.INVALID_REQUEST.getMessage(), ErrorCode.INVALID_REQUEST.getStatus());
-    }
-
-    @ExceptionHandler({IOException.class})
-    protected ResponseEntity<BaseResponse<?>> handleIOException(Exception e) {
-        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-        return BaseResponse.error(errorCode.getMessage(), errorCode.getStatus());
     }
 
     @ExceptionHandler({IOException.class, Exception.class})
