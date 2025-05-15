@@ -25,7 +25,6 @@ public class FollowController {
 
     private final FollowService followService;
 
-    // TODO : 이후 Authentication에서 ID 받아오기
     @PostMapping
     public ResponseEntity<BaseResponse<FollowResponseDto>> follow(@Valid @RequestBody FollowRequestDto followRequestDto){
         return BaseResponse.success(SuccessCode.ADDED_SUCCESS, followService.follow(followRequestDto));

@@ -3,6 +3,7 @@ package io.powerrangers.backend.dao;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.RefreshTokenBlackList;
 import io.powerrangers.backend.entity.User;
+import java.util.List;
 import java.util.Optional;
 
 public interface TokenRepository {
@@ -10,4 +11,5 @@ public interface TokenRepository {
     boolean tokenBlackList(String refreshToken);
     RefreshTokenBlackList addBlackList(RefreshToken refreshToken);
     Optional<RefreshToken> findValidRefreshToken(Long userId);
+    List<RefreshToken> findAllRefreshTokensByUserId(Long userId);
 }

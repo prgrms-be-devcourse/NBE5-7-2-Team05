@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -38,11 +37,11 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createComment(Long userId, CommentCreateRequestDto request) {
+    public void createComment(CommentCreateRequestDto request) {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(ContextUtil.getCurrentUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Comment parent = null;
@@ -57,8 +56,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long taskId){
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+        taskRepository.findById(taskId).orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
         List<Comment> allComments = commentRepository.findByTaskId(taskId);
 
@@ -73,24 +71,28 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto request) throws NoSuchElementException {
+    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto request){
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new NoSuchElementException("댓글이 없습니다.."));
+                .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        validateOwner(comment);
 
-        //작성자 검증기능 추후에 구현 해야함
-        comment.updateContent(request.getContent());
+        comment.setContent(request.getContent());
 
         return CommentUpdateResponseDto.from(comment);
+    }
+
+    private static void validateOwner(Comment comment) {
+        Long userId = ContextUtil.getCurrentUserId();
+        if(comment.getUser().getId() != userId){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
     }
 
     @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                         .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-        /***
-         * Todo: 토큰 기반 작성자 검증, 어드민도 추가
-         * ***/
+        validateOwner(comment);
         commentRepository.deleteById(commentId);
     }
     
@@ -105,6 +107,7 @@ public class CommentService {
                 .id(parent.getId())
                 .content(parent.getContent())
                 .nickname(parent.getUser().getNickname())
+                .profileImage(parent.getUser().getProfileImage())
                 .children(childrenDtos)
                 .build();
     }

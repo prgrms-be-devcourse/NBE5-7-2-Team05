@@ -13,6 +13,8 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -33,7 +35,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
-        return userRepository.findByNickname(nickname).isPresent();
+        return userRepository.existsByNickname(nickname);
+    }
+
+    public boolean identified(Long userId) {
+        log.info("identified() 비교 중: {} vs {}", ContextUtil.getCurrentUserId(), userId);
+        return ContextUtil.getCurrentUserId().equals(userId);
     }
 
     @Transactional(readOnly = true)
@@ -52,18 +59,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserGetProfileResponseDto searchUserProfile(String nickname){
-        User findUser =
-                userRepository.findByNickname(nickname)
-                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
-                .nickname(findUser.getNickname())
-                .intro(findUser.getIntro())
-                .profileImage(findUser.getProfileImage())
-                .build();
-
-        return userGetProfileResponseDto;
+    public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
+        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
+        return userList;
     }
 
     @Transactional
@@ -71,19 +69,40 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
-            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+        if(!identified(userId)){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        user.setNickname(request.getNickname());
-        user.setIntro(request.getIntro());
-        user.setProfileImage(request.getProfileImage());
+        if(!Objects.equals(user.getNickname(), request.getNickname())){
+            if(checkNicknameDuplication(request.getNickname())){
+                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            }
+            user.setNickname(request.getNickname());
+        }
+        if(!Objects.equals(user.getIntro(), request.getIntro())){
+            user.setIntro(request.getIntro());
+        }
+        if(!Objects.equals(user.getProfileImage(), request.getProfileImage())){
+            user.setProfileImage(request.getProfileImage());
+        }
     }
 
     @Transactional
     public void cancelAccount(Long userId){
-        User user = userRepository.findById(userId)
+        // 계정 주인인지 확인
+        if(!identified(userId)){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
+        // 존재하는 계정인가
+        userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // 사용자의 리프레시 토큰 블랙리스트에 추가
+        findRefreshTokenAndAddToBlackList(userId);
+        // 사용자의 refreshToken -> User에 null 입력
+        List<RefreshToken> refreshTokens = refreshTokenRepositoryAdapter.findAllRefreshTokensByUserId(userId);
+        for(RefreshToken token : refreshTokens) {
+            token.setUser(null);
+        }
         userRepository.deleteById(userId);
     }
 
@@ -93,10 +112,15 @@ public class UserService {
         log.info("logout start");
         Long userId = ContextUtil.getCurrentUserId();
         log.info("logout userId = {}", userId);
+        findRefreshTokenAndAddToBlackList(userId);
+    }
+
+    private void findRefreshTokenAndAddToBlackList(Long userId) {
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user id에 해당하는 토큰이 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
 
         String refreshTokenValue = refreshToken.getRefreshToken();
+
         if(!refreshTokenRepositoryAdapter.tokenBlackList(refreshTokenValue)){
             refreshTokenRepositoryAdapter.addBlackList(refreshToken);
         }

@@ -1,6 +1,7 @@
 package io.powerrangers.backend.entity;
 
 import io.powerrangers.backend.dto.Role;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.*;
 
 @Entity
@@ -40,6 +43,18 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Task> tasks;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.REMOVE)
+    private List<Follow> followers;
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.REMOVE)
+    private List<Follow> followings;
 
     @Builder
     public User(String nickname, String profileImage, String provider, String providerId,

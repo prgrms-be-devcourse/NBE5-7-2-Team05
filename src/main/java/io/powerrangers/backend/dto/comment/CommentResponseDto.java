@@ -13,5 +13,6 @@ public class CommentResponseDto {
     private final Long id;
     private final String content;
     private final String nickname;
+    private final String profileImage;
     private final List<CommentResponseDto> children;
 }

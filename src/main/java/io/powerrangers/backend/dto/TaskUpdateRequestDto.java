@@ -23,7 +23,4 @@ public class TaskUpdateRequestDto {
     @NotNull(message = "공개 범위를 지정하지 않았습니다")
     private final TaskScope scope;
 
-    @NotNull(message = "사용자 ID를 지정하지 않았습니다")
-    private final Long userId;  // 시큐리티 적용 전 테스트용 사용자 ID
-
 }

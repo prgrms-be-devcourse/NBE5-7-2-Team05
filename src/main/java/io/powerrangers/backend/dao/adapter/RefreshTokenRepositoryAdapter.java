@@ -7,6 +7,7 @@ import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.RefreshTokenBlackList;
 import io.powerrangers.backend.entity.User;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -52,5 +53,14 @@ public class RefreshTokenRepositoryAdapter implements TokenRepository {
                 .setParameter("userId",userId)
                 .getResultStream()
                 .findFirst();
+    }
+
+    @Override
+    @Transactional
+    public List<RefreshToken> findAllRefreshTokensByUserId(Long userId) {
+        String jpql = "SELECT rt FROM RefreshToken rt WHERE rt.user.id = :userId";
+        return entityManager.createQuery(jpql, RefreshToken.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 }
