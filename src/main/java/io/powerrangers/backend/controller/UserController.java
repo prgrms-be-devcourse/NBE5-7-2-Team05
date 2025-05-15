@@ -60,7 +60,7 @@ public class UserController {
 
     @PostMapping("/reissue")
     public ResponseEntity<String> reissueToken(
-            @CookieValue(value = CookieFactory.REFRESH_TOKEN, required = false) String refreshToken
+            @CookieValue(value = CookieFactory.REFRESH_TOKEN) String refreshToken
     ){
         String newAccessToken = userService.reissueAccessToken(refreshToken);
         ResponseCookie accessCookie = CookieFactory.createAccessCookie(newAccessToken);
