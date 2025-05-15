@@ -19,11 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({CustomException.class, AuthTokenException.class})
     protected ResponseEntity<BaseResponse<?>> handleCustomException(CustomException e) {
-        String message = e.getMessage();
-        if(!Objects.equals(e.getProvider(), null)){
-            message += " : " + e.getProvider();
-        }
-        return BaseResponse.error(message, e.getErrorCode().getStatus());
+        return BaseResponse.error(e.getErrorCode().getMessage(), e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})

@@ -3,6 +3,7 @@ package io.powerrangers.backend.service;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     public UserDetails getUserDetails(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                () -> new AuthTokenException(ErrorCode.USER_NOT_FOUND));
         return UserDetails.from(user);
     }
 
@@ -50,7 +51,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             log.info("userDetails = {}", userDetails);
             return userDetails.setId(findUser.getId()).setRole(findUser.getRole());
         } else {
-            throw new OAuth2AuthenticationException("User already registered with another provider.");
+            throw new AuthTokenException(ErrorCode.ALREADY_SIGNED_IN);
         }
     }
 }
