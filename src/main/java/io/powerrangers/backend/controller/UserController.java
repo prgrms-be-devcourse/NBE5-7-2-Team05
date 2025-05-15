@@ -62,6 +62,7 @@ public class UserController {
     public ResponseEntity<String> reissueToken(
             @CookieValue(value = CookieFactory.REFRESH_TOKEN) String refreshToken
     ){
+        // TODO: MissingRequestCookieException 처리하기
         String newAccessToken = userService.reissueAccessToken(refreshToken);
         ResponseCookie accessCookie = CookieFactory.createAccessCookie(newAccessToken);
         return ResponseEntity.ok()
