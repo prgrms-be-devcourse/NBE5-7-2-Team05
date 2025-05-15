@@ -7,17 +7,21 @@ import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
+import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -31,8 +35,6 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     // 추후 userService로 바꾸면 좋을 듯
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private static final String ACCESS_TOKEN = "accessToken";
-    private static final String REFRESH_TOKEN = "refreshToken";
     private static final String BASE_URL = "http://localhost:8080/index.html";
 
     @Override
@@ -42,31 +44,26 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         User findUser = userRepository.findById(principal.getId()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        HashMap<String, String> paramsMap = new HashMap<>();
+        String accessToken;
+        String refreshToken;
+
         Optional<RefreshToken> validRefreshToken = jwtProvider.findValidRefreshToken(principal.getId());
         if (validRefreshToken.isEmpty()) {
             TokenPair tokenPair = jwtProvider.generateTokenPair(findUser);
-            paramsMap.put(ACCESS_TOKEN, tokenPair.getAccessToken());
-            paramsMap.put(REFRESH_TOKEN, tokenPair.getRefreshToken());
+            accessToken = tokenPair.getAccessToken();
+            refreshToken = tokenPair.getRefreshToken();
         } else {
-            String accessToken = jwtProvider.issueAccessToken(findUser.getId(), findUser.getRole());
-            paramsMap.put(ACCESS_TOKEN, accessToken);
-            paramsMap.put(REFRESH_TOKEN, validRefreshToken.get().getRefreshToken());
+            accessToken = jwtProvider.issueAccessToken(findUser.getId(), findUser.getRole());
+            refreshToken = validRefreshToken.get().getRefreshToken();
         }
-        String url = generateUrlString(paramsMap);
 
-        // 토큰 값을 출력하기 위한 로그 출력
-        log.info("paramsMap.get(ACCESS_TOKEN) = {}", paramsMap.get(ACCESS_TOKEN));
-        log.info("paramsMap.get(REFRESH_TOKEN) = {}", paramsMap.get(REFRESH_TOKEN));
-        getRedirectStrategy().sendRedirect(request, response, url);
-    }
+        // ✅ 쿠키 생성 및 추가
+        ResponseCookie accessCookie = CookieFactory.createAccessCookie(accessToken);
+        ResponseCookie refreshCookie = CookieFactory.createRefreshCookie(refreshToken);
 
-    private String generateUrlString(Map<String, String> paramsMap) {
-        return UriComponentsBuilder.fromUriString(BASE_URL)
-                .queryParam(ACCESS_TOKEN, paramsMap.get(ACCESS_TOKEN))
-                .queryParam(REFRESH_TOKEN, paramsMap.get(REFRESH_TOKEN))
-                .build()
-                .toUri()
-                .toString();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        getRedirectStrategy().sendRedirect(request, response, BASE_URL);
     }
 }

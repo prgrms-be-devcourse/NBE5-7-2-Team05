@@ -42,6 +42,8 @@ public class SecurityConfig {
                                         "/js/**",
                                         "/search.html",
                                         "/follow-list.html")
+                                        "/js/**",
+                                        "/users/reissue")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()

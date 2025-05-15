@@ -7,6 +7,9 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
+import java.io.IOException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     @Transactional
     public void createTask(TaskCreateRequestDto dto) {
@@ -84,19 +88,23 @@ public class TaskService {
     }
 
     @Transactional
-    public void updateTaskImage(Long taskId, String imageUrl) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 task가 존재하지 않습니다: " + taskId));
+    public String uploadTaskImage(MultipartFile file, Long taskId) throws IOException{
+        validFile(file);
+        String imageUrl = s3Service.upload(file);
 
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
         task.setTaskImage(imageUrl);
+
+        return imageUrl;
     }
 
-    public void validFile(MultipartFile file) {
+    private void validFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("파일이 비어 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
         if (!file.getContentType().startsWith("image/")) {
-            throw new IllegalArgumentException("이미지 파일만 업로드할 수 있습니다.");
+            throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
         }
     }
 }

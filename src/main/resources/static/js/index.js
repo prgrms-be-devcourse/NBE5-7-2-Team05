@@ -92,53 +92,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const calendarContainer = document.getElementById("calendar");
     buildCalendar(calendarContainer);
 
-    // 로그아웃시 로컬 스토리지에 있는 토큰 삭제
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
-            const accessToken = localStorage.getItem("accessToken");
-
             fetch("/users/logout", {
                 method: "POST",
+                credentials: "include", // ✅ 쿠키 전송
                 headers: {
-                    "Authorization": `Bearer ${accessToken}`,
                     "Content-Type": "application/json"
                 }
             }).finally(() => {
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("refreshToken");
-
                 alert("성공적으로 로그아웃 되었습니다.");
-                // 별도로 로그인 화면으로 이동시키지 않으면 이동하지 않음, 뒤로 가기 방지
-                window.location.replace("/login");
+                window.location.replace("/login"); // 뒤로 가기 방지
             });
         }
     });
 });
 
 document.getElementById("profileBtn").addEventListener("click", () => {
-    window.location.href = "/mypage.html";
+    window.location.href = "/mypage";
 });
-
-// 로그인하면 로컬 스토리지에 accessToken, refreshToken을 저장할 수 있게 해준다.
-window.onload = async () => {
-    // 이미 accessToken이 저장되어 있으면 아무것도 하지 않음 (새로고침 방지)
-    if (localStorage.getItem('accessToken')) {
-        return;
-    }
-
-    // 새로운 로그인 이라면 토큰 값을 저장해줘야 한다.
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('accessToken');
-    const refreshToken = urlParams.get('refreshToken');
-
-    if (!accessToken) {
-        document.body.innerHTML = "<p>사용자 인증 정보가 없습니다.</p>";
-        return;
-    }
-
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-
-    // redirect URL 에는 accessToken, refreshToken이 쿼리 파라미터에 있어 이를 제거한다.
-    window.history.replaceState({}, document.title, window.location.pathname);
-};

@@ -2,6 +2,7 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dto.Role;
 import io.powerrangers.backend.dto.UserDetails;
+import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import org.springframework.security.core.Authentication;
@@ -15,7 +16,7 @@ public class ContextUtil {
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+            throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
         }
 
         UserDetails principal = (UserDetails) authentication.getPrincipal();

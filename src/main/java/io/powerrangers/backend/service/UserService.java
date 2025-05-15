@@ -10,6 +10,7 @@ import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,6 @@ public class UserService {
     }
 
     public boolean identified(Long userId) {
-        log.info("identified() 비교 중: {} vs {}", ContextUtil.getCurrentUserId(), userId);
         return ContextUtil.getCurrentUserId().equals(userId);
     }
 
@@ -117,7 +117,7 @@ public class UserService {
 
     private void findRefreshTokenAndAddToBlackList(Long userId) {
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> new AuthTokenException(ErrorCode.UNAUTHORIZED));
 
         String refreshTokenValue = refreshToken.getRefreshToken();
 
@@ -128,10 +128,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public String reissueAccessToken(String refreshTokenValue){
-        refreshTokenValue = refreshTokenValue.substring(7);
-
         if(!jwtProvider.validateToken(refreshTokenValue)){
-            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+            throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
         }
 
         TokenBody tokenBody = jwtProvider.parseToken(refreshTokenValue);
@@ -139,10 +137,10 @@ public class UserService {
         Role role = Role.valueOf(tokenBody.getRole());
 
         RefreshToken refreshToken = refreshTokenRepositoryAdapter.findValidRefreshToken(userId)
-                .orElseThrow(() -> new IllegalArgumentException("인증에 실패 했습니다."));
+                .orElseThrow(() -> new AuthTokenException(ErrorCode.UNAUTHORIZED));
 
         if(!refreshTokenValue.equals(refreshToken.getRefreshToken())){
-            throw new IllegalArgumentException("인증에 실패 했습니다.");
+            throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
         }
         String reissueAccessToken = jwtProvider.issueAccessToken(userId, role);
         return reissueAccessToken;
