@@ -107,6 +107,11 @@ public class TaskService {
             throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
         }
     }
+
+    public List<TaskImageResponseDto> getTaskImages(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return taskRepository.findAllTaskImagesByUserId(userId);
+    }
 }
 
 

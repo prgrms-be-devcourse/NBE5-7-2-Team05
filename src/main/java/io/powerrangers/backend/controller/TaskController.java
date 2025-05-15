@@ -3,6 +3,7 @@ package io.powerrangers.backend.controller;
 import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.TaskCreateRequestDto;
+import io.powerrangers.backend.dto.TaskImageResponseDto;
 import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import io.powerrangers.backend.service.S3Service;
@@ -57,6 +58,11 @@ public class TaskController {
     public ResponseEntity<?> uploadImage(@RequestPart("image") MultipartFile file, @PathVariable Long taskId, @RequestPart TaskCreateRequestDto dto) throws IOException {
         String imageUrl = taskService.uploadTaskImage(file, taskId);
         return ResponseEntity.ok().body(imageUrl);
+    }
+
+    @GetMapping("/{userId}/images")
+    public ResponseEntity<BaseResponse<List<TaskImageResponseDto>>> getTaskImages(@PathVariable Long userId) {
+        return BaseResponse.success(SuccessCode.GET_SUCCESS,taskService.getTaskImages(userId));
     }
 }
 
