@@ -12,12 +12,14 @@ public class CommentUpdateResponseDto {
     private final Long id;
     private final String content;
     private final String nickname;
+    private final String profileImage;
 
     public static CommentUpdateResponseDto from(Comment comment) {
         return CommentUpdateResponseDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .nickname(comment.getUser().getNickname())
+                .profileImage(comment.getUser().getProfileImage())
                 .build();
     }
 }
