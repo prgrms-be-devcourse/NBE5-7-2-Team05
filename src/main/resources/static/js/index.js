@@ -1,3 +1,5 @@
+import { apiFetch } from "./token-reissue.js";
+
 function buildCalendar(container, date = new Date()) {
     container.innerHTML = "";
 
@@ -94,16 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
-            fetch("/users/logout", {
+            apiFetch("/users/logout", {
                 method: "POST",
-                credentials: "include", // ✅ 쿠키 전송
                 headers: {
                     "Content-Type": "application/json"
                 }
-            }).finally(() => {
-                alert("성공적으로 로그아웃 되었습니다.");
-                window.location.replace("/login"); // 뒤로 가기 방지
-            });
+            })  // (로그아웃은 access token 만료여도 재시도 불필요)
+                .finally(() => {
+                    alert("성공적으로 로그아웃 되었습니다.");
+                    window.location.replace("/login");
+                });
         }
     });
 });
