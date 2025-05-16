@@ -14,6 +14,7 @@ public enum ErrorCode {
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
+    MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 없습니다."),
     UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "지원하지 않는 제공자입니다."),
 
     // 403 Forbidden

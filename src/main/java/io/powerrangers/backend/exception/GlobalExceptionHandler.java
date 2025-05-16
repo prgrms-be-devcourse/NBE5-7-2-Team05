@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,6 +40,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
     protected ResponseEntity<BaseResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return BaseResponse.error(ErrorCode.INVALID_REQUEST.getMessage(), ErrorCode.INVALID_REQUEST.getStatus());
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    protected ResponseEntity<BaseResponse<?>> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        return BaseResponse.error(ErrorCode.MISSING_TOKEN.getMessage(), ErrorCode.MISSING_TOKEN.getStatus());
     }
 
     @ExceptionHandler({IOException.class, Exception.class})
