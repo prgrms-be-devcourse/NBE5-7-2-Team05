@@ -17,4 +17,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     @Query("select new io.powerrangers.backend.dto.UserFollowResponseDto(u.id, u.nickname, u.intro, u.profileImage) from Follow f JOIN f.following u where f.follower.id = :userId")
     List<UserFollowResponseDto> findFollowingsByUser(Long userId);
+
+    @Query("select count(f) from Follow f where f.following.id = :userId")
+    Long countFollowersByUser(Long userId);
+    @Query("select count(f) from Follow f where f.follower.id = :userId")
+    Long countFollowingsByUser(Long userId);
 }
