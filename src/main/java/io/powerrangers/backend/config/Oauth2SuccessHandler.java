@@ -5,6 +5,7 @@ import io.powerrangers.backend.dto.TokenPair;
 import io.powerrangers.backend.dto.UserDetails;
 import io.powerrangers.backend.entity.RefreshToken;
 import io.powerrangers.backend.entity.User;
+import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import io.powerrangers.backend.service.CookieFactory;
@@ -42,7 +43,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         Authentication authentication) throws IOException, ServletException {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
         User findUser = userRepository.findById(principal.getId()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                () -> new AuthTokenException(ErrorCode.USER_NOT_FOUND));
 
         String accessToken;
         String refreshToken;

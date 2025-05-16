@@ -4,6 +4,7 @@ import io.powerrangers.backend.dao.FollowRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
+import io.powerrangers.backend.dto.TaskScope;
 import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import io.powerrangers.backend.entity.User;
@@ -82,5 +83,27 @@ public class FollowService {
 
         // 팔로워 id에 userId가 있어야 한다.
         return followRepository.findFollowingsByUser(userId);
+    }
+
+    @Transactional(readOnly=true)
+    public TaskScope checkFollowingRelationship(Long userId){
+        Long myId = ContextUtil.getCurrentUserId();
+        if(myId.equals(userId)){
+            // 내 아이디 -> PUBLIC, PRIVATE, FOLLOWER 다 줘도 됨.
+            return TaskScope.PRIVATE;
+        }
+
+        User me = userRepository.findById(myId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User target = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        boolean following = followRepository.existsByFollowerAndFollowing(me, target);
+        boolean followed = followRepository.existsByFollowerAndFollowing(target, me);
+
+        if(following && followed){
+            // 맞팔 관계 -> PUBLIC, FOLLOWER 까지 줘도 됨.
+            return TaskScope.FOLLOWERS;
+        }
+        // PUBLIC 만 줘야 함.
+        return TaskScope.PUBLIC;
     }
 }

@@ -1,7 +1,5 @@
 package io.powerrangers.backend.service;
 
-import com.nimbusds.jose.proc.SecurityContext;
-import io.powerrangers.backend.dao.RefreshTokenRepository;
 import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.Role;
@@ -13,20 +11,14 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -67,6 +59,15 @@ public class UserService {
         List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
         return userList;
     }
+
+    @Transactional
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(!identified(userId)){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
+        }
 
     @Transactional
     public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
