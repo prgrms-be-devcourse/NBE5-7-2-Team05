@@ -73,18 +73,13 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        if(!Objects.equals(user.getNickname(), request.getNickname())){
-            if(checkNicknameDuplication(request.getNickname())){
-                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
-            }
-            user.setNickname(request.getNickname());
+        if(checkNicknameDuplication(request.getNickname())){
+            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
         }
-        if(!Objects.equals(user.getIntro(), request.getIntro())){
-            user.setIntro(request.getIntro());
-        }
-        if(!Objects.equals(user.getProfileImage(), request.getProfileImage())){
-            user.setProfileImage(request.getProfileImage());
-        }
+
+        user.setNickname(request.getNickname());
+        user.setIntro(request.getIntro());
+        user.setProfileImage(request.getProfileImage());
     }
 
     @Transactional

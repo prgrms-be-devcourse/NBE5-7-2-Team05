@@ -83,7 +83,7 @@ public class CommentService {
 
     private static void validateOwner(Comment comment) {
         Long userId = ContextUtil.getCurrentUserId();
-        if(comment.getUser().getId() != userId){
+        if(!Objects.equals(comment.getUser().getId(),userId)){
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
     }
