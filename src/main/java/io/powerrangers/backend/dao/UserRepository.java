@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    @Query("select new io.powerrangers.backend.dto.UserGetProfileResponseDto(u.nickname, u.intro, u.profileImage) from User u where u.nickname LIKE %:nickname%")
-    List<UserGetProfileResponseDto> findByNickname(String nickname);
+    @Query("select u from User u where u.nickname LIKE %:nickname%")
+    List<User> findByNickname(String nickname);
     boolean existsByNickname(String nickname);
 }

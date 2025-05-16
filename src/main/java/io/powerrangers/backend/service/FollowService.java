@@ -2,6 +2,7 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.dto.TaskScope;
@@ -105,5 +106,18 @@ public class FollowService {
         }
         // PUBLIC 만 줘야 함.
         return TaskScope.PUBLIC;
+    }
+
+    @Transactional
+    public FollowCountResponseDto getFollowCount(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Long followersOfUser = followRepository.countFollowersByUser(userId);
+        Long followingsOfUser = followRepository.countFollowingsByUser(userId);
+
+        return FollowCountResponseDto.builder()
+                .userId(userId)
+                .followerCount(followersOfUser)
+                .followingCount(followingsOfUser)
+                .build();
     }
 }

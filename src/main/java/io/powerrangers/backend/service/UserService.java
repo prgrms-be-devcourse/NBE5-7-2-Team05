@@ -46,11 +46,7 @@ public class UserService {
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
-                .nickname(findUser.getNickname())
-                .intro(findUser.getIntro())
-                .profileImage(findUser.getProfileImage())
-                .build();
+        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.from(findUser);
 
         return userGetProfileResponseDto;
     }
@@ -67,8 +63,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
-        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
-        return userList;
+        List<User> userList = userRepository.findByNickname(nickname.trim());
+
+        return userList.stream()
+                .map(user -> UserGetProfileResponseDto.from(user))
+                .toList();
+
+
     }
 
     @Transactional
