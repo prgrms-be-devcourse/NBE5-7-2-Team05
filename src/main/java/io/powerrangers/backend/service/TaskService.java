@@ -1,5 +1,7 @@
 package io.powerrangers.backend.service;
 
+import static java.util.stream.Collectors.toList;
+
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
@@ -25,6 +27,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
+    private final FollowService followService;
 
     @Transactional
     public void createTask(TaskCreateRequestDto dto) {
@@ -48,10 +51,11 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<TaskResponseDto> getTasksByUser(Long userId) {
-        return taskRepository.findAllByUserId(userId)
-                .stream()
-                .map(TaskResponseDto::from)
-                .collect(Collectors.toList());
+        List<Task> tasks = getTasksByScope(userId);
+
+        return tasks.stream()
+                .map(task -> TaskResponseDto.from(task))
+                .collect(toList());
     }
 
     @Transactional
@@ -106,6 +110,34 @@ public class TaskService {
         if (!file.getContentType().startsWith("image/")) {
             throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
         }
+    }
+
+    public List<TaskImageResponseDto> getTaskImages(Long userId) {
+        List<Task> tasks = getTasksByScope(userId);
+        return tasks.stream()
+                .map(task -> TaskImageResponseDto.from(task))
+                .collect(toList());
+    }
+
+    private List<Task> getTasksByScope(Long userId) {
+        userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        TaskScope scope = followService.checkFollowingRelationship(userId);
+        List<Task> tasks;
+        if(scope.equals(TaskScope.PRIVATE)){
+            tasks = taskRepository.findAllByUserId(userId);
+        } else if (scope.equals(TaskScope.FOLLOWERS)){
+            tasks = taskRepository.findTasksForFollowers(userId);
+        } else {
+            tasks = taskRepository.findTasksForPublic(userId);
+        }
+        return tasks;
+    }
+
+    public TaskResponseDto getTaskByImage(String imageUrl) {
+        TaskResponseDto taskResponseDto = taskRepository.findTaskByImageUrl(imageUrl)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+        
+        return taskResponseDto;
     }
 }
 
