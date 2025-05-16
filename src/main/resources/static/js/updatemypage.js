@@ -1,21 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    // ✅ accessToken 가져오기 (쿠키에서)
-    const accessToken = getCookie("accessToken");
+    const userId = localStorage.getItem("userId");
 
-    if (!accessToken) {
+    console.log(userId);
+
+    if (!userId) {
         alert("로그인이 필요합니다.");
-        window.location.href = "/login";
-        return;
-    }
-
-    // ✅ JWT에서 userId(sub) 추출
-    let userId = null;
-    try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        userId = payload.sub;
-    } catch (err) {
-        console.error("토큰 디코딩 실패", err);
-        alert("유저 정보를 불러올 수 없습니다.");
         window.location.href = "/login";
         return;
     }
@@ -23,28 +12,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const previewImg = document.getElementById("preview-img");
     const imageInput = document.getElementById("image-input");
 
-    // ✅ 유저 정보 불러오기
+    // ✅ 유저 정보 불러오기 (accessToken은 쿠키로 자동 전송됨)
     try {
         const res = await fetch(`/users/${userId}`, {
             method: "GET",
-            headers: {
-                "Authorization": `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
-            }
+            credentials: "include"
         });
 
-        const { result } = await res.json();
-        if (!res.ok || !result) throw new Error("유저 정보 없음");
+        const json = await res.json();
+        const user = json.data;
+        if (!res.ok || !user) throw new Error("유저 정보 없음");
 
-        document.getElementById("nickname").value = result.nickname || "";
-        document.getElementById("intro").value = result.intro || "";
-        previewImg.src = result.profileImage || "/images/default-profile.png";
+        document.getElementById("nickname").value = user.nickname || "";
+        document.getElementById("intro").value = user.intro || "";
+        previewImg.src = user.profileImage || "/images/default-profile.png";
     } catch (err) {
         console.error("유저 정보 불러오기 실패:", err);
         alert("유저 정보를 불러오지 못했습니다.");
     }
 
-    // ✅ 이미지 미리보기 처리
+    // ✅ 이미지 미리보기
     imageInput.addEventListener("change", () => {
         const file = imageInput.files[0];
         if (file) {
@@ -62,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         imageInput.value = "";
     });
 
-    // ✅ 수정 버튼 클릭
+    // ✅ 수정 버튼
     document.getElementById("save-btn").addEventListener("click", async () => {
         const nickname = document.getElementById("nickname").value;
         const intro = document.getElementById("intro").value;
@@ -73,8 +60,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const res = await fetch(`/users/${userId}`, {
                 method: "PATCH",
+                credentials: "include",
                 headers: {
-                    "Authorization": `Bearer ${accessToken}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(body)
@@ -90,9 +77,3 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 });
-
-// ✅ 쿠키에서 accessToken 꺼내는 함수
-function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-}
