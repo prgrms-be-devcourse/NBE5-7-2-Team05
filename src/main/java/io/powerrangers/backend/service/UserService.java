@@ -11,12 +11,14 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
+
+import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -26,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
     private final JwtProvider jwtProvider;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -58,7 +61,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -66,13 +69,33 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        if(checkNicknameDuplication(request.getNickname())){
-            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+    @Transactional
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if(!identified(userId)){
+            throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        user.setNickname(request.getNickname());
-        user.setIntro(request.getIntro());
-        user.setProfileImage(request.getProfileImage());
+            if(checkNicknameDuplication(request.getNickname())){
+                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            }
+
+            user.setNickname(request.getNickname());
+            user.setIntro(request.getIntro());
+            updateUserProfileImage(user, image);
+    }
+
+    private void updateUserProfileImage(User user, MultipartFile image) {
+        if (image != null && !image.isEmpty()) {
+            try {
+                String imageUrl = s3Service.upload(image);
+                user.setProfileImage(imageUrl);
+            } catch (IOException e) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST);
+            }
+        }
     }
 
     @Transactional

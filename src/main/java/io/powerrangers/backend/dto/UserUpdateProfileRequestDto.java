@@ -16,8 +16,4 @@ public class UserUpdateProfileRequestDto{
     private final String nickname;
 
     private final String intro;
-
-    private final String profileImage;
-
 }
-
