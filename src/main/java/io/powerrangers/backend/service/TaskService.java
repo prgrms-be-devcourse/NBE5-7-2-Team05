@@ -10,6 +10,7 @@ import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,16 +49,7 @@ public class TaskService {
 
         taskRepository.save(task);
     }
-
-    @Transactional(readOnly = true)
-    public List<TaskResponseDto> getTasksByUser(Long userId) {
-        List<Task> tasks = getTasksByScope(userId);
-
-        return tasks.stream()
-                .map(task -> TaskResponseDto.from(task))
-                .collect(toList());
-    }
-
+  
     @Transactional
     public void updateTask(Long id, TaskUpdateRequestDto dto) {
         Task task = getTaskIfOwner(id);
@@ -116,10 +108,10 @@ public class TaskService {
         List<Task> tasks = getTasksByScope(userId);
         return tasks.stream()
                 .map(task -> TaskImageResponseDto.from(task))
-                .collect(toList());
+                .toList();
     }
 
-    private List<Task> getTasksByScope(Long userId) {
+    protected List<Task> getTasksByScope(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         TaskScope scope = followService.checkFollowingRelationship(userId);
         List<Task> tasks;
@@ -133,11 +125,23 @@ public class TaskService {
         return tasks;
     }
 
-    public TaskResponseDto getTaskByImage(String imageUrl) {
-        TaskResponseDto taskResponseDto = taskRepository.findTaskByImageUrl(imageUrl)
-                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
-        
-        return taskResponseDto;
+    public TaskResponseDto getTask(Long taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+        TaskScope scope = followService.checkFollowingRelationship(task.getUser().getId());
+
+        // scope가 private = 내 task 라는 얘기 -> task.scope에 상관없이 다 볼 수 있다.
+        // scope가 followers = 맞팔 관계라는 얘기 -> task.scope의 Private 빼고 다 볼 수 있다. (followers, public)
+        // scope가 public = 맞팔 x -> task.scope가 public 인 것을 볼 수 있다. 아니라면 예외
+        // 아니라면 예외 -> 접근 권한이 없는 걸 보려고 함.
+
+        if(scope.equals(TaskScope.PRIVATE)){ // Task가 나(로그인한 사람)의 게시물
+            return TaskResponseDto.from(task);
+        } else if(scope.equals(TaskScope.FOLLOWERS) && !task.getScope().equals(TaskScope.PRIVATE)){
+            return TaskResponseDto.from(task);
+        } else if(scope.equals(TaskScope.PUBLIC) && task.getScope().equals(TaskScope.PUBLIC)){
+            return TaskResponseDto.from(task);
+        }
+        throw new CustomException(ErrorCode.NOT_ALLOWED);
     }
 }
 
