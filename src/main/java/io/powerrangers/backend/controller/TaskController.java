@@ -61,7 +61,7 @@ public class TaskController {
         return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTaskImages(userId));
     }
   
-    @GetMapping("{taskId}")
+    @GetMapping("/{taskId}")
     public ResponseEntity<BaseResponse<TaskResponseDto>> getTask(@PathVariable Long taskId) {
         return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTask(taskId));
     }
