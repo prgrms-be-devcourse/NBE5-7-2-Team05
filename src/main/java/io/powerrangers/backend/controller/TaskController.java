@@ -9,6 +9,7 @@ import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import io.powerrangers.backend.service.S3Service;
 import io.powerrangers.backend.service.TaskService;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,11 +30,6 @@ public class TaskController {
     public ResponseEntity<BaseResponse<?>> createTask(@Valid @RequestBody TaskCreateRequestDto dto) {
         taskService.createTask(dto);
         return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity<BaseResponse<List<TaskResponseDto>>> getMyTasks(@PathVariable Long userId) {
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTasksByUser(userId));
     }
 
     @PatchMapping("/{taskId}")
@@ -65,10 +61,9 @@ public class TaskController {
         return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTaskImages(userId));
     }
 
-    // TODO : 어떤 방식으로 하는 게 좋을지 다시 의논해보기
-    @GetMapping
-    public ResponseEntity<BaseResponse<TaskResponseDto>> getTaskByImage(@RequestParam String imageUrl) {
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTaskByImage(imageUrl));
+    @GetMapping("{taskId}")
+    public ResponseEntity<BaseResponse<TaskResponseDto>> getTask(@PathVariable Long taskId) {
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTask(taskId));
     }
 }
 

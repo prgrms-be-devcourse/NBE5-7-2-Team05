@@ -5,15 +5,19 @@ import io.powerrangers.backend.dao.RefreshTokenRepository;
 import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.Role;
+import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
+import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
     private final JwtProvider jwtProvider;
+    private final TaskService taskService;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -56,6 +61,16 @@ public class UserService {
                 .build();
 
         return userGetProfileResponseDto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResponseDto> getTasksByUser(Long userId, LocalDate date) {
+        List<Task> tasks = taskService.getTasksByScope(userId);
+
+        return tasks.stream()
+                .filter(task -> task.getDueDate().toLocalDate().equals(date))
+                .map(task -> TaskResponseDto.from(task))
+                .toList();
     }
 
     @Transactional(readOnly = true)
