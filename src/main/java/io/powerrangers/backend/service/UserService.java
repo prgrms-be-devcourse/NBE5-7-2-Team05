@@ -14,6 +14,8 @@ import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -33,6 +36,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
     private final JwtProvider jwtProvider;
+    private final S3Service s3Service;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -65,7 +69,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -73,17 +77,23 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        if(!Objects.equals(user.getNickname(), request.getNickname())){
             if(checkNicknameDuplication(request.getNickname())){
                 throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
             }
+
             user.setNickname(request.getNickname());
-        }
-        if(!Objects.equals(user.getIntro(), request.getIntro())){
             user.setIntro(request.getIntro());
-        }
-        if(!Objects.equals(user.getProfileImage(), request.getProfileImage())){
-            user.setProfileImage(request.getProfileImage());
+            updateUserProfileImage(user, image);
+    }
+
+    private void updateUserProfileImage(User user, MultipartFile image) {
+        if (image != null && !image.isEmpty()) {
+            try {
+                String imageUrl = s3Service.upload(image);
+                user.setProfileImage(imageUrl);
+            } catch (IOException e) {
+                throw new CustomException(ErrorCode.INVALID_REQUEST);
+            }
         }
     }
 
