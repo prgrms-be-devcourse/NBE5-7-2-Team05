@@ -3,25 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사용자 검색</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>검색 결과 - 파워레인저</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
-    <div class="search-container">
-        <form class="search-form" id="searchForm">
-            <input type="text" class="search-input" placeholder="사용자 검색..." id="searchInput">
-            <button type="submit" class="search-button">검색하기</button>
-        </form>
-    </div>
+    <header class="header">
+        <div class="logo">
+            <span class="logo-text"> 파워레인저 <span class="star">★</span></span>
+        </div>
 
-    <div class="search-results">
-        <ul class="user-list" id="searchResults">
-            <!-- 검색 결과가 여기에 동적으로 추가됩니다 -->
-        </ul>
-    </div>
+        <div class="search-wrapper">
+            <label>
+                <input type="text" class="search" placeholder="계정 또는 키워드 검색" />
+            </label>
+            <button class="search-btn">Submit</button>
+        </div>
 
-    <script src="js/auth.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/follow.js"></script>
+        <div class="header-actions">
+            <button class="icon-btn" id="profileBtn" title="마이 페이지">
+                <svg width="54" height="51" viewBox="0 0 54 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M38.25 44.625V40.375C38.25 38.1207 37.3018 35.9587 35.614 34.3646C33.9261 32.7705 31.6369 31.875 29.25 31.875H11.25C8.86305 31.875 6.57387 32.7705 4.88604 34.3646C3.19821 35.9587 2.25 38.1207 2.25 40.375V44.625M51.75 44.625V40.375C51.7485 38.4917 51.0848 36.6621 49.8631 35.1737C48.6413 33.6852 46.9308 32.6221 45 32.1513M36 6.65125C37.9359 7.11939 39.6518 8.18274 40.8772 9.67366C42.1025 11.1646 42.7676 12.9983 42.7676 14.8856C42.7676 16.773 42.1025 18.6067 40.8772 20.0976C39.6518 21.5885 37.9359 22.6519 36 23.12M29.25 14.875C29.25 19.5694 25.2206 23.375 20.25 23.375C15.2794 23.375 11.25 19.5694 11.25 14.875C11.25 10.1806 15.2794 6.375 20.25 6.375C25.2206 6.375 29.25 10.1806 29.25 14.875Z" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+
+            <button class="icon-btn" id="logoutBtn" title="로그 아웃">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10C6 8.93913 6.42143 7.92172 7.17157 7.17157C7.92172 6.42143 8.93913 6 10 6H18M32 34L42 24M42 24L32 14M42 24H18" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="search-results-container">
+            <h2 class="search-title">검색 결과</h2>
+            <ul id="searchResults" class="user-list"></ul>
+        </div>
+    </main>
+
+    <script src="/js/search.js"></script>
+    <script src="/js/follow.js"></script>
 </body>
 </html> 

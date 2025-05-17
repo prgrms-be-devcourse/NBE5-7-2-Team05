@@ -6,10 +6,10 @@ let followingListElem;
 async function loadFollowList(type) {
     // URL에서 사용자 ID 가져오기
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
+    const userId = urlParams.get('userId') || localStorage.getItem('userId');
     
     if (!userId) {
-        console.error('사용자 ID가 없습니다.');
+        console.error('사용자 ID를 찾을 수 없습니다.');
         return;
     }
 
@@ -39,6 +39,11 @@ async function loadFollowList(type) {
         const users = result.data;
         const targetElement = type === 'followers' ? followersListElem : followingListElem;
 
+        if (!targetElement) {
+            console.error(`${type} 목록 엘리먼트를 찾을 수 없습니다.`);
+            return;
+        }
+
         if (users.length === 0) {
             targetElement.innerHTML = '<p class="empty-message">목록이 비어있습니다.</p>';
             return;
@@ -49,19 +54,26 @@ async function loadFollowList(type) {
         
         targetElement.innerHTML = users.map(user => {
             const isFollowing = currentUserFollowings.some(following => following.id === user.id);
+            const isSelf = user.id.toString() === localStorage.getItem('userId');
             return `
                 <li class="user-list-item">
                     <div class="user-container">
                         <div class="user-info">
-                            <img src="${user.profileImage || 'https://via.placeholder.com/40'}" 
+                            <img src="${user.profileImage || '/images/default-profile.png'}" 
                                  alt="사용자 프로필" 
-                                 class="user-profile-image">
-                            <span class="user-name">${user.nickname}</span>
+                                 class="user-profile-image"
+                                 onerror="this.src='/images/default-profile.png'">
+                            <div class="user-details">
+                                <span class="user-name">${user.nickname}</span>
+                                ${user.intro ? `<p class="user-intro">${user.intro}</p>` : ''}
+                            </div>
                         </div>
-                        <button class="follow-button ${isFollowing ? 'following' : 'not-following'}"
-                                data-user-id="${user.id}">
-                            ${isFollowing ? '팔로잉' : '팔로우'}
-                        </button>
+                        ${!isSelf ? `
+                            <button class="follow-button ${isFollowing ? 'following' : 'not-following'}"
+                                    data-user-id="${user.id}">
+                                ${isFollowing ? '팔로잉' : '팔로우'}
+                            </button>
+                        ` : ''}
                     </div>
                 </li>
             `;
@@ -71,7 +83,9 @@ async function loadFollowList(type) {
     } catch (error) {
         console.error(`${type} 목록 로드 중 오류 발생:`, error);
         const targetElement = type === 'followers' ? followersListElem : followingListElem;
-        targetElement.innerHTML = '<p class="error-message">목록을 불러오는 중 오류가 발생했습니다.</p>';
+        if (targetElement) {
+            targetElement.innerHTML = '<p class="error-message">목록을 불러오는 중 오류가 발생했습니다.</p>';
+        }
     }
 }
 
@@ -112,15 +126,16 @@ function attachFollowButtonListeners() {
             try {
                 const response = await fetch(`/follow${isFollowing ? `/${userId}` : ''}`, {
                     method: isFollowing ? 'DELETE' : 'POST',
-                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: !isFollowing ? JSON.stringify({ followingId: userId }) : null
+                    credentials: 'include',
+                    body: !isFollowing ? JSON.stringify({ followingId: parseInt(userId) }) : null
                 });
 
                 if (!response.ok) {
-                    throw new Error('팔로우 처리 실패');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '팔로우 처리 실패');
                 }
 
                 button.classList.toggle('following');
@@ -128,6 +143,7 @@ function attachFollowButtonListeners() {
                 button.textContent = isFollowing ? '팔로우' : '팔로잉';
             } catch (error) {
                 console.error('팔로우 처리 중 오류 발생:', error);
+                alert(error.message || '팔로우 처리 중 오류가 발생했습니다.');
             }
         });
     });
@@ -139,23 +155,25 @@ document.addEventListener('DOMContentLoaded', () => {
     followersListElem = document.getElementById('followers-list');
     followingListElem = document.getElementById('following-list');
     
-    // 탭 전환 기능
-    document.querySelectorAll('.follow-nav-button').forEach(button => {
-        button.addEventListener('click', () => {
-            // 활성 탭 스타일 변경
-            document.querySelectorAll('.follow-nav-button').forEach(btn => {
-                btn.classList.remove('active');
+    if (followersListElem || followingListElem) {
+        // 탭 전환 기능
+        document.querySelectorAll('.follow-nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // 활성 탭 스타일 변경
+                document.querySelectorAll('.follow-nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+
+                // 목록 표시 전환
+                const targetTab = button.dataset.tab;
+                if (followersListElem) followersListElem.style.display = targetTab === 'followers' ? 'block' : 'none';
+                if (followingListElem) followingListElem.style.display = targetTab === 'following' ? 'block' : 'none';
             });
-            button.classList.add('active');
-
-            // 목록 표시 전환
-            const targetTab = button.dataset.tab;
-            followersListElem.style.display = targetTab === 'followers' ? 'block' : 'none';
-            followingListElem.style.display = targetTab === 'following' ? 'block' : 'none';
         });
-    });
 
-    // 초기 데이터 로드
-    loadFollowList('followers');
-    loadFollowList('following');
+        // 초기 데이터 로드
+        loadFollowList('followers');
+        loadFollowList('following');
+    }
 }); 
