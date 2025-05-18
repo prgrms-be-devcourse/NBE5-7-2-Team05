@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>파워레인저 – 메인</title>
     <link rel="stylesheet" href="/css/index.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 <body>
 <!-- ===== Header ===== -->
@@ -41,10 +43,35 @@
 <main class="container">
     <!-- ===== Calendar ===== -->
     <div class="calendar-card" id="calendar"></div>
+
+    <!-- ===== Task Management ===== -->
+    <div class="task-panel">
+        <!-- 오른쪽 상단: 할 일 추가 버튼 -->
+        <div class="task-header">
+            <button id="showFormBtn" class="btn btn-accent">할 일 추가</button>
+        </div>
+
+        <form id="taskForm" class="hidden space-y-4 border p-4 rounded-lg bg-gray-100">
+            <input type="text" id="category" placeholder="카테고리" class="input input-bordered w-full" required />
+            <input type="text" id="content" placeholder="할 일 내용" class="input input-bordered w-full" required />
+            <input type="datetime-local" id="dueDate" class="input input-bordered w-full" required />
+            <select id="scope" class="select select-bordered w-full" required>
+                <option value="" disabled selected>공개 범위 선택</option>
+                <option value="PRIVATE">PRIVATE</option>
+                <option value="PUBLIC">PUBLIC</option>
+                <option value="FOLLOWERS">FOLLOWERS</option>
+            </select>
+            <button type="submit" class="btn btn-primary w-full">등록</button>
+        </form>
+
+        <div id="task-list" class="mt-8 space-y-4"></div>
+    </div>
 </main>
 
 <!-- ===== JavaScript ===== -->
+<script type='module' src="/js/index.js"></script>
+<script type='module' src="/js/main.js"></script>
+<script type='module' src="/js/token-reissue.js"></script>
 <script src="/js/search.js"></script>
-<script type="module" src="/js/index.js"></script>
 </body>
 </html>
