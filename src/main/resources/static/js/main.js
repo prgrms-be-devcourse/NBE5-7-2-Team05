@@ -50,12 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
             alert(err.message)
         }
     })
-    // 댓글 기능 추가
-    initCommentFeature()
 })
 
 // JSON 요청에 사용
-export function authFetch(url, options = {}) {
     const token = getCookie("accessToken")
     return fetch(url, {
         ...options,
@@ -145,15 +142,6 @@ function renderTasksByCategory(tasks) {
     });
 
     container.appendChild(categoryWrapper);
-
-    setTimeout(() => {
-        const taskItems = document.querySelectorAll(".task-item");
-        for (const taskItem of taskItems) {
-            const taskId = taskItem.id.replace("task-", "");
-            refreshCommentCount(taskId);
-        }
-    }, 100);
-
 }
 
 function dueDateToDate(dueDateStr) {
@@ -276,7 +264,6 @@ function createTaskItem(task) {
         content.appendChild(imageContainer)
     }
     taskItem.appendChild(footer)
-
     return taskItem
 }
 
