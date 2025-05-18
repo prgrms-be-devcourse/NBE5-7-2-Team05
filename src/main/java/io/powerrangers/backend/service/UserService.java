@@ -131,7 +131,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public String reissueAccessToken(String refreshTokenValue){
         if(!jwtProvider.validateToken(refreshTokenValue)){
-            throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
+            throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
         }
 
         TokenBody tokenBody = jwtProvider.parseToken(refreshTokenValue);

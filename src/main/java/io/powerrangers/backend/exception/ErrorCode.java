@@ -10,12 +10,9 @@ public enum ErrorCode {
 
     // 400 Bad Request
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청 데이터가 올바르지 않습니다."),
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."),
 
     // 401 Unauthorized
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
-    MISSING_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 없습니다."),
-    UNSUPPORTED_PROVIDER(HttpStatus.UNAUTHORIZED, "지원하지 않는 제공자입니다."),
 
     // 403 Forbidden
     NOT_THE_OWNER(HttpStatus.FORBIDDEN,"해당 작업에 대한 권한이 없습니다."),

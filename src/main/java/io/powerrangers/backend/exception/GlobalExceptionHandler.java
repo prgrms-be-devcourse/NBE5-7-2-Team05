@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -44,7 +47,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingRequestCookieException.class)
     protected ResponseEntity<BaseResponse<?>> handleMissingRequestCookieException(MissingRequestCookieException e) {
-        return BaseResponse.error(ErrorCode.MISSING_TOKEN.getMessage(), ErrorCode.MISSING_TOKEN.getStatus());
+        log.warn("[인증 실패] 토큰 쿠키가 존재하지 않음. 원인: {}", e.getMessage());
+        return BaseResponse.error(ErrorCode.UNAUTHORIZED.getMessage(), ErrorCode.UNAUTHORIZED.getStatus());
     }
 
     @ExceptionHandler({IOException.class, Exception.class})

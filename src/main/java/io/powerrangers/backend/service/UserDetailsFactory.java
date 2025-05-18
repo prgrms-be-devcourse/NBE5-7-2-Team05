@@ -5,9 +5,12 @@ import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+@Slf4j
 @SuppressWarnings("unchecked")
 public class UserDetailsFactory {
     public static UserDetails userDetails(OAuth2User oAuth2User, String providerId) {
@@ -42,7 +45,10 @@ public class UserDetailsFactory {
                         .attributes(attributes)
                         .build();
             }
-            default -> throw new AuthTokenException(ErrorCode.UNSUPPORTED_PROVIDER, providerId);
+            default -> {
+                log.warn("[인증 실패] 지원하지 않는 providerId: {}",providerId);
+                throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
+            }
         }
     }
 }
