@@ -61,7 +61,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image){
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -78,29 +78,26 @@ public class UserService {
             updateUserProfileImage(user, image);
     }
 
-    private void updateUserProfileImage(User user, MultipartFile image) {
+    private void updateUserProfileImage(User user, MultipartFile image) throws IOException {
         String existingImageUrl = user.getProfileImage();
 
-        if(image == null || image.isEmpty()){
+        if (image == null || image.isEmpty()) {
             s3Service.delete(existingImageUrl);
             user.setProfileImage(null);
             return;
         }
 
-        if(!image.getContentType().startsWith("image/")){
+        if (!image.getContentType().startsWith("image/")) {
             throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
         }
 
-        try {
-            if(existingImageUrl != null && !existingImageUrl.isEmpty()){
-                s3Service.delete(existingImageUrl);
-            }
-
-            String uploadedImageUrl = s3Service.upload(image);
-            user.setProfileImage(uploadedImageUrl);
-        } catch (IOException e) {
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        // 예외 전파: try-catch 제거
+        if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
+            s3Service.delete(existingImageUrl);
         }
+
+        String uploadedImageUrl = s3Service.upload(image);
+        user.setProfileImage(uploadedImageUrl);
     }
 
     @Transactional

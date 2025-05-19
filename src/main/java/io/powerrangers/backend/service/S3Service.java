@@ -48,20 +48,18 @@ public class S3Service {
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
     }
 
-    public void delete(String imagePath) {
+    public void delete(String imagePath) throws IOException{
         if (imagePath == null || imagePath.isBlank()) return;
 
-        try{
-            String key = extractKeyFromUrl(imagePath);
+        String key = extractKeyFromUrl(imagePath);
 
-            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(key)
-                    .build();
-        } catch (Exception e) {
-            log.error("delete error", e);
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-        }
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(deleteRequest);
+
     }
 
     private String extractKeyFromUrl(String imagePath) {

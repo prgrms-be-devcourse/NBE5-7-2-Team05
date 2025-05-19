@@ -6,6 +6,8 @@ import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
+
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,7 @@ public class UserController {
             @PathVariable Long userId,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @RequestPart(value = "dto") UserUpdateProfileRequestDto request
-            ){
+            ) throws IOException {
         log.info("nickname = " + request.getNickname());
         log.info("intro = " + request.getIntro());
         userService.updateUserProfile(userId, request, image);
