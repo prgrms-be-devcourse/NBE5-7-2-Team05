@@ -8,7 +8,8 @@
 <body>
 
 <header>
-    <h1><span th:text="${nickname}">파워레인저</span>'s My Page</h1>
+    <!-- ✅ id="nickname" 추가 -->
+    <h1><span id="nickname" th:text="${nickname}">파워레인저</span>'s My Page</h1>
     <a th:href="@{/static}">
         <img src="/images/home-icon.png" alt="홈으로" class="home-icon">
     </a>
@@ -20,11 +21,9 @@
         <div class="profile-img-wrapper">
             <img id="profile-img" class="profile-img" src="" alt="프로필 이미지">
 
-            <!-- ✅ 자기소개 감싸는 wrapper 추가 -->
+            <!-- ✅ 자기소개 감싸는 wrapper -->
             <div class="intro-wrapper">
                 <div class="intro-box" id="intro-box">
-                    <!-- JS 또는 Thymeleaf로 내용 삽입 -->
-                    자기소개: 내일의 내가 해결할 거야 안 됨. 갓생 희망하는 파워레인저입니다.
                 </div>
             </div>
 
@@ -38,30 +37,32 @@
 
     <!-- ✅ Todo 영역 -->
     <section class="todo">
-        <h2>Today's Todo</h2> <!-- 바깥 제목 -->
+        <h2>Today's Todo</h2>
         <div class="todo-box">
             <ul id="todo-list">
-                <li>스프링 공부하기</li>
-                <li>점심 회의</li>
+                <!-- JS로 동적으로 렌더링 -->
             </ul>
         </div>
     </section>
 
     <!-- ✅ Memories 영역 -->
     <section class="memories">
-        <h2>This Month's Memories</h2> <!-- 바깥 제목 -->
+        <h2>This Month's Memories</h2>
         <div class="memories-box">
             <div class="memory-gallery" id="memory-gallery">
-                <img src="/images/mem1.jpg" alt="mem1">
-                <img src="/images/mem2.jpg" alt="mem2">
-                <img src="/images/mem3.jpg" alt="mem3">
             </div>
         </div>
     </section>
 </div>
 
+<!-- ✅ JS는 body 하단에서 로드 -->
+<script src="/js/mypage.js"></script>
+
 <!-- 🔘 오른쪽 하단 버튼 -->
 <footer>
-    <button onclick="alert('프로필 수정 예정')">프로필 수정</button>
+    <button onclick="window.location.href='/mypage/update'">프로필 수정</button>
     <button onclick="history.back()">뒤로 가기</button>
 </footer>
+
+</body>
+</html>
