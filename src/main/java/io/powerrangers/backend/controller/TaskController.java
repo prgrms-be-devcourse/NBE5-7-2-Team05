@@ -1,6 +1,10 @@
 package io.powerrangers.backend.controller;
 
-import io.powerrangers.backend.dto.*;
+import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.TaskCreateRequestDto;
+import io.powerrangers.backend.dto.TaskImageResponseDto;
+import io.powerrangers.backend.dto.TaskResponseDto;
+import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import io.powerrangers.backend.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +48,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/image")
-    public ResponseEntity<BaseResponse<String>> uploadImage(@RequestPart("image") MultipartFile file, @PathVariable Long taskId) throws IOException {
+    public ResponseEntity<BaseResponse<String>> uploadImage(@RequestParam("image") MultipartFile file, @PathVariable Long taskId) throws IOException {
         String imageUrl = taskService.uploadTaskImage(file, taskId);
         return BaseResponse.success(HttpStatus.OK, imageUrl);
     }
@@ -53,7 +57,7 @@ public class TaskController {
     public ResponseEntity<BaseResponse<List<TaskImageResponseDto>>> getTaskImages(@PathVariable Long userId) {
         return BaseResponse.success(HttpStatus.OK, taskService.getTaskImages(userId));
     }
-  
+
     @GetMapping("/{taskId}")
     public ResponseEntity<BaseResponse<TaskResponseDto>> getTask(@PathVariable Long taskId) {
         return BaseResponse.success(HttpStatus.OK, taskService.getTask(taskId));

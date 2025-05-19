@@ -22,9 +22,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Void>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
-        commentService.createComment(request);
-        return BaseResponse.success(HttpStatus.OK);
+    public ResponseEntity<BaseResponse<CommentResponseDto>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
+        CommentResponseDto response = commentService.createComment(request);
+        return BaseResponse.success(HttpStatus.OK, response);
     }
 
     @GetMapping("/{taskId}")
