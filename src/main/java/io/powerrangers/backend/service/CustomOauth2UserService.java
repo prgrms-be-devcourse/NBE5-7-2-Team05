@@ -38,8 +38,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         UserDetails userDetails = UserDetailsFactory.userDetails(oAuth2User, provider);
         String tempNickname = userDetails.getName();
 
-//        Optional<User> optionalUser = userRepository.findByEmail(userDetails.getEmail());
-        Optional<User> optionalUser = userRepository.findByEmail("leeeun5423@naver.com");
+        Optional<User> optionalUser = userRepository.findByEmail(userDetails.getEmail());
         User findUser = null;
 
         if (optionalUser.isEmpty()) {
@@ -48,8 +47,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             }
             findUser = User.builder()
                     .nickname(tempNickname)
-                    .email("leeeun5423@naver.com")
-//                    .email(userDetails.getEmail())
+                    .email(userDetails.getEmail())
                     .provider(provider)
                     .providerId(userDetails.getProviderId())
                     .profileImage(userDetails.getProfileImage())
