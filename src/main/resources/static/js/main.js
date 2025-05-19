@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!res.ok) throw new Error("할 일 추가 실패")
 
-            await fetchAndRenderTasks(dateObj)
+            await fetchAndRenderTasks(new Date())
             form.reset()
             form.classList.add("hidden")
         } catch (err) {
@@ -276,7 +276,6 @@ function createTaskItem(task) {
         content.appendChild(imageContainer)
     }
     taskItem.appendChild(footer)
-
     return taskItem
 }
 
