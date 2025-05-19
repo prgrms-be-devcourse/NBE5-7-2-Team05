@@ -32,7 +32,7 @@ const AUTH = {
             }
         }).finally(() => {
             alert("성공적으로 로그아웃 되었습니다.");
-            window.location.replace("/login");
+            window.location.replace("/loginPage");
         });
     }
 }; 

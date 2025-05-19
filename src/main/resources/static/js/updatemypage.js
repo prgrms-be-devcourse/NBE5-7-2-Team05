@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!userId) {
         alert("로그인이 필요합니다.");
-        window.location.href = "/login";
+        window.location.href = "/loginPage";
         return;
     }
 

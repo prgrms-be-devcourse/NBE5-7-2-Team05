@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>이봉주 로그인</title>
+    <link rel="stylesheet" href="/css/fonts.css">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const errorMessage = /*[[${errorMessage}]]*/ '';
+        /*]]>*/
+        if (errorMessage && errorMessage.length > 0) {
+            alert(errorMessage);
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f8d9de] min-h-screen flex items-center justify-center px-4">
+
+<!-- 전체 wrapper -->
+<div class="relative w-full max-w-[500px]">
+
+    <!-- 🗯 삼행시 말풍선 박스 (오른쪽 상단 외부) -->
+    <div class="absolute -top-30 -right-96 w-80 bg-white rounded-2xl shadow-xl p-6 text-center space-y-2
+            text-base text-gray-800 z-10 before:content-[''] before:absolute before:-top--19 before:-left-3
+            before:w-6 before:h-6 before:bg-white before:rotate-45 before:shadow-md">
+        <p class="text-lg">
+            <span class="text-3xl font-bold text-pink-600">이</span> 세상 모든 할 일을
+        </p>
+        <p class="text-lg">
+            <span class="text-3xl font-bold text-pink-600">봉</span>인해제하듯 처리해버리는
+        </p>
+        <p class="text-lg">
+            <span class="text-3xl font-bold text-pink-600">주</span>인공은 바로 너야,
+            <span class="text-2xl text-pink-600 underline">이봉주</span> 💪📋✅
+        </p>
+    </div>
+
+    <!-- 로그인 박스 -->
+    <div class="bg-white p-10 rounded-2xl shadow-xl w-full flex flex-col items-center space-y-4 text-lg">
+        <h2 class="text-5xl font-bold mb-6 text-center text-gray-800">이봉주와 함께 달리기</h2>
+        <img src="/images/logo.png" alt="로고" class="w-50 h-50 mb-4" />
+
+        <!-- 로그인 버튼 영역 -->
+        <div class="space-y-5 w-full">
+            <!-- Google -->
+            <a href="/oauth2/authorization/google"
+               class="flex items-center justify-center gap-4 bg-white border border-gray-300 text-gray-800 h-14 w-full rounded-xl text-xl font-semibold shadow hover:bg-gray-100">
+                <img src="/images/google-logo.png" alt="Google" class="h-6 w-6" />
+                Sign in with Google
+            </a>
+
+            <!-- Naver -->
+            <a href="/oauth2/authorization/naver"
+               class="flex items-center justify-center gap-4 bg-[#03C75A] text-white h-14 w-full rounded-xl text-xl font-semibold shadow hover:bg-green-600">
+                <img src="/images/naver_logo.jpeg" alt="Naver" class="h-6 w-6" />
+                네이버 로그인
+            </a>
+
+            <!-- Kakao -->
+            <a href="/oauth2/authorization/kakao"
+               class="flex items-center justify-center gap-4 bg-[#FEE500] text-black h-14 w-full rounded-xl text-xl font-semibold shadow hover:bg-yellow-300">
+                <img src="/images/kakaotalk-logo.svg.png" alt="Kakao" class="h-6 w-6" />
+                카카오 로그인
+            </a>
+        </div>
+    </div>
+    <p class="mt-6 text-center text-gray-700 text-2xl font-semibold">
+        이봉주는 <span class="text-pink-600">여러분의 하루를 응원합니다.</span>
+    </p>
+</div>
+</body>
+</html>

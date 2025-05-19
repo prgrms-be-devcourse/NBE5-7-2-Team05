@@ -48,7 +48,7 @@ public class SecurityConfig {
                                         "/users/reissue",
                                         "/loginPage",
                                         "/images/**",
-                                        "/fonts/**")
+                                        "/fonts/**",
                                         "/search.html",
                                         "/follow-list.html")
                                     .permitAll()
