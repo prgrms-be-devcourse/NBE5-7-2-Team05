@@ -74,7 +74,10 @@ public class FollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 팔로잉에 userId가 있어야 한다.
-        return followRepository.findFollowersByUser(userId);
+        List<User> users = followRepository.findFollowersByUser(userId);
+        return users.stream()
+                .map(user -> UserFollowResponseDto.from(user))
+                .toList();
     }
 
     @Transactional(readOnly=true)
@@ -83,7 +86,10 @@ public class FollowService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 팔로워 id에 userId가 있어야 한다.
-        return followRepository.findFollowingsByUser(userId);
+        List<User> users = followRepository.findFollowingsByUser(userId);
+        return users.stream()
+                .map(user -> UserFollowResponseDto.from(user))
+                .toList();
     }
 
     @Transactional(readOnly=true)

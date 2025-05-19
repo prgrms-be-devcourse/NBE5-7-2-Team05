@@ -1,0 +1,206 @@
+/* Search container styles */
+.search-container {
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #1da1f2;
+}
+
+.search-button {
+    padding: 12px 24px;
+    background-color: #1da1f2;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-button:hover {
+    background-color: #1a91da;
+}
+
+/* Search results container */
+.search-results {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-results-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.search-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+/* User list styles */
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-list-item {
+    background: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.user-container {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.user-profile-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f0f0f0;
+}
+
+.user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.user-intro {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Follow button styles */
+.follow-button {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    min-width: 65px;
+    text-align: center;
+}
+
+.follow-button.following {
+    background-color: #FDD3D0;
+    color: #333;
+}
+
+.follow-button.not-following {
+    background-color: #FDD3D0;
+    color: #333;
+}
+
+.follow-button:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.follow-button.following:hover {
+    background-color: #ffebee;
+    color: #dc3545;
+}
+
+/* Empty and error message styles */
+.empty-message,
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    margin: 1rem 0;
+}
+
+.empty-message {
+    color: #666;
+}
+
+.error-message {
+    color: #dc3545;
+    background: #fff3f3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .search-results-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .user-container {
+        padding: 0.75rem;
+    }
+
+    .user-profile-image {
+        width: 40px;
+        height: 40px;
+    }
+
+    .follow-button {
+        padding: 0.25rem 0.6rem;
+        min-width: 60px;
+        font-size: 0.7rem;
+    }
+} 

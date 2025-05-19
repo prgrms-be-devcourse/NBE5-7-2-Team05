@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 public class UserUpdateProfileRequestDto{
