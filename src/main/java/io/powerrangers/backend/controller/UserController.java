@@ -6,21 +6,15 @@ import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
-
-import java.io.IOException;
-import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -39,7 +33,7 @@ public class UserController {
         log.info("nickname = " + request.getNickname());
         log.info("intro = " + request.getIntro());
         userService.updateUserProfile(userId, request, image);
-        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS);
+        return BaseResponse.success(HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
