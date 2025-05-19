@@ -143,6 +143,13 @@ public class TaskService {
         }
         throw new CustomException(ErrorCode.NOT_ALLOWED);
     }
+
+    @Transactional
+    public void postpone(Long taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+        task.setDueDate(task.getDueDate().plusHours(24));
+        taskRepository.save(task);
+    }
 }
 
 

@@ -62,6 +62,12 @@ public class TaskController {
     public ResponseEntity<BaseResponse<TaskResponseDto>> getTask(@PathVariable Long taskId) {
         return BaseResponse.success(HttpStatus.OK, taskService.getTask(taskId));
     }
+
+    @PatchMapping("/{taskId}/postpone")
+    public ResponseEntity<BaseResponse<Void>> postpone(@PathVariable Long taskId) {
+        taskService.postpone(taskId);
+        return BaseResponse.success(HttpStatus.OK);
+    }
 }
 
 

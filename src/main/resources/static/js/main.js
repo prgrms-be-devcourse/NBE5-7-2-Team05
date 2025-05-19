@@ -206,6 +206,7 @@ function createTaskItem(task) {
         { text: "할 일 수정", action: () => editTask(task.id) },
         { text: "할 일 삭제", action: () => deleteTask(task.id) },
         { text: "인증 사진 업로드", action: () => uploadImage(task.id) },
+        { text: "내일로 미루기", action: () => postponeDueDate(task.id) },
     ]
 
     menuItems.forEach((item) => {
@@ -820,9 +821,48 @@ function countCommentsWithReplies(comments) {
     }
     return count
 }
+
 async function refreshCommentCount(taskId) {
     const comments = await fetchComments(taskId)
     const totalCount = countCommentsWithReplies(comments)
     updateCommentCount(taskId, totalCount)
     return totalCount
+}
+
+async function postponeDueDate(taskId) {
+    let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+    if (!res.ok) {
+        alert("할 일 정보를 불러오는 데 실패했습니다.");
+        return;
+    }
+    let json = await res.json();
+    let task = json.data;
+    if (!task) {
+        alert("할 일 정보를 찾을 수 없습니다.");
+        return;
+    }
+
+    if (task.status === "COMPLETE") {
+        alert("완료한 일은 미룰 수 없습니다")
+        return;
+    }
+
+    let due = new Date(task.dueDate);
+    due.setHours(due.getHours() + 24);
+    task.dueDate = due.toISOString();
+    try {
+        const res = await authFetch(`http://localhost:8080/tasks/${taskId}/postpone`, {
+            method: "PATCH",
+        })
+
+        if (!res.ok) throw new Error("미루기 실패")
+
+        let due = new Date(task.dueDate);
+        due.setHours(due.getHours() - 24);
+        const targetDate = due.toISOString();
+        await fetchAndRenderTasks(dueDateToDate(targetDate))
+    } catch (err) {
+        console.error("미루기 실패:", err)
+        alert(err.message)
+    }
 }
