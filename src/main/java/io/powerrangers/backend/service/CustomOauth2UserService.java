@@ -59,7 +59,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         if (!findUser.getProvider().equals(provider)) {
             throw new OAuth2AuthenticationException(
-                    new OAuth2Error("already_signed_in", "이미 다른 제공자로 로그인한 적이 있습니다.", null)
+                    new OAuth2Error("already_signed_in", "이미 다른 제공자로 가입한 적이 있습니다.", null)
             );
         }
 
