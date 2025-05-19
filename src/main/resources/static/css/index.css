@@ -416,3 +416,148 @@ body {
 .hidden {
     display: none;
 }
+
+/* 모달 */
+.comment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.comment-modal.hidden {
+    display: none;
+}
+
+.comment-modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.comment-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.comment-list {
+    padding: 16px;
+    overflow-y: auto;
+    max-height: 50vh;
+}
+
+.no-comments {
+    text-align: center;
+    color: #888;
+    padding: 20px 0;
+}
+
+.comment-item {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.author-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+.author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.comment-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.comment-content {
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.comment-form {
+    padding: 16px;
+    border-top: 1px solid #eee;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.submit-comment {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    float: right;
+    cursor: pointer;
+}
+
+.submit-comment:hover {
+    background-color: #3a80d2;
+}
+
+.child-comments {
+    margin-left: 20px;
+    border-left: 1px solid #ddd;
+    padding-left: 10px;
+}
+.reply-form {
+    margin-top: 5px;
+}

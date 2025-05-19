@@ -37,7 +37,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createComment(CommentCreateRequestDto request) {
+    public CommentResponseDto createComment(CommentCreateRequestDto request) {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
@@ -52,6 +52,7 @@ public class CommentService {
 
         Comment comment = new Comment(task, user, parent, request.getContent());
         commentRepository.save(comment);
+        return CommentResponseDto.from(comment);
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +110,7 @@ public class CommentService {
                 .nickname(parent.getUser().getNickname())
                 .profileImage(parent.getUser().getProfileImage())
                 .children(childrenDtos)
+                .createdAt(parent.getCreatedAt())
                 .build();
     }
 

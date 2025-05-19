@@ -75,7 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
             alert(err.message)
         }
     })
-
+    // 댓글 기능 추가
+    initCommentFeature()
     //fetchAndRenderTasks(selectedDate) // 달력에서 날짜 클릭 시 할일 조회해서 랜더링해주면 있을필요 없음.
 })
 
@@ -260,6 +261,7 @@ function createTaskItem(task) {
 
     const commentCount = document.createElement("span")
     commentCount.className = "comment-count"
+    console.log(task);
     commentCount.textContent = task.commentCount || 0
 
     footer.appendChild(commentIcon)
@@ -293,6 +295,7 @@ function createTaskItem(task) {
         content.appendChild(imageContainer)
     }
     taskItem.appendChild(footer)
+
     return taskItem
 }
 
@@ -512,4 +515,320 @@ async function uploadImage(taskId) {
     document.body.appendChild(input);
     input.click();
     document.body.removeChild(input);
+}
+
+// 댓글 모달 요소 생성
+function createCommentModal() {
+    const modal = document.createElement("div")
+    modal.id = "commentModal"
+    modal.className = "comment-modal hidden"
+    modal.innerHTML = `
+    <div class="comment-modal-content">
+      <div class="comment-modal-header">
+        <h3>댓글</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="comment-list"></div>
+      <div class="comment-form">
+        <textarea placeholder="댓글을 입력하세요"></textarea>
+        <button class="submit-comment">댓글 작성</button>
+      </div>
+    </div>
+  `
+
+    document.body.appendChild(modal)
+
+    // 모달 닫기 버튼 이벤트
+    modal.querySelector(".close-modal").addEventListener("click", () => {
+        modal.classList.add("hidden")
+    })
+
+    return modal
+}
+
+async function fetchComments(taskId) {
+    try {
+        const res = await authFetch(`http://localhost:8080/comments/${taskId}`)
+        if (!res.ok) throw new Error("댓글을 불러오는데 실패했습니다")
+
+        const data = await res.json()
+        console.log(data);
+        return data.data || []
+    } catch (err) {
+        console.error("댓글 불러오기 실패:", err)
+        return []
+    }
+}
+
+async function addComment(request) {
+    try {
+        const res = await authFetch(`http://localhost:8080/comments`, {
+            method: "POST",
+            body: JSON.stringify(request),
+        })
+
+        if (!res.ok) throw new Error("댓글 추가에 실패했습니다")
+        return true
+    } catch (err) {
+        console.error("댓글 추가 실패:", err)
+        return false
+    }
+}
+
+async function renderComments(container, taskId, comments = null) {
+    if (!comments) {
+        const res = await authFetch(`http://localhost:8080/comments/${taskId}`)
+        if (!res.ok) throw new Error("댓글을 불러오는데 실패했습니다")
+        const responseData = await res.json()
+        comments = responseData.data
+    }
+
+    container.innerHTML = ""
+
+    if (!comments || comments.length === 0) {
+        container.innerHTML = '<p class="no-comments">댓글이 없습니다</p>'
+        return
+    }
+
+    comments.forEach((comment) => {
+        const commentEl = createCommentElement(comment, taskId)
+        container.appendChild(commentEl)
+    })
+}
+
+function createCommentElement(comment, taskId, isReply = false) {
+    const commentEl = document.createElement("div")
+    commentEl.className = isReply ? "reply-item ml-6 border-l pl-4 mt-2" : "comment-item mt-4"
+    commentEl.dataset.id = comment.id
+
+    const authorImg = comment.profileImage || "data:image/jpeg;base64,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"
+    const authorName = comment.nickname || "사용자"
+    const isMyComment = true
+
+    const actionButtons = isMyComment
+        ? `
+    <div class="comment-actions flex gap-2 ml-auto">
+      <button class="edit-comment-btn text-blue-500 hover:underline">수정</button>
+      <button class="delete-comment-btn text-red-500 hover:underline">삭제</button>
+    </div>`
+        : ""
+
+    const replyButton = `<button class="reply-comment-btn text-sm text-gray-500 hover:underline ml-2">답글</button>`
+
+    commentEl.innerHTML = `
+    <div class="comment-author flex items-center gap-2">
+      <img src="${authorImg}" alt="${authorName}" class="author-img w-8 h-8 rounded-full" />
+      <div class="author-info text-sm">
+        <span class="author-name font-semibold">${authorName}</span>
+        <span class="comment-date text-gray-500 text-xs ml-2">${new Date(comment.createdAt).toLocaleString()}</span>
+      </div>
+      ${actionButtons}
+      ${!isReply ? replyButton : ""}
+    </div>
+    <div class="comment-content mt-1 text-sm">${comment.content}</div>
+    <div class="comment-edit-form hidden mt-1">
+      <textarea class="edit-textarea w-full p-2 border rounded">${comment.content}</textarea>
+      <div class="edit-actions mt-1 flex gap-2">
+        <button class="save-edit-btn text-white bg-blue-500 px-3 py-1 rounded">저장</button>
+        <button class="cancel-edit-btn text-gray-500 px-3 py-1 rounded">취소</button>
+      </div>
+    </div>
+    <div class="reply-form hidden mt-2">
+      <textarea class="reply-textarea w-full p-2 border rounded" placeholder="답글을 입력하세요"></textarea>
+      <button class="submit-reply-btn mt-1 bg-green-500 text-white px-3 py-1 rounded">답글 달기</button>
+    </div>
+    <div class="reply-container mt-2 pl-4"></div>
+  `
+
+    // 이벤트 바인딩 (수정, 삭제, 답글)
+    bindCommentEvents(commentEl, comment, taskId)
+
+    // 대댓글 렌더링
+    const replyContainer = commentEl.querySelector(".reply-container")
+    if (comment.children && comment.children.length > 0) {
+        comment.children.forEach((reply) => {
+            const replyEl = createCommentElement(reply, taskId, true)
+            replyContainer.appendChild(replyEl)
+        })
+    }
+
+    return commentEl
+}
+
+function bindCommentEvents(commentEl, comment, taskId) {
+    // 수정
+    const editBtn = commentEl.querySelector(".edit-comment-btn")
+    const cancelEditBtn = commentEl.querySelector(".cancel-edit-btn")
+    const saveEditBtn = commentEl.querySelector(".save-edit-btn")
+    const contentEl = commentEl.querySelector(".comment-content")
+    const editFormEl = commentEl.querySelector(".comment-edit-form")
+
+    if (editBtn) {
+        editBtn.addEventListener("click", () => {
+            contentEl.classList.add("hidden")
+            editFormEl.classList.remove("hidden")
+        })
+    }
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener("click", () => {
+            contentEl.classList.remove("hidden")
+            editFormEl.classList.add("hidden")
+        })
+    }
+
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener("click", async () => {
+            const newContent = commentEl.querySelector(".edit-textarea").value.trim()
+            if (!newContent) return
+
+            const res = await authFetch(`http://localhost:8080/comments/${comment.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: newContent }),
+            })
+
+            if (res.ok) {
+                contentEl.textContent = newContent
+                contentEl.classList.remove("hidden")
+                editFormEl.classList.add("hidden")
+            }
+        })
+    }
+
+    // 삭제
+    const deleteBtn = commentEl.querySelector(".delete-comment-btn")
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", async () => {
+            if (!confirm("댓글을 삭제하시겠습니까?")) return
+            const res = await authFetch(`http://localhost:8080/comments/${comment.id}`, {
+                method: "DELETE",
+            })
+            if (res.ok) {
+                commentEl.remove()
+            }
+        })
+    }
+
+    // 답글 폼 열기
+    const replyBtn = commentEl.querySelector(".reply-comment-btn")
+    const replyForm = commentEl.querySelector(".reply-form")
+    const replyTextarea = commentEl.querySelector(".reply-textarea")
+    const submitReplyBtn = commentEl.querySelector(".submit-reply-btn")
+    const replyContainer = commentEl.querySelector(".reply-container")
+
+    if (replyBtn) {
+        replyBtn.addEventListener("click", () => {
+            replyForm.classList.toggle("hidden")
+        })
+    }
+
+    // 답글 저장
+    if (submitReplyBtn) {
+        submitReplyBtn.addEventListener("click", async () => {
+            const replyContent = replyTextarea.value.trim()
+            if (!replyContent) return
+
+            const res = await authFetch(`http://localhost:8080/comments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    taskId,
+                    parentId: comment.id, // 대댓글
+                    content: replyContent,
+                }),
+            })
+            if (res.ok) {
+                const newReply = (await res.json()).data
+                const replyEl = createCommentElement(newReply, taskId, true)
+                replyContainer.appendChild(replyEl)
+                replyTextarea.value = ""
+                console.log(replyForm);
+                replyForm.classList.add("hidden")
+            }
+        })
+    }
+}
+
+// 댓글 카운트 업데이트 함수
+function updateCommentCount(taskId, count) {
+    const taskItem = document.getElementById(`task-${taskId}`)
+    if (!taskItem) return
+
+    const commentCount = taskItem.querySelector(".comment-count")
+    if (commentCount) {
+        commentCount.textContent = count
+    }
+}
+
+// 댓글 기능 초기화
+function initCommentFeature() {
+    // 모달 생성
+    const modal = createCommentModal()
+    const commentList = modal.querySelector(".comment-list")
+    const commentForm = modal.querySelector(".comment-form")
+    const commentInput = commentForm.querySelector("textarea")
+    const submitButton = commentForm.querySelector(".submit-comment")
+
+    let currentTaskId = null
+
+    // 댓글 아이콘 클릭 이벤트 처리
+    document.addEventListener("click", async (e) => {
+        // 댓글 아이콘 클릭 감지
+        if (e.target.closest(".comment-icon")) {
+            const taskItem = e.target.closest(".task-item")
+            if (!taskItem) return
+
+            const taskId = taskItem.id.replace("task-", "")
+            currentTaskId = taskId
+
+            // 댓글 불러오기
+            const comments = await fetchComments(taskId)
+            await renderComments(commentList, taskId, comments)
+
+            // 모달 표시
+            modal.classList.remove("hidden")
+        }
+    })
+
+    // 댓글 제출 이벤트
+    submitButton.addEventListener("click", async () => {
+        const content = commentInput.value.trim()
+        if (!content || !currentTaskId) return
+
+        // CommentCreateRequestDto 형식에 맞게 데이터 구성
+        const request = {
+            content: content,
+            taskId: currentTaskId,
+        }
+
+        const success = await addComment(request)
+        if (success) {
+            commentInput.value = ""
+
+            // 댓글 다시 불러오기
+            const comments = await fetchComments(currentTaskId)
+            const totalCount = countCommentsWithReplies(comments)
+            await renderComments(commentList, currentTaskId, comments)
+            updateCommentCount(currentTaskId, totalCount)
+        }
+    })
+
+    // 엔터키로 댓글 제출
+    commentInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            submitButton.click()
+        }
+    })
+}
+function countCommentsWithReplies(comments) {
+    let count = 0
+    for (let i = 0; i < comments.length; i++) {
+        count++ // 부모 댓글 1개
+        if (comments[i].children && comments[i].children.length > 0) {
+            count += comments[i].children.length // 대댓글 개수 추가
+        }
+    }
+    return count
 }
