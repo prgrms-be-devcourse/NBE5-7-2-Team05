@@ -48,4 +48,22 @@ public class FollowController {
         return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.getFollowCount(userId));
     }
 
+    @GetMapping("/{userId}/followers/cursor")
+    public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowersWithCursor(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "2") int size) {
+
+        return BaseResponse.success(HttpStatus.OK, followService.getFollowers(userId, cursor, size));
+    }
+
+    @GetMapping("/{userId}/followings/cursor")
+    public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowingsWithCursor(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "2") int size) {
+
+        return BaseResponse.success(HttpStatus.OK, followService.getFollowings(userId, cursor, size));
+    }
+
 }
