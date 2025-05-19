@@ -1,3 +1,5 @@
+import {apiFetch} from "./token-reissue.js";
+
 function buildCalendar(container, date = new Date()) {
     container.innerHTML = "";
 
@@ -69,6 +71,19 @@ function buildCalendar(container, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
+
+                fetchTodosUntil(state.selected).then(todos => {
+                    console.log("받은 할일 목록:", todos);
+
+                    // 💡 예: DOM에 추가하거나 조건 분기
+                    if (todos.length === 0) {
+                        console.log("할 일이 없습니다.");
+                    } else {
+                        todos.forEach(todo => {
+                            console.log(`- ${todo.title} (마감일: ${todo.dueDate})`);
+                        });
+                    }
+                });
             });
 
             grid.appendChild(dateEl);
@@ -94,19 +109,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
-            fetch("/users/logout", {
+            apiFetch("/users/logout", {
                 method: "POST",
-                credentials: "include", // ✅ 쿠키 전송
                 headers: {
                     "Content-Type": "application/json"
                 }
-            }).finally(() => {
-                alert("성공적으로 로그아웃 되었습니다.");
-                window.location.replace("/login"); // 뒤로 가기 방지
-            });
+            })  // (로그아웃은 access token 만료여도 재시도 불필요)
+                .finally(() => {
+                    alert("성공적으로 로그아웃 되었습니다.");
+                    window.location.replace("/login");
+                });
         }
     });
 });
+
+
+async function fetchTodosUntil(date) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+        alert("로그인 정보가 없습니다.");
+        return [];
+    }
+
+    const dateStr = date.getFullYear() + "-" +
+        String(date.getMonth() + 1).padStart(2, '0') + "-" +
+        String(date.getDate()).padStart(2, '0');
+
+    const url = `/users/${userId}/tasks?date=${dateStr}`;
+
+    try {
+        const response = await apiFetch(url, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        if (!response.ok) throw new Error("할 일 조회 실패");
+
+        const baseResponse = await response.json();
+        return baseResponse.data;
+    } catch (err) {
+        console.error(err);
+        alert("할 일 조회 중 오류 발생");
+        return [];
+    }
+}
+
 
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "/mypage";

@@ -1,6 +1,7 @@
 package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.dto.SuccessCode;
@@ -45,6 +46,11 @@ public class FollowController {
     @GetMapping("/{userId}/followings")
     public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowings(@PathVariable Long userId){
         return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.findFollowings(userId));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponse<FollowCountResponseDto>> getFollowCount(@PathVariable Long userId){
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.getFollowCount(userId));
     }
 
 }

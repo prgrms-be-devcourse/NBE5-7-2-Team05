@@ -3,11 +3,13 @@ package io.powerrangers.backend.controller;
 import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.TaskCreateRequestDto;
+import io.powerrangers.backend.dto.TaskImageResponseDto;
 import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.TaskUpdateRequestDto;
 import io.powerrangers.backend.service.S3Service;
 import io.powerrangers.backend.service.TaskService;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +32,6 @@ public class TaskController {
         return BaseResponse.success(SuccessCode.ADDED_SUCCESS);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<BaseResponse<List<TaskResponseDto>>> getMyTasks(@PathVariable Long userId) {
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTasksByUser(userId));
-    }
-
     @PatchMapping("/{taskId}")
     public ResponseEntity<BaseResponse<?>> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskUpdateRequestDto dto) {
         taskService.updateTask(taskId, dto);
@@ -54,9 +51,19 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/image")
-    public ResponseEntity<?> uploadImage(@RequestPart("image") MultipartFile file, @PathVariable Long taskId, @RequestPart TaskCreateRequestDto dto) throws IOException {
+    public ResponseEntity<BaseResponse<String>> uploadImage(@RequestPart("image") MultipartFile file, @PathVariable Long taskId) throws IOException {
         String imageUrl = taskService.uploadTaskImage(file, taskId);
-        return ResponseEntity.ok().body(imageUrl);
+        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS, imageUrl);
+    }
+
+    @GetMapping("/{userId}/images")
+    public ResponseEntity<BaseResponse<List<TaskImageResponseDto>>> getTaskImages(@PathVariable Long userId) {
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTaskImages(userId));
+    }
+  
+    @GetMapping("/{taskId}")
+    public ResponseEntity<BaseResponse<TaskResponseDto>> getTask(@PathVariable Long taskId) {
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, taskService.getTask(taskId));
     }
 }
 

@@ -1,29 +1,25 @@
 package io.powerrangers.backend.service;
 
-import com.nimbusds.jose.proc.SecurityContext;
-import io.powerrangers.backend.dao.RefreshTokenRepository;
 import io.powerrangers.backend.dao.TokenRepository;
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.Role;
+import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.TokenBody;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.entity.RefreshToken;
+import io.powerrangers.backend.entity.Task;
 import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
-import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
     private final JwtProvider jwtProvider;
+    private final TaskService taskService;
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -49,19 +46,30 @@ public class UserService {
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
-                .nickname(findUser.getNickname())
-                .intro(findUser.getIntro())
-                .profileImage(findUser.getProfileImage())
-                .build();
+        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.from(findUser);
 
         return userGetProfileResponseDto;
     }
 
     @Transactional(readOnly = true)
+    public List<TaskResponseDto> getTasksByUser(Long userId, LocalDate date) {
+        List<Task> tasks = taskService.getTasksByScope(userId);
+
+        return tasks.stream()
+                .filter(task -> task.getDueDate().toLocalDate().equals(date))
+                .map(task -> TaskResponseDto.from(task))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
-        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
-        return userList;
+        List<User> userList = userRepository.findByNickname(nickname.trim());
+
+        return userList.stream()
+                .map(user -> UserGetProfileResponseDto.from(user))
+                .toList();
+
+
     }
 
     @Transactional
@@ -73,18 +81,13 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        if(!Objects.equals(user.getNickname(), request.getNickname())){
-            if(checkNicknameDuplication(request.getNickname())){
-                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
-            }
-            user.setNickname(request.getNickname());
+        if(checkNicknameDuplication(request.getNickname())){
+            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
         }
-        if(!Objects.equals(user.getIntro(), request.getIntro())){
-            user.setIntro(request.getIntro());
-        }
-        if(!Objects.equals(user.getProfileImage(), request.getProfileImage())){
-            user.setProfileImage(request.getProfileImage());
-        }
+
+        user.setNickname(request.getNickname());
+        user.setIntro(request.getIntro());
+        user.setProfileImage(request.getProfileImage());
     }
 
     @Transactional
