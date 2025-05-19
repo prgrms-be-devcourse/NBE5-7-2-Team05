@@ -130,39 +130,6 @@
     text-overflow: ellipsis;
 }
 
-/* Follow button styles */
-.follow-button {
-    padding: 0.3rem 0.8rem;
-    border-radius: 15px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    min-width: 65px;
-    text-align: center;
-}
-
-.follow-button.following {
-    background-color: #FDD3D0;
-    color: #333;
-}
-
-.follow-button.not-following {
-    background-color: #FDD3D0;
-    color: #333;
-}
-
-.follow-button:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-}
-
-.follow-button.following:hover {
-    background-color: #ffebee;
-    color: #dc3545;
-}
-
 /* Empty and error message styles */
 .empty-message,
 .error-message {
