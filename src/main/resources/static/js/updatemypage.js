@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
 
-    console.log(userId);
-
     if (!userId) {
         alert("로그인이 필요합니다.");
         window.location.href = "/login";
@@ -11,8 +9,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const previewImg = document.getElementById("preview-img");
     const imageInput = document.getElementById("image-input");
+    const defaultImage = "/images/default-profile.png";
+    let originalImageUrl = ""; // 기존 이미지 저장용
 
-    // ✅ 유저 정보 불러오기 (accessToken은 쿠키로 자동 전송됨)
+    // ✅ 유저 정보 불러오기
     try {
         const res = await fetch(`/users/${userId}`, {
             method: "GET",
@@ -25,7 +25,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.getElementById("nickname").value = user.nickname || "";
         document.getElementById("intro").value = user.intro || "";
-        previewImg.src = user.profileImage || "/images/default-profile.png";
+        previewImg.src = user.profileImage || defaultImage;
+        console.log(user.profileImage);
+
+        // 기존 이미지 저장
+        originalImageUrl = user.profileImage || "";
+        console.log(originalImageUrl);
     } catch (err) {
         console.error("유저 정보 불러오기 실패:", err);
         alert("유저 정보를 불러오지 못했습니다.");
@@ -45,26 +50,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ 이미지 삭제
     document.querySelector(".image-delete-button").addEventListener("click", () => {
-        previewImg.src = "/images/default-profile.png";
+        previewImg.src = defaultImage;
         imageInput.value = "";
+        originalImageUrl = ""; // 서버에 빈값 전달 → 삭제
     });
 
     // ✅ 수정 버튼
     document.getElementById("save-btn").addEventListener("click", async () => {
         const nickname = document.getElementById("nickname").value;
         const intro = document.getElementById("intro").value;
-        const profileImage = previewImg.src;
+        const imageFile = imageInput.files[0];
 
-        const body = { nickname, intro, profileImage };
+        const formData = new FormData();
+        formData.append("dto", new Blob(
+            [JSON.stringify({ nickname, intro, profileImage: originalImageUrl })],
+            { type: "application/json" }
+        ),"dto.json");
+
+        if (imageFile) {
+            formData.append("image", imageFile); // 새 이미지 업로드
+        }
 
         try {
             const res = await fetch(`/users/${userId}`, {
                 method: "PATCH",
                 credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(body)
+                body: formData
             });
 
             if (!res.ok) throw new Error("수정 실패");
