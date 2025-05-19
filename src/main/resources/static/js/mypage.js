@@ -65,13 +65,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ TODO 목록 불러오기
     try {
-        const todoRes = await fetch(`/${userId}/tasks`, {
+        const today = new Date().toISOString().split("T")[0];  // ✅ "2025-05-19" 형식
+
+        const todoRes = await fetch(`/users/${userId}/tasks?date=${today}`, {
             credentials: "include",
-            headers: { "Content-Type": "application/json" }
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
 
         const todoData = await todoRes.json();
-        const tasks = todoData.result || [];
+        const tasks = todoData.data || [];
+
+        console.log(tasks);
 
         const todoList = document.getElementById("todo-list");
         todoList.innerHTML = "";
@@ -85,7 +91,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             tasks.forEach(task => {
                 const li = document.createElement("li");
-                li.textContent = `[${task.status}] ${task.content}`;
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.disabled = true;
+                checkbox.checked = task.status === "COMPLETE";
+
+                const text = document.createTextNode(` ${task.content}`);
+                li.appendChild(checkbox);
+                li.appendChild(text);
+
                 todoList.appendChild(li);
             });
         }
