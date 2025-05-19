@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({CustomException.class, AuthTokenException.class})
-    protected ResponseEntity<BaseResponse<?>> handleCustomException(CustomException e) {
+    protected ResponseEntity<BaseResponse<Void>> handleCustomException(CustomException e) {
         return BaseResponse.error(e.getErrorCode().getMessage(), e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    protected ResponseEntity<BaseResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    protected ResponseEntity<BaseResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
@@ -41,18 +41,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestParameterException.class})
-    protected ResponseEntity<BaseResponse<?>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+    protected ResponseEntity<BaseResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         return BaseResponse.error(ErrorCode.INVALID_REQUEST.getMessage(), ErrorCode.INVALID_REQUEST.getStatus());
     }
 
     @ExceptionHandler(MissingRequestCookieException.class)
-    protected ResponseEntity<BaseResponse<?>> handleMissingRequestCookieException(MissingRequestCookieException e) {
+    protected ResponseEntity<BaseResponse<Void>> handleMissingRequestCookieException(MissingRequestCookieException e) {
         log.warn("[인증 실패] 토큰 쿠키가 존재하지 않음. 원인: {}", e.getMessage());
         return BaseResponse.error(ErrorCode.UNAUTHORIZED.getMessage(), ErrorCode.UNAUTHORIZED.getStatus());
     }
 
     @ExceptionHandler({IOException.class, Exception.class})
-    protected ResponseEntity<BaseResponse<?>> handleException(Exception e) {
+    protected ResponseEntity<BaseResponse<Void>> handleException(Exception e) {
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         return BaseResponse.error(errorCode.getMessage(), errorCode.getStatus());
     }
