@@ -77,7 +77,7 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-            if(checkNicknameDuplication(request.getNickname())){
+            if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
                 throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
             }
 
@@ -87,13 +87,27 @@ public class UserService {
     }
 
     private void updateUserProfileImage(User user, MultipartFile image) {
-        if (image != null && !image.isEmpty()) {
-            try {
-                String imageUrl = s3Service.upload(image);
-                user.setProfileImage(imageUrl);
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.INVALID_REQUEST);
+        String existingImageUrl = user.getProfileImage();
+
+        if(image == null || image.isEmpty()){
+            s3Service.delete(existingImageUrl);
+            user.setProfileImage(null);
+            return;
+        }
+
+        if(!image.getContentType().startsWith("image/")){
+            throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
+        }
+
+        try {
+            if(existingImageUrl != null && !existingImageUrl.isEmpty()){
+                s3Service.delete(existingImageUrl);
             }
+
+            String uploadedImageUrl = s3Service.upload(image);
+            user.setProfileImage(uploadedImageUrl);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
     }
 
