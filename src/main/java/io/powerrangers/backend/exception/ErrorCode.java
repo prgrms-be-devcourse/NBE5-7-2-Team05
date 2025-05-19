@@ -19,6 +19,7 @@ public enum ErrorCode {
 
     // 403 Forbidden
     NOT_THE_OWNER(HttpStatus.FORBIDDEN,"해당 작업에 대한 권한이 없습니다."),
+    NOT_ALLOWED(HttpStatus.FORBIDDEN, "해당 리소스에 대한 접근 권한이 없습니다."),
 
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),

@@ -2,10 +2,14 @@ package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.SuccessCode;
+import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +54,11 @@ public class UserController {
     public ResponseEntity<BaseResponse<?>> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
         return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
+    }
+
+    @GetMapping("/{userId}/tasks")
+    public ResponseEntity<BaseResponse<List<TaskResponseDto>>> getUserTasks(@PathVariable Long userId, @RequestParam LocalDate date) {
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.getTasksByUser(userId, date));
     }
 
     @PostMapping("/logout")

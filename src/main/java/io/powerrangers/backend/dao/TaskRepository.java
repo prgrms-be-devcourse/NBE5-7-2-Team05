@@ -18,8 +18,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findTasksForFollowers(Long userId);
     @Query("select t from Task t join t.user u where u.id = :userId and t.scope = 'PUBLIC'")
     List<Task> findTasksForPublic(Long userId);
-
-    @Query("select new io.powerrangers.backend.dto.TaskResponseDto(t.id, t.category, t.content, t.dueDate, t.status, t.taskImage, t.scope, t.user.nickname) from Task t where t.taskImage = :imageUrl")
-    Optional<TaskResponseDto> findTaskByImageUrl(String imageUrl);
 }
 
