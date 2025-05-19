@@ -1,25 +1,32 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
 
+    console.log("userId:", userId);
+
+    // ✅ 로그인 확인
     if (!userId) {
         alert("로그인이 필요합니다.");
         window.location.href = "/login";
         return;
     }
 
-    // 프로필 정보 불러오기
+    // ✅ 홈 링크 설정
+    const homeLink = document.getElementById("home-link");
+    if (homeLink) {
+        homeLink.href = `/index.html?userId=${userId}`;
+    }
+
+    // ✅ 프로필 정보 불러오기
     try {
         const response = await fetch(`/users/${userId}`, {
             method: "GET",
-            credentials: "include", // ✅ 쿠키 전송
+            credentials: "include",
         });
 
         if (!response.ok) throw new Error("유저 정보 불러오기 실패");
 
         const result = await response.json();
         const data = result.data;
-
-        console.log(data)
 
         document.getElementById("nickname").textContent = data.nickname;
         document.getElementById("intro-box").textContent = data.intro || "자기소개가 없습니다.";
@@ -29,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("intro-box").textContent = "정보를 불러오지 못했습니다.";
     }
 
+    // ✅ 팔로우 정보 불러오기
     try {
         const [followersRes, followingsRes] = await Promise.all([
             fetch(`/follow/${userId}/followers`, {
@@ -44,26 +52,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         const followerData = await followersRes.json();
         const followingData = await followingsRes.json();
 
-
         const followers = followerData.result || [];
         const followings = followingData.result || [];
 
         document.getElementById("follower-count").textContent = followers.length;
         document.getElementById("following-count").textContent = followings.length;
-
     } catch (err) {
         console.error("팔로우 정보 로딩 실패:", err);
         document.getElementById("follower-count").textContent = "0";
         document.getElementById("following-count").textContent = "0";
     }
 
-    // TODO 목록 불러오기
+    // ✅ TODO 목록 불러오기
     try {
-        const todoRes = await fetch(`/tasks/${userId}`, {
+        const todoRes = await fetch(`/${userId}/tasks`, {
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            }
+            headers: { "Content-Type": "application/json" }
         });
 
         const todoData = await todoRes.json();
@@ -85,12 +89,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 todoList.appendChild(li);
             });
         }
-
     } catch (err) {
         console.error("할 일 목록 로딩 실패:", err);
     }
 
-    // 프로필 수정 페이지로 이동
+    // ✅ 프로필 수정 버튼 클릭 → 이동
     const editButton = document.querySelector("footer button");
     if (editButton) {
         editButton.onclick = () => {
