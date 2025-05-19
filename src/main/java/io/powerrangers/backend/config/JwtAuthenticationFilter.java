@@ -51,27 +51,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        try {
-            String token = resolveToken(request);
-            if (token != null && jwtProvider.validateToken(token)) {
-                TokenBody tokenBody = jwtProvider.parseToken(token);
-                UserDetails userDetails = customOauth2UserService.getUserDetails(tokenBody.getUserId());
-
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                filterChain.doFilter(request, response);
-            } else {
-                throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
-            }
-        } catch (AuthTokenException e) {
-            log.error("filter 에서 문제 발생!");
-            log.error("인증 처리 중 에러 발생");
-            handleAuthTokenException(response, e);
+        String token = resolveToken(request);
+        if(token == null || !jwtProvider.validateToken(token)) {
+            log.error("토큰 유효성 검사에 실패했습니다.");
+            handleAuthTokenException(response, new AuthTokenException(ErrorCode.UNAUTHORIZED));
+            return;
         }
+
+        TokenBody tokenBody = jwtProvider.parseToken(token);
+        UserDetails userDetails;
+        try{
+            userDetails = customOauth2UserService.getUserDetails(tokenBody.getUserId());
+        } catch(AuthTokenException e){
+            log.error("토큰의 주인 유저를 찾을 수 없습니다.");
+            handleAuthTokenException(response, e);
+            return;
+        }
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        filterChain.doFilter(request, response);
     }
 
     private void handleAuthTokenException(HttpServletResponse response, AuthTokenException e) throws IOException {
