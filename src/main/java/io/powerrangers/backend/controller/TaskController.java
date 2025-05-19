@@ -20,25 +20,25 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<?>> createTask(@Valid @RequestBody TaskCreateRequestDto dto) {
+    public ResponseEntity<BaseResponse<Void>> createTask(@Valid @RequestBody TaskCreateRequestDto dto) {
         taskService.createTask(dto);
         return BaseResponse.success(HttpStatus.CREATED);
     }
 
     @PatchMapping("/{taskId}")
-    public ResponseEntity<BaseResponse<?>> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskUpdateRequestDto dto) {
+    public ResponseEntity<BaseResponse<Void>> updateTask(@PathVariable Long taskId, @Valid @RequestBody TaskUpdateRequestDto dto) {
         taskService.updateTask(taskId, dto);
         return BaseResponse.success(HttpStatus.OK);
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<BaseResponse<?>> removeTask(@PathVariable Long taskId) {
+    public ResponseEntity<BaseResponse<Void>> removeTask(@PathVariable Long taskId) {
         taskService.removeTask(taskId);
         return BaseResponse.success(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/{taskId}/status")
-    public ResponseEntity<BaseResponse<?>> changeStatus(@PathVariable Long taskId) {
+    public ResponseEntity<BaseResponse<Void>> changeStatus(@PathVariable Long taskId) {
         taskService.changeStatus(taskId);
         return BaseResponse.success(HttpStatus.OK);
     }

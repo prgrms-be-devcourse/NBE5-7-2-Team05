@@ -22,7 +22,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<?>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
+    public ResponseEntity<BaseResponse<Void>> createComment(@Valid @RequestBody CommentCreateRequestDto request){
         commentService.createComment(request);
         return BaseResponse.success(HttpStatus.OK);
     }
@@ -41,7 +41,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<BaseResponse<?>> deleteComment(@PathVariable Long commentId){
+    public ResponseEntity<BaseResponse<Void>> deleteComment(@PathVariable Long commentId){
         commentService.deleteComment(commentId);
         return BaseResponse.success(HttpStatus.NO_CONTENT);
     }

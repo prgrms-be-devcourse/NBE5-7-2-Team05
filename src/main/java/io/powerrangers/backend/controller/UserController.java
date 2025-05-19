@@ -25,7 +25,7 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping(value ="/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<BaseResponse<?>> updateUserProfile(
+    public ResponseEntity<BaseResponse<Void>> updateUserProfile(
             @PathVariable Long userId,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @RequestPart(value = "dto") UserUpdateProfileRequestDto request
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<BaseResponse<?>> cancelAccount(@PathVariable Long userId){
+    public ResponseEntity<BaseResponse<Void>> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
         return BaseResponse.success(HttpStatus.NO_CONTENT);
     }
