@@ -67,7 +67,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         return userDetails.setId(findUser.getId()).setRole(findUser.getRole());
     }
 
-    public String generateTempNickname(String nickname) {
+    private String generateTempNickname(String nickname) {
         String[] adjectives = {"귀여운 ", "멋진 ", "행복한 ", "용감한 "};
         String[] powerRangers = {"레드 ", "블루 ", "옐로우 ", "그린 ", "핑크 "};
 
