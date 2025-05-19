@@ -13,7 +13,7 @@ public class BaseResponse<T> {
     private T data;
 
     //성공 메시지만 반환
-    public static ResponseEntity<BaseResponse<?>> success(SuccessCode successCode) {
+    public static ResponseEntity<BaseResponse<Void>> success(SuccessCode successCode) {
         return ResponseEntity.status(successCode.getStatus())
                 .body(new BaseResponse<>(successCode.getStatus().value(), successCode.getMessage(), null));
     }
@@ -25,7 +25,7 @@ public class BaseResponse<T> {
     }
 
     //에러 메시지만 반환
-    public static ResponseEntity<BaseResponse<?>> error(String message, HttpStatus status) {
+    public static ResponseEntity<BaseResponse<Void>> error(String message, HttpStatus status) {
         return ResponseEntity.status(status)
                 .body(new BaseResponse<>(status.value(), message, null));
     }
