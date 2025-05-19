@@ -1,30 +1,20 @@
 package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
-import io.powerrangers.backend.dto.SuccessCode;
 import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,28 +29,28 @@ public class UserController {
             @RequestBody UserUpdateProfileRequestDto request
     ){
         userService.updateUserProfile(userId, request);
-        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS);
+        return BaseResponse.success(HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<BaseResponse<UserGetProfileResponseDto>> getUserProfile(@PathVariable Long userId){
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.getUserProfile(userId));
+        return BaseResponse.success(HttpStatus.OK, userService.getUserProfile(userId));
     }
 
     @GetMapping()
     public ResponseEntity<BaseResponse<List<UserGetProfileResponseDto>>> searchUserProfile(@RequestParam String nickname){
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.searchUserProfile(nickname));
+        return BaseResponse.success(HttpStatus.OK, userService.searchUserProfile(nickname));
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<BaseResponse<?>> cancelAccount(@PathVariable Long userId){
         userService.cancelAccount(userId);
-        return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
+        return BaseResponse.success(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{userId}/tasks")
     public ResponseEntity<BaseResponse<List<TaskResponseDto>>> getUserTasks(@PathVariable Long userId, @RequestParam LocalDate date) {
-        return BaseResponse.success(SuccessCode.GET_SUCCESS, userService.getTasksByUser(userId, date));
+        return BaseResponse.success(HttpStatus.OK, userService.getTasksByUser(userId, date));
     }
 
     @PostMapping("/logout")

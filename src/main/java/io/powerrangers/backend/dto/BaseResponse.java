@@ -19,15 +19,15 @@ public class BaseResponse<T> {
     private T data;
 
     //성공 메시지만 반환
-    public static ResponseEntity<BaseResponse<?>> success(SuccessCode successCode) {
-        return ResponseEntity.status(successCode.getStatus())
-                .body(new BaseResponse<>(successCode.getStatus().value(), null, null));
+    public static ResponseEntity<BaseResponse<?>> success(HttpStatus status) {
+        return ResponseEntity.status(status)
+                .body(new BaseResponse<>(status.value(), null, null));
     }
 
     //성공 메시지와 데이터 반환
-    public static <T> ResponseEntity<BaseResponse<T>> success(SuccessCode successCode, T data) {
-        return ResponseEntity.status(successCode.getStatus())
-                .body(new BaseResponse<>(successCode.getStatus().value(), null, data));
+    public static <T> ResponseEntity<BaseResponse<T>> success(HttpStatus status, T data) {
+        return ResponseEntity.status(status)
+                .body(new BaseResponse<>(status.value(), null, data));
     }
 
     //에러 메시지만 반환
