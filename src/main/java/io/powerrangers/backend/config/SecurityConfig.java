@@ -49,6 +49,8 @@ public class SecurityConfig {
                                         "/loginPage",
                                         "/images/**",
                                         "/fonts/**")
+                                        "/search.html",
+                                        "/follow-list.html")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()

@@ -1,5 +1,5 @@
 import {apiFetch} from "./token-reissue.js";
-
+import {fetchAndRenderTasks} from './main.js';
 function buildCalendar(container, date = new Date()) {
     container.innerHTML = "";
 
@@ -71,19 +71,7 @@ function buildCalendar(container, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
-
-                fetchTodosUntil(state.selected).then(todos => {
-                    console.log("받은 할일 목록:", todos);
-
-                    // 💡 예: DOM에 추가하거나 조건 분기
-                    if (todos.length === 0) {
-                        console.log("할 일이 없습니다.");
-                    } else {
-                        todos.forEach(todo => {
-                            console.log(`- ${todo.title} (마감일: ${todo.dueDate})`);
-                        });
-                    }
-                });
+                fetchTodosUntil(state.selected)
             });
 
             grid.appendChild(dateEl);
@@ -144,13 +132,10 @@ async function fetchTodosUntil(date) {
         });
 
         if (!response.ok) throw new Error("할 일 조회 실패");
-
-        const baseResponse = await response.json();
-        return baseResponse.data;
+        await fetchAndRenderTasks(date);
     } catch (err) {
         console.error(err);
         alert("할 일 조회 중 오류 발생");
-        return [];
     }
 }
 

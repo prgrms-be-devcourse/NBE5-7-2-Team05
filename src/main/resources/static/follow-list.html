@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팔로우 목록</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="follow-nav">
+        <button class="follow-nav-button active" data-tab="followers">팔로워</button>
+        <button class="follow-nav-button" data-tab="following">팔로잉</button>
+    </div>
+
+    <div class="follow-list-container">
+        <!-- 팔로워 목록 -->
+        <ul id="followers-list" class="user-list">
+            <!-- 팔로워 목록이 여기에 동적으로 추가됩니다 -->
+        </ul>
+
+        <!-- 팔로잉 목록 -->
+        <ul id="following-list" class="user-list" style="display: none;">
+            <!-- 팔로잉 목록이 여기에 동적으로 추가됩니다 -->
+        </ul>
+
+        <!-- 빈 상태 메시지 -->
+        <div class="empty-state" style="display: none;">
+            <p>아직 팔로우하는 사용자가 없습니다.</p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/follow.js"></script>
+</body>
+</html> 
