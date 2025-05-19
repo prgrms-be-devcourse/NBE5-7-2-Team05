@@ -50,9 +50,13 @@ document.addEventListener("DOMContentLoaded", () => {
             alert(err.message)
         }
     })
+    // 댓글 기능 추가
+    initCommentFeature()
+    //fetchAndRenderTasks(selectedDate) // 달력에서 날짜 클릭 시 할일 조회해서 랜더링해주면 있을필요 없음.
 })
 
 // JSON 요청에 사용
+function authFetch(url, options = {}) {
     const token = getCookie("accessToken")
     return fetch(url, {
         ...options,
