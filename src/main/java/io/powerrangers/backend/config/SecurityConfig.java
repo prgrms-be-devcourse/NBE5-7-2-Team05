@@ -33,6 +33,7 @@ public class SecurityConfig {
                         )
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/loginPage")
                         .successHandler(oauth2SuccessHandler)
                         .failureHandler(customOAuth2AuthenticationFailureHandler))
                 .authorizeHttpRequests(auth ->
@@ -44,7 +45,10 @@ public class SecurityConfig {
                                         "/favicon.ico",
                                         "/css/**",
                                         "/js/**",
-                                        "/users/reissue")
+                                        "/users/reissue",
+                                        "/loginPage",
+                                        "/images/**",
+                                        "/fonts/**")
                                     .permitAll()
                                 .anyRequest()
                                     .authenticated()

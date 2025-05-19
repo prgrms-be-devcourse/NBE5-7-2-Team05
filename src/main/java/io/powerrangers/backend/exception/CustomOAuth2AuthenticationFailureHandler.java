@@ -14,19 +14,14 @@ import org.springframework.stereotype.Component;
 public class CustomOAuth2AuthenticationFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                        AuthenticationException e) throws IOException, ServletException {
-        if(e instanceof OAuth2AuthenticationException oauthException){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(
-                    String.format("{\"error message\": \"%s\"}",
-                            oauthException.getError().getDescription())
-            );
-            response.getWriter().flush();
-        } else {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                                        AuthenticationException exception) throws IOException, ServletException {
+        String errorMessage = "로그인에 실패했습니다.";
+        if(exception instanceof OAuth2AuthenticationException oauthException){
+            errorMessage += oauthException.getError().getDescription();
         }
 
+        request.getSession().setAttribute("error", errorMessage);
+
+        response.sendRedirect("/oauth2/login");
     }
 }

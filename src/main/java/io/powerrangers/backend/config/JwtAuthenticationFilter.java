@@ -45,7 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/login",             // 로그인 페이지
             "/oauth2/**",         // OAuth2 관련 리디렉션 URL
             "/users/reissue",     // access token 재발급 요청
-            "/.well-known/appspecific/com.chrome.devtools.json" // 크롬에서 날라오는 백엔드용 요청..?
+            "/.well-known/appspecific/com.chrome.devtools.json", // 크롬에서 날라오는 백엔드용 요청..?
+            "/loginPage",
+            "/images/**",
+            "/fonts/**"
     );
 
     @Override
