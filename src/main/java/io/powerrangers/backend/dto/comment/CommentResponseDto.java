@@ -19,10 +19,12 @@ public class CommentResponseDto {
     private final String profileImage;
     private final List<CommentResponseDto> children;
     private final LocalDateTime createdAt;
+    private final Long userId;
 
     public static CommentResponseDto from(Comment comment) {
         return CommentResponseDto.builder()
                 .id(comment.getId())
+                .userId(comment.getUser().getId())
                 .content(comment.getContent())
                 .nickname(comment.getUser().getNickname())
                 .profileImage(comment.getUser().getProfileImage()) // 없으면 null

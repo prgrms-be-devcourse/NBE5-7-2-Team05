@@ -106,6 +106,7 @@ public class CommentService {
 
         return CommentResponseDto.builder()
                 .id(parent.getId())
+                .userId(parent.getUser().getId())
                 .content(parent.getContent())
                 .nickname(parent.getUser().getNickname())
                 .profileImage(parent.getUser().getProfileImage())
