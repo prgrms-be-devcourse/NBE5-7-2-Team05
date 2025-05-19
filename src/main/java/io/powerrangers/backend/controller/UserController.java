@@ -6,16 +6,23 @@ import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
+
+import java.io.IOException;
+import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.util.List;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -23,13 +30,16 @@ public class UserController {
 
     private final UserService userService;
 
-    @PatchMapping("/{userId}")
+    @PatchMapping(value ="/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BaseResponse<?>> updateUserProfile(
             @PathVariable Long userId,
-            @RequestBody UserUpdateProfileRequestDto request
-    ){
-        userService.updateUserProfile(userId, request);
-        return BaseResponse.success(HttpStatus.OK);
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "dto") UserUpdateProfileRequestDto request
+            ) throws IOException {
+        log.info("nickname = " + request.getNickname());
+        log.info("intro = " + request.getIntro());
+        userService.updateUserProfile(userId, request, image);
+        return BaseResponse.success(SuccessCode.MODIFIED_SUCCESS);
     }
 
     @GetMapping("/{userId}")

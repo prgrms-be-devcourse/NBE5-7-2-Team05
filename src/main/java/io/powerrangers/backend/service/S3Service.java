@@ -1,16 +1,21 @@
 package io.powerrangers.backend.service;
 
+import io.powerrangers.backend.exception.CustomException;
+import io.powerrangers.backend.exception.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class S3Service {
 
@@ -41,6 +46,25 @@ public class S3Service {
         s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
 
         return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
+
+    public void delete(String imagePath) throws IOException{
+        if (imagePath == null || imagePath.isBlank()) return;
+
+        String key = extractKeyFromUrl(imagePath);
+
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+        s3Client.deleteObject(deleteRequest);
+
+    }
+
+    private String extractKeyFromUrl(String imagePath) {
+        String baseUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/";
+        return imagePath.replace(baseUrl, "");
     }
 }
 

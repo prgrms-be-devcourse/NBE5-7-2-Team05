@@ -1,10 +1,12 @@
 package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
 import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.service.FollowService;
+import io.powerrangers.backend.service.ContextUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,11 @@ public class FollowController {
     @GetMapping("/{userId}/followings")
     public ResponseEntity<BaseResponse<List<UserFollowResponseDto>>> getFollowings(@PathVariable Long userId){
         return BaseResponse.success(HttpStatus.OK, followService.findFollowings(userId));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponse<FollowCountResponseDto>> getFollowCount(@PathVariable Long userId){
+        return BaseResponse.success(SuccessCode.GET_SUCCESS, followService.getFollowCount(userId));
     }
 
 }

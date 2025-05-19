@@ -13,13 +13,16 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.AuthTokenException;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
+
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -29,7 +32,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepositoryAdapter;
     private final JwtProvider jwtProvider;
+
+    
+    private final S3Service s3Service;
     private final TaskService taskService;
+
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplication(String nickname){
@@ -46,11 +53,7 @@ public class UserService {
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.builder()
-                .nickname(findUser.getNickname())
-                .intro(findUser.getIntro())
-                .profileImage(findUser.getProfileImage())
-                .build();
+        UserGetProfileResponseDto userGetProfileResponseDto = UserGetProfileResponseDto.from(findUser);
 
         return userGetProfileResponseDto;
     }
@@ -67,12 +70,17 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserGetProfileResponseDto> searchUserProfile(String nickname){
-        List<UserGetProfileResponseDto> userList = userRepository.findByNickname(nickname.trim());
-        return userList;
+        List<User> userList = userRepository.findByNickname(nickname.trim());
+
+        return userList.stream()
+                .map(user -> UserGetProfileResponseDto.from(user))
+                .toList();
+
+
     }
 
     @Transactional
-    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request){
+    public void updateUserProfile(Long userId, UserUpdateProfileRequestDto request, MultipartFile image) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -80,13 +88,35 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-        if(checkNicknameDuplication(request.getNickname())){
-            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
+                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            }
+
+            user.setNickname(request.getNickname());
+            user.setIntro(request.getIntro());
+            updateUserProfileImage(user, image);
+    }
+
+    private void updateUserProfileImage(User user, MultipartFile image) throws IOException {
+        String existingImageUrl = user.getProfileImage();
+
+        if (image == null || image.isEmpty()) {
+            s3Service.delete(existingImageUrl);
+            user.setProfileImage(null);
+            return;
         }
 
-        user.setNickname(request.getNickname());
-        user.setIntro(request.getIntro());
-        user.setProfileImage(request.getProfileImage());
+        if (!image.getContentType().startsWith("image/")) {
+            throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
+        }
+
+        // 예외 전파: try-catch 제거
+        if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
+            s3Service.delete(existingImageUrl);
+        }
+
+        String uploadedImageUrl = s3Service.upload(image);
+        user.setProfileImage(uploadedImageUrl);
     }
 
     @Transactional
@@ -131,7 +161,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public String reissueAccessToken(String refreshTokenValue){
         if(!jwtProvider.validateToken(refreshTokenValue)){
-            throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
+            throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
         }
 
         TokenBody tokenBody = jwtProvider.parseToken(refreshTokenValue);

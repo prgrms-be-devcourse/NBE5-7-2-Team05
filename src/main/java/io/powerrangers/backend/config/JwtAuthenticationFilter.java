@@ -45,6 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/login",             // 로그인 페이지
             "/oauth2/**",         // OAuth2 관련 리디렉션 URL
             "/users/reissue",     // access token 재발급 요청
+            "/search.html",            // 검색 페이지
+            "/follow-list.html",       // 팔로우 목록 페이지
             "/.well-known/appspecific/com.chrome.devtools.json" // 크롬에서 날라오는 백엔드용 요청..?
     );
 
@@ -65,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 filterChain.doFilter(request, response);
             } else {
-                throw new AuthTokenException(ErrorCode.INVALID_TOKEN);
+                throw new AuthTokenException(ErrorCode.UNAUTHORIZED);
             }
         } catch (AuthTokenException e) {
             log.error("filter 에서 문제 발생!");
