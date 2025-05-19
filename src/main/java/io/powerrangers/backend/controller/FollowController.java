@@ -32,7 +32,7 @@ public class FollowController {
     }
 
     @DeleteMapping("/{followingId}")
-    public ResponseEntity<BaseResponse<?>> unfollow(@PathVariable Long followingId){
+    public ResponseEntity<BaseResponse<Void>> unfollow(@PathVariable Long followingId){
         followService.unfollow(followingId);
         return BaseResponse.success(SuccessCode.DELETED_SUCCESS);
     }
