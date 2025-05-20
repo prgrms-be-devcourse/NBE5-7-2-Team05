@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
-    console.log("userId:", userId);
 
     // ✅ 로그인 확인
     if (!userId) {
@@ -47,8 +46,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
         const result = data.data;
 
-        console.log("팔로우 정보 !!!! : ", result);
-
         document.getElementById("follower-count").textContent = result.followerCount || 0;
         document.getElementById("following-count").textContent = result.followingCount || 0;
     } catch (err) {
@@ -70,6 +67,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const todoData = await todoRes.json();
         const tasks = todoData.data || [];
+
+        console.log("할일 : " + tasks);
+        console.log("할일 갯수 : "+tasks.length);
 
         const todoList = document.getElementById("todo-list");
         todoList.innerHTML = "";
@@ -116,14 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const imageData = await imageRes.json();
         const taskImages = imageData.data || [];
 
-        console.log("📦 전체 taskImages:", taskImages);
-        taskImages.forEach(task => {
-            console.log({
-                status: task.status,
-                imageUrl: task.imageUrl,
-                dueDate: task.dueDate
-            });
-        });
 
         const now = new Date();
         const thisMonth = now.getMonth();
@@ -141,7 +133,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             .reverse()
             .slice(0, 4);
 
-        console.log("🎉 이번 달 추억:", memories);
 
         const gallery = document.getElementById("memory-gallery");
         gallery.innerHTML = "";
