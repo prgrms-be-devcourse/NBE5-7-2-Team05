@@ -14,8 +14,12 @@ import io.powerrangers.backend.exception.ErrorCode;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -125,5 +129,43 @@ public class FollowService {
                 .followerCount(followersOfUser)
                 .followingCount(followingsOfUser)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserFollowResponseDto> getFollowers(Long userId, Long cursor, int size) {
+        System.out.println("=== getFollowers called ===");
+        System.out.println("userId: " + userId);
+        System.out.println("cursor: " + cursor);
+        System.out.println("size: " + size);
+
+        // 사용자 존재 여부 확인
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        System.out.println("Target user found: " + targetUser.getNickname());
+
+        Pageable pageable = PageRequest.of(0, size);
+        List<Follow> follows = followRepository.findFollowersWithCursor(userId, cursor, pageable);
+        System.out.println("Found follows count: " + follows.size());
+
+        List<UserFollowResponseDto> result = follows.stream()
+                .map(f -> {
+                    User follower = f.getFollower();
+                    System.out.println("Processing follower: " + follower.getId() + ", " + follower.getNickname());
+                    return UserFollowResponseDto.from(follower);
+                })
+                .toList();
+        
+        System.out.println("Final result size: " + result.size());
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserFollowResponseDto> getFollowings(Long userId, Long cursor, int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        List<Follow> follows = followRepository.findFollowingsWithCursor(userId, cursor, pageable);
+
+        return follows.stream()
+                .map(f -> UserFollowResponseDto.from(f.getFollowing()))
+                .toList();
     }
 }
