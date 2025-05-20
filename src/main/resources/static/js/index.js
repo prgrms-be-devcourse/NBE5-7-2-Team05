@@ -1,6 +1,7 @@
 import {apiFetch} from "./token-reissue.js";
 import {fetchAndRenderTasks} from './main.js';
-function buildCalendar(container, date = new Date()) {
+
+export function buildCalendar(container, userId, date = new Date()) {
     container.innerHTML = "";
 
     const state = {
@@ -71,7 +72,7 @@ function buildCalendar(container, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
-                fetchTodosUntil(state.selected)
+                fetchTodosUntil(state.selected, userId)
             });
 
             grid.appendChild(dateEl);
@@ -93,7 +94,7 @@ function buildCalendar(container, date = new Date()) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const calendarContainer = document.getElementById("calendar");
-    buildCalendar(calendarContainer);
+    buildCalendar(calendarContainer, localStorage.getItem("userId"));
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
@@ -112,8 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function fetchTodosUntil(date) {
-    const userId = localStorage.getItem("userId");
+async function fetchTodosUntil(date, userId) {
     if (!userId) {
         alert("로그인 정보가 없습니다.");
         return [];
@@ -132,7 +132,7 @@ async function fetchTodosUntil(date) {
         });
 
         if (!response.ok) throw new Error("할 일 조회 실패");
-        await fetchAndRenderTasks(date);
+        await fetchAndRenderTasks(date, userId);
     } catch (err) {
         console.error(err);
         alert("할 일 조회 중 오류 발생");
