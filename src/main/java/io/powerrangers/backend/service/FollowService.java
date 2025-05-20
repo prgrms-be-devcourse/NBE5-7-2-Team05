@@ -98,7 +98,6 @@ public class FollowService {
         User me = userRepository.findById(myId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User target = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-
         return FollowCheckResponseDto.builder()
                 .userId(userId)
                 .following(followRepository.existsByFollowerAndFollowing(me, target))
