@@ -1,10 +1,16 @@
-const userId = new URLSearchParams(window.location.search).get("userId") || localStorage.getItem("userId")
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("userId");
+const existingUserId = localStorage.getItem("userId");
 
-if (userId) {
-    localStorage.setItem("userId", userId)
-    console.log("userId 초기화됨:", userId)
-} else {
-    alert("로그인 정보가 없습니다. 다시 로그인해주세요.")
+// userId가 아예 없을 때만 저장 (최초 진입 시)
+if (!existingUserId && userId) {
+    localStorage.setItem("userId", userId);
+    console.log("✅ userId 최초 저장됨:", userId);
+}
+
+// 그래도 userId가 없다면 → 로그인 필요
+if (!userId && !existingUserId) {
+    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
 }
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("taskForm")

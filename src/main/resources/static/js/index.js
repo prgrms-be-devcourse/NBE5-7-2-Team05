@@ -143,15 +143,3 @@ async function fetchTodosUntil(date, userId) {
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "/mypage";
 });
-
-window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("userId");
-
-    if (userId) {
-        localStorage.setItem("userId", userId);
-        console.log("userId 저장됨:", userId);
-    } else {
-        console.warn("userId가 URL에 없습니다.");
-    }
-};
