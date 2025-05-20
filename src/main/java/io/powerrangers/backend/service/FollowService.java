@@ -139,13 +139,4 @@ public class FollowService {
                 .build();
     }
 
-    public TaskScope checkScope(Long currentUserId, Long targetUserId) {
-        if (currentUserId.equals(targetUserId)) {
-            return TaskScope.PRIVATE;
-        }
-        if (followRepository.existsByFollowerIdAndFollowingId(currentUserId, targetUserId)) {
-            return TaskScope.FOLLOWERS;
-        }
-        return TaskScope.PUBLIC;
-    }
 }

@@ -156,7 +156,7 @@ public class TaskService {
     public TaskSummaryResponseDto getMonthlyTaskSummary(Long targetUserId, int year, int month) {
         Long currentUserId = ContextUtil.getCurrentUserId();
 
-        TaskScope scope = followService.checkScope(currentUserId, targetUserId);
+        TaskScope scope = followService.checkScopeWithUser(targetUserId);
 
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
