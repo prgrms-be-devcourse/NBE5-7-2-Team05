@@ -6,7 +6,7 @@ function buildCalendar(container, date = new Date()) {
     const state = {
         today: new Date(),
         current: new Date(date.getFullYear(), date.getMonth(), 1),
-        selected: null,
+        selected: new Date(),
     };
 
     const header = document.createElement("div");
@@ -88,12 +88,16 @@ function buildCalendar(container, date = new Date()) {
     });
 
     render();
+    fetchTodosUntil(state.selected);
 }
 
 
 document.addEventListener("DOMContentLoaded", () => {
     const calendarContainer = document.getElementById("calendar");
     buildCalendar(calendarContainer);
+
+    // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
+    fetchAndRenderTasks(new Date())
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
