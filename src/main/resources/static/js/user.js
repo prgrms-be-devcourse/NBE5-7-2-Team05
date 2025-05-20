@@ -43,6 +43,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     initCommentFeature()
+
+    // 프로필 보기 버튼 동작
+    const viewProfileBtn = document.getElementById("viewProfileBtn");
+    viewProfileBtn.addEventListener("click", () => {
+        // 현재 페이지를 targetUserId 기준으로 다시 로드
+        window.location.href = `/user-page.html?userId=${targetUserId}`;
+    });
 });
 
 export async function initFollowToggleButton(targetUserId) {
