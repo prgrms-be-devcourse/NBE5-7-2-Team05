@@ -1,10 +1,16 @@
-const userId = new URLSearchParams(window.location.search).get("userId") || localStorage.getItem("userId")
+const urlParams = new URLSearchParams(window.location.search);
+const userId = urlParams.get("userId");
+const existingUserId = localStorage.getItem("userId");
 
-if (userId) {
-    localStorage.setItem("userId", userId)
-    console.log("userId 초기화됨:", userId)
-} else {
-    alert("로그인 정보가 없습니다. 다시 로그인해주세요.")
+// userId가 아예 없을 때만 저장 (최초 진입 시)
+if (!existingUserId && userId) {
+    localStorage.setItem("userId", userId);
+    console.log("✅ userId 최초 저장됨:", userId);
+}
+
+// 그래도 userId가 없다면 → 로그인 필요
+if (!userId && !existingUserId) {
+    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
 }
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("taskForm")
@@ -34,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             if (!res.ok) throw new Error("마감일을 지금보다 이후 시간으로 설정해주세요.")
 
-            await fetchAndRenderTasks(new Date())
+            await fetchAndRenderTasks(new Date(), userId)
             form.reset()
             form.classList.add("hidden")
         } catch (err) {
@@ -80,7 +86,7 @@ async function authUpload(url, formData) {
     })
 }
 
-export async function fetchAndRenderTasks(date) {
+export async function fetchAndRenderTasks(date, targetUserId) {
     try {
         const dateStr =
             date.getFullYear() +
@@ -89,17 +95,17 @@ export async function fetchAndRenderTasks(date) {
             "-" +
             String(date.getDate()).padStart(2, "0")
 
-        const url = `/users/${userId}/tasks?date=${dateStr}`
+        const url = `/users/${targetUserId}/tasks?date=${dateStr}`
 
         const res = await authFetch(url)
         const data = await res.json()
-        renderTasksByCategory(data.data || [])
+        renderTasksByCategory(data.data || [], targetUserId)
     } catch (err) {
         console.error("할 일 조회 실패:", err)
     }
 }
 
-function renderTasksByCategory(tasks) {
+function renderTasksByCategory(tasks, targetUserId) {
     const container = document.getElementById("task-list")
     container.innerHTML = ""
 
@@ -131,7 +137,7 @@ function renderTasksByCategory(tasks) {
         column.appendChild(categoryHeader)
 
         categoryTasks.forEach((task) => {
-            const taskItem = createTaskItem(task)
+            const taskItem = createTaskItem(task, targetUserId)
             column.appendChild(taskItem)
         })
 
@@ -154,7 +160,10 @@ function dueDateToDate(dueDateStr) {
     return new Date(dueDateStr)
 }
 
-function createTaskItem(task) {
+function createTaskItem(task, targetUserId) {
+    const isMine = targetUserId === existingUserId;
+    console.log(isMine)
+
     const taskItem = document.createElement("div")
     taskItem.className = "task-item"
     taskItem.id = `task-${task.id}`
@@ -168,10 +177,13 @@ function createTaskItem(task) {
         task.status === "COMPLETE"
             ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12L10 17L19 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
             : ""
-    checkbox.addEventListener("click", () => {
-        const isChecked = !checkbox.classList.contains("checked")
-        toggleTaskStatus(task.id, isChecked)
-    })
+
+    if (isMine) {
+        checkbox.addEventListener("click", () => {
+            const isChecked = !checkbox.classList.contains("checked");
+            toggleTaskStatus(task.id, isChecked);
+        });
+    }
 
     // 할 일 내용
     const content = document.createElement("div")
@@ -183,49 +195,65 @@ function createTaskItem(task) {
 
     content.appendChild(title)
 
-    // 메뉴 버튼
-    const menu = document.createElement("div")
-    menu.className = "task-menu"
+    // ===== 메뉴 버튼 (본인일 때만) =====
+    if (isMine) {
+        const menu = document.createElement("div");
+        menu.className = "task-menu";
 
-    const menuIcon = document.createElement("div")
-    menuIcon.className = "task-menu-icon"
-    menuIcon.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        const menuIcon = document.createElement("div");
+        menuIcon.className = "task-menu-icon";
+        menuIcon.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11
+                       C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 13C19.5523 13 20 12.5523 20 12
+                       C20 11.4477 19.5523 11 19 11
+                       C18.4477 11 18 11.4477 18 12
+                       C18 12.5523 18.4477 13 19 13Z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 13C5.55228 13 6 12.5523 6 12
+                       C6 11.4477 5.55228 11 5 11
+                       C4.44772 11 4 11.4477 4 12
+                       C4 12.5523 4.44772 13 5 13Z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`;
 
-    const menuDropdown = document.createElement("div")
-    menuDropdown.className = "task-menu-dropdown hidden"
+        const menuDropdown = document.createElement("div");
+        menuDropdown.className = "task-menu-dropdown hidden";
 
-    const menuItems = [
-        { text: "할 일 수정", action: () => editTask(task.id) },
-        { text: "할 일 삭제", action: () => deleteTask(task.id) },
-        { text: "인증 사진 업로드", action: () => uploadImage(task.id) },
-        { text: "내일로 미루기", action: () => postponeDueDate(task.id) },
-    ]
+        const menuItems = [
+            { text: "할 일 수정", action: () => editTask(task.id) },
+            { text: "할 일 삭제", action: () => deleteTask(task.id) },
+            { text: "인증 사진 업로드", action: () => uploadImage(task.id) },
+            { text: "내일로 미루기", action: () => postponeDueDate(task.id) },
+        ];
 
-    menuItems.forEach((item) => {
-        const menuItem = document.createElement("div")
-        menuItem.className = "task-menu-item"
-        menuItem.textContent = item.text
-        menuItem.addEventListener("click", (e) => {
-            e.stopPropagation()
-            item.action()
-            menuDropdown.classList.add("hidden")
-        })
-        menuDropdown.appendChild(menuItem)
-    })
+        menuItems.forEach(item => {
+            const menuItem = document.createElement("div");
+            menuItem.className = "task-menu-item";
+            menuItem.textContent = item.text;
+            menuItem.addEventListener("click", (e) => {
+                e.stopPropagation();
+                item.action();
+                menuDropdown.classList.add("hidden");
+            });
+            menuDropdown.appendChild(menuItem);
+        });
 
-    menuIcon.addEventListener("click", (e) => {
-        e.stopPropagation()
-        menuDropdown.classList.toggle("hidden")
-    })
+        menuIcon.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuDropdown.classList.toggle("hidden");
+        });
 
-    // 다른 곳 클릭 시 메뉴 닫기
-    document.addEventListener("click", () => {
-        menuDropdown.classList.add("hidden")
-    })
+        document.addEventListener("click", () => {
+            menuDropdown.classList.add("hidden");
+        });
 
-    menu.appendChild(menuIcon)
-    menu.appendChild(menuDropdown)
+        menu.appendChild(menuIcon);
+        menu.appendChild(menuDropdown);
+        taskItem.appendChild(menu);
+    }
 
     // 댓글 푸터 요소
     const footer = document.createElement("div")
@@ -245,7 +273,6 @@ function createTaskItem(task) {
     // 요소 추가
     taskItem.appendChild(checkbox)
     taskItem.appendChild(content)
-    taskItem.appendChild(menu)
 
     // 이미지가 있는 경우 추가
     if (task.taskImage) {
@@ -315,7 +342,7 @@ async function toggleTaskStatus(taskId, isChecked) {
     } catch (err) {
         console.error("상태 업데이트 실패:", err)
         // 실패 시 원래 상태로 되돌림
-        await fetchAndRenderTasks(dueDateToDate(task.dueDate))
+        await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
     }
 }
 
@@ -388,7 +415,7 @@ async function editTask(taskId) {
             }
             const json = await res.json()
             const task = json.data
-            await fetchAndRenderTasks(dueDateToDate(task.dueDate))
+            await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
         } catch (err) {
             console.error("수정 실패:", err)
             alert(err.message)
@@ -438,7 +465,7 @@ async function deleteTask(taskId) {
 
         if (!res.ok) throw new Error("삭제 실패")
 
-        await fetchAndRenderTasks(dueDateToDate(task.dueDate))
+        await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
     } catch (err) {
         console.error("삭제 실패:", err)
         alert(err.message)
@@ -479,7 +506,7 @@ async function uploadImage(taskId) {
             const uploadRes = await authUpload(`http://localhost:8080/tasks/${taskId}/image`, formData)
             if (!uploadRes.ok) throw new Error("이미지 업로드 실패")
 
-            await fetchAndRenderTasks(dueDateToDate(task.dueDate))
+            await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
         } catch (err) {
             console.error("이미지 업로드 실패:", err)
             alert(err.message)
@@ -746,7 +773,7 @@ function updateCommentCount(taskId, count) {
 }
 
 // 댓글 기능 초기화
-function initCommentFeature() {
+export function initCommentFeature() {
     // 모달 생성
     const modal = createCommentModal()
     const commentList = modal.querySelector(".comment-list")
@@ -856,7 +883,7 @@ async function postponeDueDate(taskId) {
         const due = new Date(task.dueDate)
         due.setHours(due.getHours() - 24)
         const targetDate = due.toISOString()
-        await fetchAndRenderTasks(dueDateToDate(targetDate))
+        await fetchAndRenderTasks(dueDateToDate(targetDate), userId)
     } catch (err) {
         console.error("미루기 실패:", err)
         alert(err.message)

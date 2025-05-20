@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>파워레인저 – 메인</title>
+    <title>이봉주</title>
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="/css/fonts.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,8 +12,8 @@
 <body>
 <!-- ===== Header ===== -->
 <header class="header">
-    <div class="logo">
-        <span class="logo-text"> 파워레인저 <span class="star">★</span></span>
+    <div class="logo flex items-center gap-4" id="userProfileHeader">
+        <!-- JS에서 nickname과 profileImage 넣을 자리 -->
     </div>
 
     <div class="search-wrapper">
@@ -24,6 +24,10 @@
     </div>
 
     <div class="header-actions">
+        <button id="homeBtn" title="홈으로 이동" onclick="window.location.href='/index.html'">
+            <img src="/images/home-icon.png" alt="홈" class="w-7 h-7" />
+        </button>
+
         <!-- 마이페이지 버튼 -->
         <button class="icon-btn" id="profileBtn" title="마이 페이지">
             <svg width="54" height="51" viewBox="0 0 54 51" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,32 +51,18 @@
 
     <!-- ===== Task Management ===== -->
     <div class="task-panel">
-        <!-- 오른쪽 상단: 할 일 추가 버튼 -->
-        <div class="task-header">
-            <button id="showFormBtn" class="btn btn-accent">할 일 추가</button>
+        <!-- 버튼들을 가로로 나란히 정렬 -->
+        <div class="task-header flex gap-2 justify-end">
+            <button id="viewProfileBtn" class="btn btn-accent">프로필 보기</button>
+            <button id="followToggleBtn" class="btn btn-accent">팔로우</button>
         </div>
-
-        <form id="taskForm" class="hidden space-y-4 border p-4 rounded-lg bg-gray-100">
-            <input type="text" id="category" placeholder="카테고리" class="input input-bordered w-full" required />
-            <input type="text" id="content" placeholder="할 일 내용" class="input input-bordered w-full" required />
-            <input type="datetime-local" id="dueDate" class="input input-bordered w-full" required />
-            <select id="scope" class="select select-bordered w-full" required>
-                <option value="" disabled selected>공개 범위 선택</option>
-                <option value="PRIVATE">PRIVATE</option>
-                <option value="PUBLIC">PUBLIC</option>
-                <option value="FOLLOWERS">FOLLOWERS</option>
-            </select>
-            <button type="submit" class="btn btn-primary w-full">등록</button>
-        </form>
 
         <div id="task-list" class="mt-8 space-y-4"></div>
     </div>
 </main>
 
 <!-- ===== JavaScript ===== -->
-<script type='module' src="/js/index.js"></script>
-<script type='module' src="/js/main.js"></script>
-<script type='module' src="/js/initial-auth.js"></script>
+<script type='module' src="/js/user.js"></script>
 <script src="/js/search.js"></script>
 </body>
 </html>

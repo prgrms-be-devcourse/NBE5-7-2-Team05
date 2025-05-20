@@ -1,6 +1,7 @@
 import {apiFetch} from "./token-reissue.js";
 import {fetchAndRenderTasks} from './main.js';
-function buildCalendar(container, date = new Date()) {
+
+export function buildCalendar(container, targetUserId, date = new Date()) {
     container.innerHTML = "";
 
     const state = {
@@ -71,7 +72,7 @@ function buildCalendar(container, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
-                fetchTodosUntil(state.selected)
+                fetchTodosUntil(state.selected, targetUserId)
             });
 
             grid.appendChild(dateEl);
@@ -94,7 +95,7 @@ function buildCalendar(container, date = new Date()) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const calendarContainer = document.getElementById("calendar");
-    buildCalendar(calendarContainer);
+    buildCalendar(calendarContainer, localStorage.getItem("userId"));
 
     // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
     fetchAndRenderTasks(new Date())
@@ -109,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })  // (로그아웃은 access token 만료여도 재시도 불필요)
                 .finally(() => {
                     alert("성공적으로 로그아웃 되었습니다.");
+                    localStorage.removeItem("userId");
                     window.location.replace("/loginPage");
                 });
         }
@@ -116,9 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function fetchTodosUntil(date) {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+async function fetchTodosUntil(date, targetUserId) {
+    if (!targetUserId) {
         alert("로그인 정보가 없습니다.");
         return [];
     }
@@ -127,7 +128,7 @@ async function fetchTodosUntil(date) {
         String(date.getMonth() + 1).padStart(2, '0') + "-" +
         String(date.getDate()).padStart(2, '0');
 
-    const url = `/users/${userId}/tasks?date=${dateStr}`;
+    const url = `/users/${targetUserId}/tasks?date=${dateStr}`;
 
     try {
         const response = await apiFetch(url, {
@@ -136,7 +137,7 @@ async function fetchTodosUntil(date) {
         });
 
         if (!response.ok) throw new Error("할 일 조회 실패");
-        await fetchAndRenderTasks(date);
+        await fetchAndRenderTasks(date, targetUserId);
     } catch (err) {
         console.error(err);
         alert("할 일 조회 중 오류 발생");
@@ -147,15 +148,3 @@ async function fetchTodosUntil(date) {
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "/mypage";
 });
-
-window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get("userId");
-
-    if (userId) {
-        localStorage.setItem("userId", userId);
-        console.log("userId 저장됨:", userId);
-    } else {
-        console.warn("userId가 URL에 없습니다.");
-    }
-};
