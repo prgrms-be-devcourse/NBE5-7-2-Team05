@@ -88,35 +88,45 @@ public class UserService {
             throw new CustomException(ErrorCode.NOT_THE_OWNER);
         }
 
-            if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
-                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
-            }
+        if(!user.getNickname().equals(request.getNickname()) && checkNicknameDuplication(request.getNickname())){
+            throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+        }
 
-            user.setNickname(request.getNickname());
-            user.setIntro(request.getIntro());
-            updateUserProfileImage(user, image);
+        user.setNickname(request.getNickname());
+        user.setIntro(request.getIntro());
+        updateUserProfileImage(user, image, request.getProfileImage());
     }
-
-    private void updateUserProfileImage(User user, MultipartFile image) throws IOException {
+    private void updateUserProfileImage(User user, MultipartFile image, String profileImage) throws IOException {
         String existingImageUrl = user.getProfileImage();
 
-        if (image == null || image.isEmpty()) {
-            s3Service.delete(existingImageUrl);
+        // 1. 이미지 변경 없음 + 유지
+        if ((image == null || image.isEmpty()) && !profileImage.isBlank() && profileImage != null ) {
+            // 이미지 유지
+            return;
+        }
+
+        // 2. 이미지 삭제 요청
+        if ((image == null || image.isEmpty()) && (profileImage == null || profileImage.isBlank())) {
+            if (existingImageUrl != null && !existingImageUrl.isBlank()) {
+                s3Service.delete(existingImageUrl);
+            }
             user.setProfileImage(null);
             return;
         }
 
-        if (!image.getContentType().startsWith("image/")) {
-            throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
-        }
+        // 3. 새 이미지 업로드
+        if (image != null && !image.isEmpty()) {
+            if (!image.getContentType().startsWith("image/")) {
+                throw new CustomException(ErrorCode.UNSUPPORTED_RESOURCE);
+            }
 
-        // 예외 전파: try-catch 제거
-        if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
-            s3Service.delete(existingImageUrl);
-        }
+            if (existingImageUrl != null && !existingImageUrl.isBlank()) {
+                s3Service.delete(existingImageUrl);
+            }
 
-        String uploadedImageUrl = s3Service.upload(image);
-        user.setProfileImage(uploadedImageUrl);
+            String uploadedImageUrl = s3Service.upload(image);
+            user.setProfileImage(uploadedImageUrl);
+        }
     }
 
     @Transactional
