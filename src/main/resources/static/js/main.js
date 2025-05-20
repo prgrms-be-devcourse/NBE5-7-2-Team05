@@ -1,14 +1,12 @@
-let userId = new URLSearchParams(window.location.search).get("userId")
-    || localStorage.getItem("userId");
+const userId = new URLSearchParams(window.location.search).get("userId") || localStorage.getItem("userId")
 
 if (userId) {
-    localStorage.setItem("userId", userId);
-    console.log("userId 초기화됨:", userId);
+    localStorage.setItem("userId", userId)
+    console.log("userId 초기화됨:", userId)
 } else {
-    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+    alert("로그인 정보가 없습니다. 다시 로그인해주세요.")
 }
 document.addEventListener("DOMContentLoaded", () => {
-
     const form = document.getElementById("taskForm")
     const showFormBtn = document.getElementById("showFormBtn")
 
@@ -22,10 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const rawDateTime = document.getElementById("dueDate").value
         const dueDate = rawDateTime ? `${rawDateTime}:00` : null
 
-        let dateObj = null;
+        let dateObj = null
         if (rawDateTime) {
-            const dateOnlyStr = rawDateTime.split("T")[0];
-            dateObj = new Date(dateOnlyStr);
+            const dateOnlyStr = rawDateTime.split("T")[0]
+            dateObj = new Date(dateOnlyStr)
         }
 
         const taskData = {
@@ -60,19 +58,19 @@ export function authFetch(url, options = {}) {
     return fetch(url, {
         ...options,
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            ...(options.headers || {})
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            ...(options.headers || {}),
         },
-        credentials: 'include', // 쿠키 필요 시
+        credentials: "include", // 쿠키 필요 시
     })
 }
 
 function getCookie(name) {
-    const cookieArr = document.cookie.split(';')
+    const cookieArr = document.cookie.split(";")
     for (let i = 0; i < cookieArr.length; i++) {
         const cookiePair = cookieArr[i].trim()
-        if (cookiePair.startsWith(name + '=')) {
+        if (cookiePair.startsWith(name + "=")) {
             return cookiePair.substring(name.length + 1)
         }
     }
@@ -85,88 +83,90 @@ async function authUpload(url, formData) {
         method: "PATCH",
         headers: {},
         body: formData,
-        credentials : "include",
+        credentials: "include",
     })
 }
 
 export async function fetchAndRenderTasks(date) {
     try {
-        const dateStr = date.getFullYear() + "-" +
-            String(date.getMonth() + 1).padStart(2, '0') + "-" +
-            String(date.getDate()).padStart(2, '0');
+        const dateStr =
+            date.getFullYear() +
+            "-" +
+            String(date.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(date.getDate()).padStart(2, "0")
 
-        const url = `/users/${userId}/tasks?date=${dateStr}`;
+        const url = `/users/${userId}/tasks?date=${dateStr}`
 
-
-        const res = await authFetch(url);
-        const data = await res.json();
-        renderTasksByCategory(data.data || []);
+        const res = await authFetch(url)
+        const data = await res.json()
+        renderTasksByCategory(data.data || [])
     } catch (err) {
-        console.error('할 일 조회 실패:', err);
+        console.error("할 일 조회 실패:", err)
     }
 }
 
 function renderTasksByCategory(tasks) {
-    const container = document.getElementById("task-list");
-    container.innerHTML = "";
+    const container = document.getElementById("task-list")
+    container.innerHTML = ""
 
     if (!tasks || tasks.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center mt-4">등록된 할 일이 없습니다.</p>';
-        return;
+        container.innerHTML = '<p class="text-gray-500 text-center mt-4">등록된 할 일이 없습니다.</p>'
+        return
     }
 
     // 카테고리별로 그룹화
-    const grouped = {};
+    const grouped = {}
     tasks.forEach((task) => {
-        if (!grouped[task.category]) grouped[task.category] = [];
-        grouped[task.category].push(task);
-    });
+        if (!grouped[task.category]) grouped[task.category] = []
+        grouped[task.category].push(task)
+    })
 
-    // 전체를 감쌀 컨테이너 (좌우 배치용 flex)
-    const categoryWrapper = document.createElement("div");
-    categoryWrapper.className = "flex gap-6 overflow-x-auto px-4"; // tailwind 스타일, 필요시 수정
+    // 전체를 감쌀 컨테이너 (그리드 레이아웃으로 변경)
+    const categoryWrapper = document.createElement("div")
+    categoryWrapper.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4"
+    categoryWrapper.style.width = "100%" // 전체 너비 사용
 
     Object.entries(grouped).forEach(([category, categoryTasks]) => {
-        const column = document.createElement("div");
-        column.className = "min-w-[250px] flex-shrink-0 bg-gray-100 p-3 rounded shadow-md";
+        const column = document.createElement("div")
+        column.className = "bg-gray-100 p-3 rounded shadow-md"
 
-        const categoryHeader = document.createElement("h3");
-        categoryHeader.className = "font-semibold text-lg mb-2 border-b pb-1";
-        categoryHeader.textContent = category;
+        const categoryHeader = document.createElement("h3")
+        categoryHeader.className = "font-semibold text-lg mb-2 border-b pb-1"
+        categoryHeader.textContent = category
 
-        column.appendChild(categoryHeader);
+        column.appendChild(categoryHeader)
 
         categoryTasks.forEach((task) => {
-            const taskItem = createTaskItem(task);
-            column.appendChild(taskItem);
-        });
+            const taskItem = createTaskItem(task)
+            column.appendChild(taskItem)
+        })
 
-        categoryWrapper.appendChild(column);
-    });
+        categoryWrapper.appendChild(column)
+    })
 
-    container.appendChild(categoryWrapper);
+    container.appendChild(categoryWrapper)
 
     setTimeout(() => {
-        const taskItems = document.querySelectorAll(".task-item");
+        const taskItems = document.querySelectorAll(".task-item")
         for (const taskItem of taskItems) {
-            const taskId = taskItem.id.replace("task-", "");
-            refreshCommentCount(taskId);
+            const taskId = taskItem.id.replace("task-", "")
+            refreshCommentCount(taskId)
         }
-    }, 100);
-
+    }, 100)
 }
 
 function dueDateToDate(dueDateStr) {
-    if (!dueDateStr) return null;  // null이나 undefined 처리
-    return new Date(dueDateStr);
+    if (!dueDateStr) return null // null이나 undefined 처리
+    return new Date(dueDateStr)
 }
 
 function createTaskItem(task) {
     const taskItem = document.createElement("div")
     taskItem.className = "task-item"
     taskItem.id = `task-${task.id}`
-    taskItem.setAttribute("data-category", task.category);
-    taskItem.setAttribute("data-scope", task.scope);
+    taskItem.setAttribute("data-category", task.category)
+    taskItem.setAttribute("data-scope", task.scope)
 
     // 체크박스
     const checkbox = document.createElement("div")
@@ -281,21 +281,20 @@ function createTaskItem(task) {
 }
 
 async function toggleTaskStatus(taskId, isChecked) {
-
-    let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
     if (!res.ok) {
-        alert("할 일 정보를 불러오는 데 실패했습니다.");
-        return;
+        alert("할 일 정보를 불러오는 데 실패했습니다.")
+        return
     }
-    let json = await res.json();
-    let task = json.data;
+    const json = await res.json()
+    const task = json.data
     if (!task) {
-        alert("할 일 정보를 찾을 수 없습니다.");
-        return;
+        alert("할 일 정보를 찾을 수 없습니다.")
+        return
     }
     if (task.taskImage) {
-        alert("인증 이미지가 있는 할 일은 미완료 상태일 수 없습니다.");
-        return;
+        alert("인증 이미지가 있는 할 일은 미완료 상태일 수 없습니다.")
+        return
     }
 
     const status = isChecked ? "COMPLETE" : "INCOMPLETE"
@@ -328,110 +327,107 @@ async function toggleTaskStatus(taskId, isChecked) {
 }
 
 async function editTask(taskId) {
-    const taskItem = document.getElementById(`task-${taskId}`);
-    if (!taskItem) return;
+    const taskItem = document.getElementById(`task-${taskId}`)
+    if (!taskItem) return
 
     // 현재 할 일 정보 가져오기
-    const taskContent = taskItem.querySelector('.task-content');
-    const taskTitle = taskItem.querySelector('.task-title');
-    const originalContent = taskTitle.textContent.trim();
+    const taskContent = taskItem.querySelector(".task-content")
+    const taskTitle = taskItem.querySelector(".task-title")
+    const originalContent = taskTitle.textContent.trim()
 
-
-    const originalCategory = taskItem.getAttribute('data-category') || '';
-    const originalScope = taskItem.getAttribute('data-scope') || 'PRIVATE';
+    const originalCategory = taskItem.getAttribute("data-category") || ""
+    const originalScope = taskItem.getAttribute("data-scope") || "PRIVATE"
 
     // 기존 할 일 내용 숨기기
-    taskItem.style.display = 'none';
+    taskItem.style.display = "none"
 
     // 수정 폼 생성
-    const form = document.createElement('form');
-    form.className = "edit-form bg-gray-200 p-4 rounded-lg mb-3";
+    const form = document.createElement("form")
+    form.className = "edit-form bg-gray-200 p-4 rounded-lg mb-3"
     form.innerHTML = `
     <div class="flex flex-col gap-2">
       <input type="text" name="category" placeholder="카테고리" class="input input-bordered w-full" value="${originalCategory}" required />
       <input type="text" name="content" placeholder="할 일 내용" class="input input-bordered w-full" value="${originalContent}" required />
       <select name="scope" class="select select-bordered w-full" required>
-        <option value="PRIVATE" ${originalScope === 'PRIVATE' ? 'selected' : ''}>PRIVATE</option>
-        <option value="PUBLIC" ${originalScope === 'PUBLIC' ? 'selected' : ''}>PUBLIC</option>
-        <option value="FOLLOWERS" ${originalScope === 'FOLLOWERS' ? 'selected' : ''}>FOLLOWERS</option>
+        <option value="PRIVATE" ${originalScope === "PRIVATE" ? "selected" : ""}>PRIVATE</option>
+        <option value="PUBLIC" ${originalScope === "PUBLIC" ? "selected" : ""}>PUBLIC</option>
+        <option value="FOLLOWERS" ${originalScope === "FOLLOWERS" ? "selected" : ""}>FOLLOWERS</option>
       </select>
       <div class="flex gap-2 justify-end mt-2">
         <button type="submit" class="btn btn-sm btn-primary">저장</button>
         <button type="button" class="btn btn-sm btn-ghost cancel-edit">취소</button>
       </div>
     </div>
-  `;
+  `
 
     // 폼 제출 이벤트 처리
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault()
 
-        const updatedCategory = form.category.value.trim();
-        const updatedContent = form.content.value.trim();
-        const updatedScope = form.scope.value;
+        const updatedCategory = form.category.value.trim()
+        const updatedContent = form.content.value.trim()
+        const updatedScope = form.scope.value
 
         try {
             const response = await authFetch(`http://localhost:8080/tasks/${taskId}`, {
-                method: 'PATCH',
+                method: "PATCH",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     category: updatedCategory,
                     content: updatedContent,
-                    scope: updatedScope
-                })
-            });
+                    scope: updatedScope,
+                }),
+            })
 
-            if (!response.ok) throw new Error('할 일 수정에 실패했습니다.');
+            if (!response.ok) throw new Error("할 일 수정에 실패했습니다.")
 
             // 수정 성공 시 UI 업데이트
-            form.remove();
-            taskItem.style.display = '';
+            form.remove()
+            taskItem.style.display = ""
 
             // 최신 할 일 목록 다시 불러오기
-            let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+            const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
             if (!res.ok) {
-                alert("할 일 정보를 불러오는 데 실패했습니다.");
-                return;
+                alert("할 일 정보를 불러오는 데 실패했습니다.")
+                return
             }
-            let json = await res.json();
-            let task = json.data;
+            const json = await res.json()
+            const task = json.data
             await fetchAndRenderTasks(dueDateToDate(task.dueDate))
-
         } catch (err) {
-            console.error('수정 실패:', err);
-            alert(err.message);
+            console.error("수정 실패:", err)
+            alert(err.message)
         }
-    });
+    })
 
     // 취소 버튼 이벤트 처리
-    form.querySelector('.cancel-edit').addEventListener('click', function() {
-        form.remove();
-        taskItem.style.display = '';
-    });
+    form.querySelector(".cancel-edit").addEventListener("click", () => {
+        form.remove()
+        taskItem.style.display = ""
+    })
 
     // 폼을 할 일 항목 바로 뒤에 삽입
-    taskItem.parentNode.insertBefore(form, taskItem.nextSibling);
+    taskItem.parentNode.insertBefore(form, taskItem.nextSibling)
 }
 
 async function deleteTask(taskId) {
-
-    let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
     if (!res.ok) {
-        alert("할 일 정보를 불러오는 데 실패했습니다.");
-        return;
+        alert("할 일 정보를 불러오는 데 실패했습니다.")
+        return
     }
-    let json = await res.json();
-    let task = json.data;
+    const json = await res.json()
+    const task = json.data
     if (!task) {
-        alert("할 일 정보를 찾을 수 없습니다.");
-        return;
+        alert("할 일 정보를 찾을 수 없습니다.")
+        return
     }
 
     if (task.taskImage) {
-        alert("인증 이미지가 있는 할 일은 삭제할 수 없습니다.");
-        return;
+        alert("인증 이미지가 있는 할 일은 삭제할 수 없습니다.")
+        return
     }
 
     const confirmed = confirm("정말 삭제하시겠습니까?")
@@ -453,48 +449,48 @@ async function deleteTask(taskId) {
 
 async function uploadImage(taskId) {
     // 먼저 해당 task의 최신 상태를 가져옴
-    let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
     if (!res.ok) {
-        alert("할 일 정보를 불러오는 데 실패했습니다.");
-        return;
+        alert("할 일 정보를 불러오는 데 실패했습니다.")
+        return
     }
 
-    let json = await res.json();
-    let task = json.data;
+    const json = await res.json()
+    const task = json.data
     if (!task) {
-        alert("할 일 정보를 찾을 수 없습니다.");
-        return;
+        alert("할 일 정보를 찾을 수 없습니다.")
+        return
     }
     if (task.status !== "COMPLETE") {
-        alert("할 일이 완료된 상태에서만 인증 사진을 업로드할 수 있습니다.");
-        return;
+        alert("할 일이 완료된 상태에서만 인증 사진을 업로드할 수 있습니다.")
+        return
     }
 
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = "image/*"
 
     input.addEventListener("change", async () => {
-        const file = input.files[0];
-        if (!file) return;
+        const file = input.files[0]
+        if (!file) return
 
-        const formData = new FormData();
-        formData.append("image", file);
+        const formData = new FormData()
+        formData.append("image", file)
 
         try {
-            const uploadRes = await authUpload(`http://localhost:8080/tasks/${taskId}/image`, formData);
-            if (!uploadRes.ok) throw new Error("이미지 업로드 실패");
+            const uploadRes = await authUpload(`http://localhost:8080/tasks/${taskId}/image`, formData)
+            if (!uploadRes.ok) throw new Error("이미지 업로드 실패")
 
             await fetchAndRenderTasks(dueDateToDate(task.dueDate))
         } catch (err) {
-            console.error("이미지 업로드 실패:", err);
-            alert(err.message);
+            console.error("이미지 업로드 실패:", err)
+            alert(err.message)
         }
-    });
+    })
 
-    document.body.appendChild(input);
-    input.click();
-    document.body.removeChild(input);
+    document.body.appendChild(input)
+    input.click()
+    document.body.removeChild(input)
 }
 
 // 댓글 모달 요소 생성
@@ -580,7 +576,9 @@ function createCommentElement(comment, taskId, isReply = false) {
     commentEl.className = isReply ? "reply-item ml-6 border-l pl-4 mt-2" : "comment-item mt-4"
     commentEl.dataset.id = comment.id
 
-    const authorImg = comment.profileImage || "data:image/jpeg;base64,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"
+    const authorImg =
+        comment.profileImage ||
+        "data:image/jpeg;base64,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"
     const authorName = comment.nickname || "사용자"
 
     const isMyComment = userId && comment.userId == userId
@@ -636,7 +634,7 @@ function createCommentElement(comment, taskId, isReply = false) {
 }
 
 function bindCommentEvents(commentEl, comment, taskId) {
-    const isMyComment = userId && comment.userId == userId;
+    const isMyComment = userId && comment.userId == userId
     if (isMyComment) {
         // 수정
         const editBtn = commentEl.querySelector(".edit-comment-btn")
@@ -666,8 +664,8 @@ function bindCommentEvents(commentEl, comment, taskId) {
 
                 const res = await authFetch(`http://localhost:8080/comments/${comment.id}`, {
                     method: "PUT",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({content: newContent}),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: newContent }),
                 })
 
                 if (res.ok) {
@@ -730,9 +728,9 @@ function bindCommentEvents(commentEl, comment, taskId) {
                 replyContainer.appendChild(replyEl)
                 replyTextarea.value = ""
                 replyForm.classList.add("hidden")
-                const comments = await fetchComments(taskId);
-                const totalCount = countCommentsWithReplies(comments);
-                updateCommentCount(taskId, totalCount);
+                const comments = await fetchComments(taskId)
+                const totalCount = countCommentsWithReplies(comments)
+                updateCommentCount(taskId, totalCount)
             }
         })
     }
@@ -830,26 +828,26 @@ async function refreshCommentCount(taskId) {
 }
 
 async function postponeDueDate(taskId) {
-    let res = await authFetch(`http://localhost:8080/tasks/${taskId}`);
+    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
     if (!res.ok) {
-        alert("할 일 정보를 불러오는 데 실패했습니다.");
-        return;
+        alert("할 일 정보를 불러오는 데 실패했습니다.")
+        return
     }
-    let json = await res.json();
-    let task = json.data;
+    const json = await res.json()
+    const task = json.data
     if (!task) {
-        alert("할 일 정보를 찾을 수 없습니다.");
-        return;
+        alert("할 일 정보를 찾을 수 없습니다.")
+        return
     }
 
     if (task.status === "COMPLETE") {
         alert("완료한 일은 미룰 수 없습니다")
-        return;
+        return
     }
 
-    let due = new Date(task.dueDate);
-    due.setHours(due.getHours() + 24);
-    task.dueDate = due.toISOString();
+    const due = new Date(task.dueDate)
+    due.setHours(due.getHours() + 24)
+    task.dueDate = due.toISOString()
     try {
         const res = await authFetch(`http://localhost:8080/tasks/${taskId}/postpone`, {
             method: "PATCH",
@@ -857,9 +855,9 @@ async function postponeDueDate(taskId) {
 
         if (!res.ok) throw new Error("미루기 실패")
 
-        let due = new Date(task.dueDate);
-        due.setHours(due.getHours() - 24);
-        const targetDate = due.toISOString();
+        const due = new Date(task.dueDate)
+        due.setHours(due.getHours() - 24)
+        const targetDate = due.toISOString()
         await fetchAndRenderTasks(dueDateToDate(targetDate))
     } catch (err) {
         console.error("미루기 실패:", err)
