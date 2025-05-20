@@ -64,11 +64,11 @@ public class CommentService {
         // 부모 댓글만 필터링
         List<Comment> parentComments = allComments.stream()
                 .filter(c -> c.getParent() == null)
-                .collect(Collectors.toList());
+                .toList();
 
         return parentComments.stream()
                 .map(parent -> toDto(parent, allComments))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -102,7 +102,7 @@ public class CommentService {
         List<CommentResponseDto> childrenDtos = allComments.stream()
                 .filter(c -> c.getParent() != null && Objects.equals(parent.getId(), c.getParent().getId()))
                 .map(child -> toDto(child, allComments))
-                .collect(Collectors.toList());
+                .toList();
 
         return CommentResponseDto.builder()
                 .id(parent.getId())
