@@ -20,12 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const rawDateTime = document.getElementById("dueDate").value
         const dueDate = rawDateTime ? `${rawDateTime}:00` : null
 
-        let dateObj = null
-        if (rawDateTime) {
-            const dateOnlyStr = rawDateTime.split("T")[0]
-            dateObj = new Date(dateOnlyStr)
-        }
-
         const taskData = {
             category: document.getElementById("category").value,
             content: document.getElementById("content").value,
@@ -38,8 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 body: JSON.stringify(taskData),
             })
-
-            if (!res.ok) throw new Error("할 일 추가 실패")
+            if (!res.ok) throw new Error("마감일을 지금보다 이후 시간으로 설정해주세요.")
 
             await fetchAndRenderTasks(new Date())
             form.reset()
@@ -293,7 +286,7 @@ async function toggleTaskStatus(taskId, isChecked) {
         return
     }
     if (task.taskImage) {
-        alert("인증 이미지가 있는 할 일은 미완료 상태일 수 없습니다.")
+        alert("완료 인증 이미지가 있는 할 일은 미완료 상태로 변경할 수 없습니다.")
         return
     }
 
@@ -426,11 +419,16 @@ async function deleteTask(taskId) {
     }
 
     if (task.taskImage) {
-        alert("인증 이미지가 있는 할 일은 삭제할 수 없습니다.")
+        alert("완료 인증 이미지가 있는 할 일은 삭제할 수 없습니다.")
         return
     }
 
-    const confirmed = confirm("정말 삭제하시겠습니까?")
+    const lastChar = task.content[task.content.length - 1];
+    const code = lastChar.charCodeAt(0);
+    const fin = (code - 0xac00) % 28;
+    const particle = (fin === 0) ? "를":"을";
+    const confirmed = confirm(`정말 "${task.content}"${particle} 삭제하시겠습니까?`);
+
     if (!confirmed) return
 
     try {
@@ -462,7 +460,7 @@ async function uploadImage(taskId) {
         return
     }
     if (task.status !== "COMPLETE") {
-        alert("할 일이 완료된 상태에서만 인증 사진을 업로드할 수 있습니다.")
+        alert("완료 인증 사진은 할 일을 완료한 후 업로드할 수 있습니다.")
         return
     }
 
