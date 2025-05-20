@@ -57,7 +57,7 @@ async function loadFollowList(type) {
             const isSelf = user.id.toString() === localStorage.getItem('userId');
             return `
                 <li class="user-list-item">
-                    <div class="user-container">
+                    <div class="user-container" data-user-id="${user.id}">
                         <div class="user-info">
                             <img src="${user.profileImage || '/images/default-profile.png'}" 
                                  alt="사용자 프로필" 
@@ -80,6 +80,7 @@ async function loadFollowList(type) {
         }).join('');
 
         attachFollowButtonListeners();
+        attachProfileClickListeners();
     } catch (error) {
         console.error(`${type} 목록 로드 중 오류 발생:`, error);
         const targetElement = type === 'followers' ? followersListElem : followingListElem;
@@ -144,6 +145,21 @@ function attachFollowButtonListeners() {
             } catch (error) {
                 console.error('팔로우 처리 중 오류 발생:', error);
                 alert(error.message || '팔로우 처리 중 오류가 발생했습니다.');
+            }
+        });
+    });
+}
+
+// 프로필 클릭 시 해당 유저의 할 일 목록으로 이동
+function attachProfileClickListeners() {
+    const containers = document.querySelectorAll('.user-container');
+    containers.forEach(container => {
+        container.addEventListener('click', function(e) {
+            // 팔로우 버튼 클릭 시는 무시
+            if (e.target.closest('.follow-button')) return;
+            const userId = container.dataset.userId;
+            if (userId) {
+                window.location.href = `/user.html?userId=${userId}`;
             }
         });
     });

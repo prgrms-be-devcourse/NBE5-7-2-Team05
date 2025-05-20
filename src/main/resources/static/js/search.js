@@ -56,16 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResults.innerHTML = users.map(user => {
             console.log("검색 결과 user:", user);
             const isFollowing = currentUserFollowings.some(following => following.id === user.userId);
-            const isSelf = String(user.userId) === currentUserId;
+            const isSelf = String(user.userId) === localStorage.getItem('userId');
             
             return `
                 <li class="user-list-item">
-                    <div class="user-container">
+                    <div class="user-container" data-user-id="${user.userId}">
                         <div class="user-info">
-                            <img src="${user.profileImage || 'images/default-profile.png'}" 
+                            <img src="${user.profileImage || '/images/default-profile.png'}" 
                                  alt="사용자 프로필" 
                                  class="user-profile-image"
-                                 onerror="this.src='images/default-profile.png'">
+                                 onerror="this.src='/images/default-profile.png'">
                             <div class="user-details">
                                 <span class="user-name">${user.nickname}</span>
                                 ${user.intro ? `<p class="user-intro">${user.intro}</p>` : ''}
@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         attachFollowButtonListeners();
+        attachProfileClickListeners();
     }
 
     function attachFollowButtonListeners() {
@@ -120,6 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) {
                     console.error('팔로우 처리 중 오류 발생:', error);
                     alert(error.message || '팔로우 처리 중 오류가 발생했습니다.');
+                }
+            });
+        });
+    }
+
+    // 프로필 클릭 시 해당 유저의 할 일 목록으로 이동
+    function attachProfileClickListeners() {
+        const containers = document.querySelectorAll('.user-container');
+        containers.forEach(container => {
+            container.addEventListener('click', function(e) {
+                // 팔로우 버튼 클릭 시는 무시
+                if (e.target.closest('.follow-button')) return;
+                const userId = container.dataset.userId;
+                if (userId) {
+                    window.location.href = `/user.html?userId=${userId}`;
                 }
             });
         });
