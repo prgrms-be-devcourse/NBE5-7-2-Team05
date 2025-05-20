@@ -100,7 +100,7 @@ public class UserService {
         String existingImageUrl = user.getProfileImage();
 
         // 1. 이미지 변경 없음 + 유지
-        if ((image == null || image.isEmpty()) && profileImage != null && !profileImage.isBlank()) {
+        if ((image == null || image.isEmpty()) && !profileImage.isBlank() && profileImage != null ) {
             // 이미지 유지
             return;
         }
