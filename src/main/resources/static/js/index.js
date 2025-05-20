@@ -1,7 +1,7 @@
 import {apiFetch} from "./token-reissue.js";
 import {fetchAndRenderTasks} from './main.js';
 
-export function buildCalendar(container, userId, date = new Date()) {
+export function buildCalendar(container, targetUserId, date = new Date()) {
     container.innerHTML = "";
 
     const state = {
@@ -72,7 +72,7 @@ export function buildCalendar(container, userId, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
-                fetchTodosUntil(state.selected, userId)
+                fetchTodosUntil(state.selected, targetUserId)
             });
 
             grid.appendChild(dateEl);
@@ -114,8 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function fetchTodosUntil(date, userId) {
-    if (!userId) {
+async function fetchTodosUntil(date, targetUserId) {
+    if (!targetUserId) {
         alert("로그인 정보가 없습니다.");
         return [];
     }
@@ -124,7 +124,7 @@ async function fetchTodosUntil(date, userId) {
         String(date.getMonth() + 1).padStart(2, '0') + "-" +
         String(date.getDate()).padStart(2, '0');
 
-    const url = `/users/${userId}/tasks?date=${dateStr}`;
+    const url = `/users/${targetUserId}/tasks?date=${dateStr}`;
 
     try {
         const response = await apiFetch(url, {
@@ -133,7 +133,7 @@ async function fetchTodosUntil(date, userId) {
         });
 
         if (!response.ok) throw new Error("할 일 조회 실패");
-        await fetchAndRenderTasks(date, userId);
+        await fetchAndRenderTasks(date, targetUserId);
     } catch (err) {
         console.error(err);
         alert("할 일 조회 중 오류 발생");

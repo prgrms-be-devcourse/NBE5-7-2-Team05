@@ -93,7 +93,7 @@ async function authUpload(url, formData) {
     })
 }
 
-export async function fetchAndRenderTasks(date, userId) {
+export async function fetchAndRenderTasks(date, targetUserId) {
     try {
         const dateStr =
             date.getFullYear() +
@@ -102,17 +102,17 @@ export async function fetchAndRenderTasks(date, userId) {
             "-" +
             String(date.getDate()).padStart(2, "0")
 
-        const url = `/users/${userId}/tasks?date=${dateStr}`
+        const url = `/users/${targetUserId}/tasks?date=${dateStr}`
 
         const res = await authFetch(url)
         const data = await res.json()
-        renderTasksByCategory(data.data || [])
+        renderTasksByCategory(data.data || [], targetUserId)
     } catch (err) {
         console.error("할 일 조회 실패:", err)
     }
 }
 
-function renderTasksByCategory(tasks) {
+function renderTasksByCategory(tasks, targetUserId) {
     const container = document.getElementById("task-list")
     container.innerHTML = ""
 
@@ -144,7 +144,7 @@ function renderTasksByCategory(tasks) {
         column.appendChild(categoryHeader)
 
         categoryTasks.forEach((task) => {
-            const taskItem = createTaskItem(task)
+            const taskItem = createTaskItem(task, targetUserId)
             column.appendChild(taskItem)
         })
 
@@ -168,7 +168,8 @@ function dueDateToDate(dueDateStr) {
 }
 
 function createTaskItem(task, targetUserId) {
-    const isMine = targetUserId === userId;
+    const isMine = targetUserId === existingUserId;
+    console.log(isMine)
 
     const taskItem = document.createElement("div")
     taskItem.className = "task-item"
