@@ -164,4 +164,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.location.href = `/mypage/update`;
         };
     }
+
+    // ✅ 팔로우 링크 클릭 시 follow-list.html로 이동
+    const followerLink = document.getElementById("follower-link");
+    const followingLink = document.getElementById("following-link");
+
+    if (followerLink && followingLink) {
+        followerLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = `/follow-list.html?userId=${userId}&type=followers`;
+        });
+
+        followingLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = `/follow-list.html?userId=${userId}&type=followings`;
+        });
+    }
+
 });
