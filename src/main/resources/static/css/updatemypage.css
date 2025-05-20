@@ -1,55 +1,105 @@
-/* 기본 설정 */
+:root {
+    --pink-200: #f2c3ca;
+    --gray-500: #9e9e9e;
+}
+
+/* ===== 기본 설정 ===== */
 body {
-    font-family: 'Arial', sans-serif;
-    padding: 20px;
     background-color: #fefefe;
+    margin: 0;
 }
 
-/* 헤더 */
-header {
+* {
+    font-family: 'LeeSeoyeon', sans-serif;
+    box-sizing: border-box;
+}
+
+/* ===== 헤더 ===== */
+.header {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: var(--pink-200);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
 }
 
-header h1 {
-    font-family: 'Comic Sans MS', cursive;
-    font-size: 24px;
+.logo-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
-.home-icon {
-    width: 30px;
+.logo .star {
+    font-size: 1.4rem;
+    color: var(--gray-500);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-/* 전체 레이아웃 */
+.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.icon-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: #222;
+    stroke-width: 2;
+}
+
+/* ===== 전체 레이아웃 ===== */
 .edit-layout {
     display: flex;
     gap: 40px;
     align-items: flex-start;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-/* 왼쪽 프로필 이미지 영역 */
+/* ===== 프로필 이미지 영역 ===== */
 .profile-image-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
 }
 
 .profile-img {
-    width: 180px;
-    height: 180px;
+    width: 220px;
+    height: 220px;
     object-fit: cover;
     border-radius: 50%;
     border: 2px solid #ccc;
 }
 
-/* 버튼 영역 */
 .img-buttons {
     display: flex;
     gap: 10px;
+    margin-top: 6px;
 }
 
 .image-upload-button,
@@ -57,19 +107,19 @@ header h1 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 12px;
+    padding: 10px 14px;
     background-color: #f8d7da;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: bold;
-    min-width: 90px;
-    height: 36px;
+    min-width: 100px;
+    height: 40px;
     text-align: center;
     transition: background-color 0.2s ease;
-    box-sizing: border-box;
     line-height: 1;
+    box-sizing: border-box;
 }
 
 .image-upload-button:hover,
@@ -77,13 +127,13 @@ header h1 {
     background-color: #f1c4c9;
 }
 
-/* 오른쪽 프로필 정보 영역 */
+/* ===== 오른쪽 정보 영역 ===== */
 .profile-info-section {
     flex: 1;
-    background-color: #e6e6e6; /* 회색 배경 */
+    background-color: #e6e6e6;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05); /* 살짝 그림자 */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
 }
 
 .profile-info-section h2 {
@@ -91,7 +141,7 @@ header h1 {
     font-size: 20px;
 }
 
-/* 폼 구조 */
+/* ===== 폼 구조 ===== */
 .form-row {
     margin-bottom: 20px;
 }
@@ -117,17 +167,35 @@ textarea {
     resize: vertical;
 }
 
-/* 설명 텍스트 */
 .hint {
     font-size: 12px;
     color: #888;
     margin-top: 5px;
-    height: 18px;  /* 고정된 높이 */
+    height: 18px;
     line-height: 1.4;
-    overflow: hidden;  /* 텍스트가 길어져도 줄바꿈 되지 않음 */
+    overflow: hidden;
 }
 
-/* 하단 수정/취소 버튼 */
+/* ===== 소개 영역 ===== */
+.intro-wrapper {
+    background-color: #ffe5e9;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.intro-box {
+    background-color: white;
+    padding: 16px;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid #f3c1c8;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* ===== 하단 버튼 ===== */
 .form-buttons {
     display: flex;
     gap: 10px;
@@ -136,19 +204,20 @@ textarea {
 }
 
 .form-buttons button {
-    padding: 10px 15px;
+    padding: 10px 16px;
     background-color: #f8d7da;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 14px;
 }
 
 .form-buttons button:hover {
     background-color: #f1c4c9;
 }
 
-/* 두 개의 입력 필드 나란히 정렬 */
+/* ===== 두 개의 입력 필드 나란히 정렬 ===== */
 .row-two-inputs {
     display: flex;
     justify-content: space-between;
@@ -156,13 +225,12 @@ textarea {
 }
 
 .input-group {
-    width: 48%;  /* 두 input 크기 맞추기 */
+    width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
 }
 
-/* 스타일 변경을 위한 추가 클래스 */
 .input-group input {
-    height: 36px;  /* input의 높이 맞추기 */
+    height: 36px;
 }
