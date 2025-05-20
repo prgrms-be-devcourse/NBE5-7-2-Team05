@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ✅ 로그인 확인
     if (!userId) {
         alert("로그인이 필요합니다.");
-        window.location.href = "/login";
+        window.location.href = "/loginPage";
         return;
     }
 

@@ -2,6 +2,7 @@ package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class ViewController {
 
-    private final UserService userService;
+    @GetMapping("/loginPage")
+    public String loginPage(HttpSession session, Model model) {
+        String errorMessage = (String) session.getAttribute("error");
+        if (errorMessage != null) {
+            model.addAttribute("error", errorMessage);
+            session.removeAttribute("error");
+        }
+        return "loginpage";
+    }
 
     // 🟢 마이페이지 조회 (view: mypage.html)
     @GetMapping("/mypage")

@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'Sejong';
+    src: url('/fonts/SejongGeulggot.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Unz';
+    src: url('/fonts/온글잎 언즈체.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'LeeSeoyeon';
+    src: url('/fonts/이서연체.ttf') format('truetype');
+}
+
+/* 기본 body 글꼴 설정 (처음엔 Sejong으로 해둠, 원하면 변경 가능) */
+body {
+    font-family: 'LeeSeoyeon', sans-serif;
+}
