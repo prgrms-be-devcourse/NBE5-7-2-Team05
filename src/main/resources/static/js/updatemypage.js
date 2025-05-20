@@ -87,4 +87,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("수정 중 오류가 발생했습니다.");
         }
     });
+
+    // ✅ 홈 버튼 이동
+    document.getElementById("goHomeBtn")?.addEventListener("click", () => {
+        window.location.href = "/index.html";  // 또는 "/mypage" 등 홈 경로
+    });
+
+// ✅ 로그아웃 처리
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "/login";
+    });
 });

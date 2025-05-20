@@ -181,4 +181,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    document.getElementById("goHomeBtn")?.addEventListener("click", () => {
+        window.location.href = "/index.html";
+    });
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "/login";
+    });
 });
