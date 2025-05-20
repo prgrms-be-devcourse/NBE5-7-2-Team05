@@ -1,85 +1,76 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
 
-    // ✅ 로그인 확인
+    // 로그인 확인
     if (!userId) {
         alert("로그인이 필요합니다.");
         window.location.href = "/loginPage";
         return;
     }
 
-    // ✅ 홈 링크 설정
-    const homeLink = document.getElementById("home-link");
-    if (homeLink) {
-        homeLink.href = `/index.html?userId=${userId}`;
-    }
+    // 홈 / 로그아웃
+    document.getElementById("goHomeBtn")?.addEventListener("click", () => {
+        window.location.href = "/index.html";
+    });
 
-    // ✅ 프로필 정보 불러오기
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "/login";
+    });
+
+    // 유저 정보 불러오기
     try {
-        const response = await fetch(`/users/${userId}`, {
+        const res = await fetch(`/users/${userId}`, {
             method: "GET",
-            credentials: "include",
+            credentials: "include"
         });
 
-        if (!response.ok) throw new Error("유저 정보 불러오기 실패");
+        const json = await res.json();
+        const user = json.data;
+        if (!res.ok || !user) throw new Error("유저 정보 없음");
 
-        const result = await response.json();
-        const data = result.data;
-
-        document.getElementById("nickname").textContent = data.nickname;
-        document.getElementById("intro-box").textContent = data.intro || "자기소개가 없습니다.";
-        document.getElementById("profile-img").src = data.profileImage || "/images/default-profile.png";
+        document.getElementById("nickname").textContent = user.nickname || "";
+        document.getElementById("intro-box").textContent = user.intro || "자기소개가 없습니다.";
+        document.getElementById("profile-img").src = user.profileImage || "/images/default-profile.png";
     } catch (err) {
-        console.error("유저 정보 로딩 실패:", err);
-        document.getElementById("intro-box").textContent = "정보를 불러오지 못했습니다.";
+        console.error("유저 정보 실패:", err);
+        alert("유저 정보를 불러올 수 없습니다.");
     }
 
-    // ✅ 팔로우 정보 불러오기 (단일 요청)
+    // 팔로우 수 불러오기
     try {
         const res = await fetch(`/follow/${userId}`, {
-            credentials: "include",
-            headers: { "Content-Type": "application/json" }
+            credentials: "include"
         });
 
-        if (!res.ok) throw new Error("응답 실패");
+        const json = await res.json();
+        const data = json.data;
 
-        const data = await res.json();
-        const result = data.data;
-
-        document.getElementById("follower-count").textContent = result.followerCount || 0;
-        document.getElementById("following-count").textContent = result.followingCount || 0;
+        document.getElementById("follower-count").textContent = data.followerCount || "0";
+        document.getElementById("following-count").textContent = data.followingCount || "0";
     } catch (err) {
-        console.error("팔로우 정보 로딩 실패:", err);
-        document.getElementById("follower-count").textContent = "0";
-        document.getElementById("following-count").textContent = "0";
+        console.error("팔로우 정보 실패:", err);
     }
 
-    // ✅ 오늘의 TODO 불러오기
+    // 오늘의 할 일 목록 불러오기
     try {
         const today = new Date().toISOString().split("T")[0];
-
-        const todoRes = await fetch(`/users/${userId}/tasks?date=${today}`, {
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            }
+        const res = await fetch(`/users/${userId}/tasks?date=${today}`, {
+            credentials: "include"
         });
 
-        const todoData = await todoRes.json();
-        const tasks = todoData.data || [];
-
-        console.log("할일 : " + tasks);
-        console.log("할일 갯수 : "+tasks.length);
+        const json = await res.json();
+        const tasks = json.data || [];
 
         const todoList = document.getElementById("todo-list");
         todoList.innerHTML = "";
 
         if (tasks.length === 0) {
-            const emptyMsg = document.createElement("p");
-            emptyMsg.textContent = "오늘의 할 일이 없습니다! 오늘도 계획을 짜서 힘찬 하루를 시작해보는 것은 어떤가요?";
-            emptyMsg.style.color = "#666";
-            emptyMsg.style.fontStyle = "italic";
-            todoList.appendChild(emptyMsg);
+            const p = document.createElement("p");
+            p.textContent = "오늘의 할 일이 없습니다!";
+            p.style.color = "#666";
+            p.style.fontStyle = "italic";
+            todoList.appendChild(p);
         } else {
             tasks.forEach(task => {
                 const li = document.createElement("li");
@@ -90,32 +81,31 @@ document.addEventListener("DOMContentLoaded", async () => {
                 checkbox.checked = (task.status === "COMPLETE");
                 checkbox.disabled = true;
 
-                const text = document.createElement("span");
-                text.textContent = ` ${task.content}`;
+                const span = document.createElement("span");
+                span.textContent = task.content;
 
                 if (task.status === "COMPLETE") {
-                    text.style.textDecoration = "line-through";
-                    text.style.color = "#888";
+                    span.style.textDecoration = "line-through";
+                    span.style.color = "#888";
                 }
 
                 li.appendChild(checkbox);
-                li.appendChild(text);
+                li.appendChild(span);
                 todoList.appendChild(li);
             });
         }
     } catch (err) {
-        console.error("할 일 목록 로딩 실패:", err);
+        console.error("할 일 목록 실패:", err);
     }
 
-    // ✅ This Month's Memories 불러오기
+    // 이번 달 이미지 불러오기 (모달 포함)
     try {
-        const imageRes = await fetch(`/tasks/${userId}/images`, {
+        const res = await fetch(`/tasks/${userId}/images`, {
             credentials: "include"
         });
 
-        const imageData = await imageRes.json();
-        const taskImages = imageData.data || [];
-
+        const json = await res.json();
+        const taskImages = json.data || [];
 
         const now = new Date();
         const thisMonth = now.getMonth();
@@ -124,15 +114,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const memories = taskImages
             .filter(task => {
                 const date = new Date(task.dueDate);
-                const isComplete = task.status?.toUpperCase() === "COMPLETE";
-                const hasImage = !!task.imageUrl;
-                const isThisMonth = date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-                return isComplete && hasImage && isThisMonth;
+                return task.status === "COMPLETE" &&
+                    task.imageUrl &&
+                    date.getMonth() === thisMonth &&
+                    date.getFullYear() === thisYear;
             })
             .sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
-            .reverse()
             .slice(0, 4);
-
 
         const gallery = document.getElementById("memory-gallery");
         gallery.innerHTML = "";
@@ -143,21 +131,36 @@ document.addEventListener("DOMContentLoaded", async () => {
             memories.forEach(task => {
                 const img = document.createElement("img");
                 img.src = task.imageUrl;
-                img.alt = task.content;
                 img.className = "memory-img";
 
+
                 img.addEventListener("click", () => {
-                    window.open(task.imageUrl, "_blank");
+                    document.getElementById("modal-img").src = task.imageUrl;
+                    document.getElementById("modal-date").textContent = task.dueDate?.split("T")[0];
+                    document.getElementById("modal-status").textContent = task.status;
+                    document.getElementById("task-modal").classList.remove("hidden");
                 });
 
                 gallery.appendChild(img);
             });
+
+            // 모달 닫기
+            document.querySelector(".close-btn").addEventListener("click", () => {
+                document.getElementById("task-modal").classList.add("hidden");
+            });
+
+            // 배경 클릭 시 닫기
+            document.getElementById("task-modal").addEventListener("click", (e) => {
+                if (e.target.id === "task-modal") {
+                    document.getElementById("task-modal").classList.add("hidden");
+                }
+            });
         }
     } catch (err) {
-        console.error("This Month's Memories 불러오기 실패:", err);
+        console.error("이미지 로딩 실패:", err);
     }
 
-    // ✅ 프로필 수정 버튼 클릭 → 이동
+    // 프로필 수정 버튼
     const editButton = document.querySelector("footer button");
     if (editButton) {
         editButton.onclick = () => {
@@ -165,28 +168,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
     }
 
-    // ✅ 팔로우 링크 클릭 시 follow-list.html로 이동
-    const followerLink = document.getElementById("follower-link");
-    const followingLink = document.getElementById("following-link");
-
-    if (followerLink && followingLink) {
-        followerLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = `/follow-list.html?userId=${userId}&type=followers`;
-        });
-
-        followingLink.addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = `/follow-list.html?userId=${userId}&type=followings`;
-        });
-    }
-
-    document.getElementById("goHomeBtn")?.addEventListener("click", () => {
-        window.location.href = "/index.html";
+    // 팔로우/팔로잉 링크 이동
+    document.getElementById("follower-link")?.addEventListener("click", () => {
+        window.location.href = `/follow-list.html?userId=${userId}&type=followers`;
     });
 
-    document.getElementById("logoutBtn")?.addEventListener("click", () => {
-        localStorage.clear();
-        window.location.href = "/login";
+    document.getElementById("following-link")?.addEventListener("click", () => {
+        window.location.href = `/follow-list.html?userId=${userId}&type=followings`;
     });
 });
