@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })  // (로그아웃은 access token 만료여도 재시도 불필요)
                 .finally(() => {
                     alert("성공적으로 로그아웃 되었습니다.");
+                    localStorage.removeItem("userId");
                     window.location.replace("/loginPage");
                 });
         }

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>유저 페이지</title>
+    <link rel="stylesheet" href="/css/mypage.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+</head>
+<body>
+
+<header>
+    <!-- ✅ 닉네임은 JS로 동적으로 삽입됨 -->
+    <h1><span id="nickname">사용자</span>'s My Page</h1>
+    <a id="home-link" href="/static/index.html">
+        <img src="/images/home-icon.png" alt="홈으로" class="home-icon">
+    </a>
+</header>
+
+<div class="layout">
+    <!-- 🟡 프로필 영역 -->
+    <section class="profile">
+        <div class="profile-img-wrapper">
+            <img id="profile-img" class="profile-img" src="/images/default-profile.png" alt="프로필 이미지">
+
+            <div class="intro-wrapper">
+                <div class="intro-box" id="intro-box">
+                    <!-- 자기소개가 여기에 들어갑니다 -->
+                </div>
+            </div>
+
+            <div class="follow-stats">
+                <button id="follower-link" class="follow-box">
+                    팔로워 <span id="follower-count">0</span>
+                </button>
+                <button id="following-link" class="follow-box">
+                    팔로잉 <span id="following-count">0</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✅ Todo 영역 -->
+    <section class="todo">
+        <h2>Today's Todo</h2>
+        <div class="todo-box">
+            <ul id="todo-list">
+                <!-- JS에서 동적으로 삽입 -->
+            </ul>
+        </div>
+    </section>
+
+    <!-- ✅ Memories 영역 -->
+    <section class="memories">
+        <h2>This Month's Memories</h2>
+        <div class="memories-box">
+            <div class="memory-gallery" id="memory-gallery">
+                <!-- JS에서 동적으로 삽입 -->
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- ✅ JS는 body 하단에서 로드 -->
+<script type="module" src="/js/user-page.js"></script>
+
+<!-- 🔘 오른쪽 하단 버튼 -->
+<footer>
+    <!-- 이 버튼은 JS에서 팔로우/언팔로우로 바뀌고, 내 프로필이면 숨겨짐 -->
+    <button id="follow-btn">팔로우</button>
+    <button onclick="history.back()">뒤로 가기</button>
+</footer>
+
+</body>
+</html>
