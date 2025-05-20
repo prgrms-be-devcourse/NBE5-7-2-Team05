@@ -1,6 +1,7 @@
 package io.powerrangers.backend.controller;
 
 import io.powerrangers.backend.dto.BaseResponse;
+import io.powerrangers.backend.dto.FollowCheckResponseDto;
 import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
@@ -49,7 +50,7 @@ public class FollowController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<BaseResponse<Boolean>> checkFollowingRelationship(@RequestParam Long userId) {
+    public ResponseEntity<BaseResponse<FollowCheckResponseDto>> checkFollowingRelationship(@RequestParam Long userId) {
         return BaseResponse.success(HttpStatus.OK, followService.checkFollowingRelationship(userId));
     }
 

@@ -2,6 +2,7 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.FollowCheckResponseDto;
 import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
@@ -91,13 +92,17 @@ public class FollowService {
     }
 
     @Transactional(readOnly=true)
-    public boolean checkFollowingRelationship(Long userId) {
+    public FollowCheckResponseDto checkFollowingRelationship(Long userId) {
         Long myId = ContextUtil.getCurrentUserId();
 
         User me = userRepository.findById(myId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User target = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        return followRepository.existsByFollowerAndFollowing(me, target);
+
+        return FollowCheckResponseDto.builder()
+                .userId(userId)
+                .following(followRepository.existsByFollowerAndFollowing(me, target))
+                .build();
     }
 
     @Transactional(readOnly=true)
