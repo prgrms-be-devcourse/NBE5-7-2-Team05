@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
-
     console.log("userId:", userId);
 
     // ✅ 로그인 확인
@@ -63,9 +62,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("following-count").textContent = "0";
     }
 
-    // ✅ TODO 목록 불러오기
+    // ✅ 오늘의 TODO 불러오기
     try {
-        const today = new Date().toISOString().split("T")[0];  // ✅ "2025-05-19" 형식
+        const today = new Date().toISOString().split("T")[0];
 
         const todoRes = await fetch(`/users/${userId}/tasks?date=${today}`, {
             credentials: "include",
@@ -76,8 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const todoData = await todoRes.json();
         const tasks = todoData.data || [];
-
-        console.log(tasks);
 
         const todoList = document.getElementById("todo-list");
         todoList.innerHTML = "";
@@ -91,21 +88,89 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             tasks.forEach(task => {
                 const li = document.createElement("li");
+                li.className = "custom-todo";
 
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
+                checkbox.checked = (task.status === "COMPLETE");
                 checkbox.disabled = true;
-                checkbox.checked = task.status === "COMPLETE";
 
-                const text = document.createTextNode(` ${task.content}`);
+                const text = document.createElement("span");
+                text.textContent = ` ${task.content}`;
+
+                if (task.status === "COMPLETE") {
+                    text.style.textDecoration = "line-through";
+                    text.style.color = "#888";
+                }
+
                 li.appendChild(checkbox);
                 li.appendChild(text);
-
                 todoList.appendChild(li);
             });
         }
     } catch (err) {
         console.error("할 일 목록 로딩 실패:", err);
+    }
+
+    // ✅ This Month's Memories 불러오기
+    try {
+        const imageRes = await fetch(`/tasks/${userId}/images`, {
+            credentials: "include"
+        });
+
+        const imageData = await imageRes.json();
+        const taskImages = imageData.data || [];
+
+        console.log("📦 전체 taskImages:", taskImages);
+        taskImages.forEach(task => {
+            console.log({
+                status: task.status,
+                imageUrl: task.imageUrl,
+                dueDate: task.dueDate
+            });
+        });
+
+        const now = new Date();
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+
+        const memories = taskImages
+            .filter(task => {
+                const date = new Date(task.dueDate);
+                const isComplete = task.status?.toUpperCase() === "COMPLETE";
+                const hasImage = !!task.imageUrl;
+                const isThisMonth = date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+                return isComplete && hasImage && isThisMonth;
+            })
+            .sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
+            .reverse()
+            .slice(0, 4);
+
+        console.log(memories);
+
+        const gallery = document.getElementById("memory-gallery");
+        gallery.innerHTML = "";
+
+        if (memories.length === 0) {
+            gallery.innerHTML = "<p>이번 달 추억이 아직 없어요 😊</p>";
+        } else {
+            memories.forEach(task => {
+                console.log("🖼 imageUrl:", task.imageUrl);
+
+                const img = document.createElement("img");
+                img.src = task.imageUrl;
+                img.alt = task.content;
+                img.className = "memory-img";
+
+                img.addEventListener("click", () => {
+                    window.open(task.imageUrl, "_blank");
+                });
+
+                gallery.appendChild(img);
+            });
+        }
+    } catch (err) {
+        console.error("This Month's Memories 불러오기 실패:", err);
     }
 
     // ✅ 프로필 수정 버튼 클릭 → 이동
