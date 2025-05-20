@@ -2,6 +2,7 @@ package io.powerrangers.backend.service;
 
 import io.powerrangers.backend.dao.FollowRepository;
 import io.powerrangers.backend.dao.UserRepository;
+import io.powerrangers.backend.dto.FollowCheckResponseDto;
 import io.powerrangers.backend.dto.FollowCountResponseDto;
 import io.powerrangers.backend.dto.FollowRequestDto;
 import io.powerrangers.backend.dto.FollowResponseDto;
@@ -12,8 +13,6 @@ import io.powerrangers.backend.entity.User;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -93,7 +92,20 @@ public class FollowService {
     }
 
     @Transactional(readOnly=true)
-    public TaskScope checkFollowingRelationship(Long userId){
+    public FollowCheckResponseDto checkFollowingRelationship(Long userId) {
+        Long myId = ContextUtil.getCurrentUserId();
+
+        User me = userRepository.findById(myId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User target = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return FollowCheckResponseDto.builder()
+                .userId(userId)
+                .following(followRepository.existsByFollowerAndFollowing(me, target))
+                .build();
+    }
+
+    @Transactional(readOnly=true)
+    public TaskScope checkScopeWithUser (Long userId){
         Long myId = ContextUtil.getCurrentUserId();
         if(myId.equals(userId)){
             // 내 아이디 -> PUBLIC, PRIVATE, FOLLOWER 다 줘도 됨.

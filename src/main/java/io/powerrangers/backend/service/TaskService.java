@@ -1,7 +1,5 @@
 package io.powerrangers.backend.service;
 
-import static java.util.stream.Collectors.toList;
-
 import io.powerrangers.backend.dao.UserRepository;
 import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.entity.Task;
@@ -10,18 +8,14 @@ import io.powerrangers.backend.dao.TaskRepository;
 import io.powerrangers.backend.exception.CustomException;
 import io.powerrangers.backend.exception.ErrorCode;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -116,7 +110,7 @@ public class TaskService {
 
     protected List<Task> getTasksByScope(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        TaskScope scope = followService.checkFollowingRelationship(userId);
+        TaskScope scope = followService.checkScopeWithUser(userId);
         List<Task> tasks;
         if(scope.equals(TaskScope.PRIVATE)){
             tasks = taskRepository.findAllByUserId(userId);
@@ -130,7 +124,7 @@ public class TaskService {
 
     public TaskResponseDto getTask(Long taskId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
-        TaskScope scope = followService.checkFollowingRelationship(task.getUser().getId());
+        TaskScope scope = followService.checkScopeWithUser(task.getUser().getId());
 
         // scope가 private = 내 task 라는 얘기 -> task.scope에 상관없이 다 볼 수 있다.
         // scope가 followers = 맞팔 관계라는 얘기 -> task.scope의 Private 빼고 다 볼 수 있다. (followers, public)
