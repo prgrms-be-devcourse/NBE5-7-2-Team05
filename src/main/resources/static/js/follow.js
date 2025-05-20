@@ -176,4 +176,35 @@ document.addEventListener('DOMContentLoaded', () => {
         loadFollowList('followers');
         loadFollowList('following');
     }
+
+    // ===== Header actions =====
+    const logo = document.getElementById('homeLogo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            window.location.href = '/index.html';
+        });
+    }
+    const profileBtn = document.getElementById('profileBtn');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', () => {
+            window.location.href = '/mypage';
+        });
+    }
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (typeof AUTH !== 'undefined' && AUTH.logout) {
+                AUTH.logout();
+            } else {
+                window.location.replace('/loginPage');
+            }
+        });
+    }
+
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
 }); 

@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const userId = localStorage.getItem("userId");
-    console.log("userId:", userId);
 
     // ✅ 로그인 확인
     if (!userId) {
@@ -35,27 +34,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("intro-box").textContent = "정보를 불러오지 못했습니다.";
     }
 
-    // ✅ 팔로우 정보 불러오기
+    // ✅ 팔로우 정보 불러오기 (단일 요청)
     try {
-        const [followersRes, followingsRes] = await Promise.all([
-            fetch(`/follow/${userId}/followers`, {
-                credentials: "include",
-                headers: { "Content-Type": "application/json" }
-            }),
-            fetch(`/follow/${userId}/followings`, {
-                credentials: "include",
-                headers: { "Content-Type": "application/json" }
-            })
-        ]);
+        const res = await fetch(`/follow/${userId}`, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+        });
 
-        const followerData = await followersRes.json();
-        const followingData = await followingsRes.json();
+        if (!res.ok) throw new Error("응답 실패");
 
-        const followers = followerData.result || [];
-        const followings = followingData.result || [];
+        const data = await res.json();
+        const result = data.data;
 
-        document.getElementById("follower-count").textContent = followers.length;
-        document.getElementById("following-count").textContent = followings.length;
+        document.getElementById("follower-count").textContent = result.followerCount || 0;
+        document.getElementById("following-count").textContent = result.followingCount || 0;
     } catch (err) {
         console.error("팔로우 정보 로딩 실패:", err);
         document.getElementById("follower-count").textContent = "0";
@@ -75,6 +67,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const todoData = await todoRes.json();
         const tasks = todoData.data || [];
+
+        console.log("할일 : " + tasks);
+        console.log("할일 갯수 : "+tasks.length);
 
         const todoList = document.getElementById("todo-list");
         todoList.innerHTML = "";
@@ -121,14 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const imageData = await imageRes.json();
         const taskImages = imageData.data || [];
 
-        console.log("📦 전체 taskImages:", taskImages);
-        taskImages.forEach(task => {
-            console.log({
-                status: task.status,
-                imageUrl: task.imageUrl,
-                dueDate: task.dueDate
-            });
-        });
 
         const now = new Date();
         const thisMonth = now.getMonth();
@@ -146,7 +133,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             .reverse()
             .slice(0, 4);
 
-        console.log(memories);
 
         const gallery = document.getElementById("memory-gallery");
         gallery.innerHTML = "";
@@ -155,8 +141,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             gallery.innerHTML = "<p>이번 달 추억이 아직 없어요 😊</p>";
         } else {
             memories.forEach(task => {
-                console.log("🖼 imageUrl:", task.imageUrl);
-
                 const img = document.createElement("img");
                 img.src = task.imageUrl;
                 img.alt = task.content;
@@ -180,4 +164,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.location.href = `/mypage/update`;
         };
     }
+
+    // ✅ 팔로우 링크 클릭 시 follow-list.html로 이동
+    const followerLink = document.getElementById("follower-link");
+    const followingLink = document.getElementById("following-link");
+
+    if (followerLink && followingLink) {
+        followerLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = `/follow-list.html?userId=${userId}&type=followers`;
+        });
+
+        followingLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            window.location.href = `/follow-list.html?userId=${userId}&type=followings`;
+        });
+    }
+
 });
