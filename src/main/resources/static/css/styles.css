@@ -9,6 +9,12 @@
     margin: 8px 0;
     width: 100%;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.user-container:hover {
+    background: #f2c3ca33;
 }
 
 .user-info {

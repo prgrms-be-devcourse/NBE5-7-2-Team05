@@ -90,6 +90,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.user-container:hover {
+    background: #f2c3ca33;
 }
 
 .user-info {
