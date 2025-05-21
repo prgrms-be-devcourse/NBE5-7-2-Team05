@@ -50,6 +50,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 현재 페이지를 targetUserId 기준으로 다시 로드
         window.location.href = `/user-page.html?userId=${targetUserId}`;
     });
+
+    const homeBtn = document.getElementById('homeBtn');
+    if (homeBtn) {
+        homeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = `/index.html?userId=${userId}`;
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+    }
 });
 
 export async function initFollowToggleButton(targetUserId) {

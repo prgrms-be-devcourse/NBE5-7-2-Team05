@@ -147,6 +147,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
         }
     });
+
+    const logo = document.getElementById('homeLogo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = `/index.html?userId=${userId}`;
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+    }
 });
 
 
