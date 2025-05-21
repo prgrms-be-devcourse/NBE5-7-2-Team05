@@ -220,4 +220,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    document.getElementById("goHomeBtn")?.addEventListener("click", () => {
+        window.location.href = `/index.html?userId=${localStorage.getItem("userId")}`;
+    });
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "/login";
+    });
 });
