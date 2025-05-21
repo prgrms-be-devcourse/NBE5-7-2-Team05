@@ -176,4 +176,32 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("following-link")?.addEventListener("click", () => {
         window.location.href = `/follow-list.html?userId=${userId}&type=followings`;
     });
+
+    // ✅ 회원 탈퇴 버튼 클릭 이벤트
+    const deleteButton = document.getElementById("delete-account-btn");
+    if (deleteButton) {
+        deleteButton.addEventListener("click", async () => {
+            const confirmed = confirm("정말로 회원 탈퇴하시겠습니까? 탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다.");
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    throw new Error("회원 탈퇴 실패");
+                }
+
+                alert("회원 탈퇴가 완료되었습니다.");
+                localStorage.clear();
+                window.location.href = "/loginPage";
+            } catch (err) {
+                console.error("회원 탈퇴 오류:", err);
+                alert("회원 탈퇴 중 오류가 발생했습니다.");
+            }
+        });
+    }
+
 });
