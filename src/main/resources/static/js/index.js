@@ -89,6 +89,7 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
     });
 
     render();
+
     fetchAndRenderTasks(state.selected, targetUserId);
 }
 

@@ -15,7 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -147,6 +152,36 @@ public class TaskService {
         task.setDueDate(task.getDueDate().plusHours(24));
         taskRepository.save(task);
     }
+
+    public TaskSummaryResponseDto getMonthlyTaskSummary(Long targetUserId, int year, int month) {
+        Long currentUserId = ContextUtil.getCurrentUserId();
+
+        TaskScope scope = followService.checkScopeWithUser(targetUserId);
+
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+        List<Object[]> result = taskRepository.countTasksByDateWithScope(
+                targetUserId, start.atStartOfDay(), end.atTime(23, 59, 59),
+                scope.name(), currentUserId);
+
+        Map<LocalDate, Long> countMap = new HashMap<>();
+        for (Object[] row : result) {
+            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+            Long count = (Long) row[1];
+            countMap.put(date, count);
+        }
+
+        List<TaskSummaryResponseDto.DailySummary> dailySummaries = new ArrayList<>();
+        for (int day = 1; day <= start.lengthOfMonth(); day++) {
+            LocalDate currentDate = start.withDayOfMonth(day);
+            int count = countMap.getOrDefault(currentDate, 0L).intValue();
+            dailySummaries.add(new TaskSummaryResponseDto.DailySummary(currentDate.toString(), count));
+        }
+
+        return new TaskSummaryResponseDto(year, month, dailySummaries);
+    }
+
 }
 
 
