@@ -1,12 +1,12 @@
 package io.powerrangers.backend.dao;
 
-import io.powerrangers.backend.dto.UserFollowResponseDto;
 import io.powerrangers.backend.entity.Follow;
 import io.powerrangers.backend.entity.User;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     boolean existsByFollowerAndFollowing(User follower, User following);
@@ -22,6 +22,5 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     Long countFollowersByUser(Long userId);
     @Query("select count(f) from Follow f where f.follower.id = :userId")
     Long countFollowingsByUser(Long userId);
-
-    boolean existsByFollowerIdAndFollowingId(Long followerId, Long followingId);
+    
 }
