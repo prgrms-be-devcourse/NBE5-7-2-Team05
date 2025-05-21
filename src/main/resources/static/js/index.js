@@ -1,6 +1,23 @@
 import {apiFetch} from "./token-reissue.js";
 import {fetchAndRenderTasks} from './main.js';
 
+async function fetchTaskSummary(year, month, userId) {
+    const url = `/tasks/summary?userId=${userId}&year=${year}&month=${month}`;
+    try {
+        const res = await apiFetch(url, { credentials: "include" });
+        if (!res.ok) return {};
+        const data = await res.json();
+        const map = {};
+        (data.data.dailySummaries || []).forEach(d => {
+            map[d.date] = d.taskCount;
+        });
+        return map;
+    } catch (err) {
+        console.error("할 일 summary 조회 실패:", err);
+        return {};
+    }
+}
+
 export function buildCalendar(container, targetUserId, date = new Date()) {
     container.innerHTML = "";
 
@@ -38,7 +55,7 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
     grid.className = "calendar-grid";
     container.appendChild(grid);
 
-    function render() {
+    async function render() {
         title.textContent = state.current.toLocaleString("default", {
             month: "long",
             year: "numeric",
@@ -47,6 +64,11 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
         grid.innerHTML = "";
         const firstDayIdx = state.current.getDay();
         const lastDate = new Date(state.current.getFullYear(), state.current.getMonth() + 1, 0).getDate();
+
+        // fetch summary for this month
+        const year = state.current.getFullYear();
+        const month = state.current.getMonth() + 1;
+        const summaryMap = await fetchTaskSummary(year, month, targetUserId);
 
         for (let i = 0; i < firstDayIdx; i++) {
             const blank = document.createElement("div");
@@ -67,6 +89,16 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
                 thisDate.toDateString() === state.selected.toDateString()
             ) {
                 dateEl.classList.add("selected");
+            }
+
+            // 날짜 문자열 yyyy-MM-dd
+            const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+            const count = summaryMap[dateStr] || 0;
+            if (count > 0) {
+                const badge = document.createElement("span");
+                badge.className = "task-badge";
+                badge.textContent = count > 9 ? "9+" : count;
+                dateEl.appendChild(badge);
             }
 
             dateEl.addEventListener("click", () => {
@@ -100,7 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     buildCalendar(calendarContainer, currentUserId);
 
     // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
-    fetchAndRenderTasks(new Date(), currentUserId)
+
+    fetchAndRenderTasks(new Date(), currentUserId);
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
@@ -117,6 +150,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
         }
     });
+
+    const logo = document.getElementById('homeLogo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = `/index.html?userId=${userId}`;
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+    }
 });
 
 document.getElementById("profileBtn").addEventListener("click", () => {

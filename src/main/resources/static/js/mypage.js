@@ -10,8 +10,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 홈 / 로그아웃
     document.getElementById("goHomeBtn")?.addEventListener("click", () => {
-        window.location.href = "/index.html";
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+            window.location.href = `/index.html?userId=${userId}`;
+        } else {
+            window.location.href = "/index.html";
+        }
     });
+
+    const logo = document.getElementById('homeLogo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = `/index.html?userId=${userId}`;
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+    }
 
     document.getElementById("logoutBtn")?.addEventListener("click", () => {
         localStorage.clear();
@@ -98,7 +115,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("할 일 목록 실패:", err);
     }
 
-    // 이번 달 이미지 불러오기 (모달 포함)
     try {
         const res = await fetch(`/tasks/${userId}/images`, {
             credentials: "include"
@@ -133,23 +149,39 @@ document.addEventListener("DOMContentLoaded", async () => {
                 img.src = task.imageUrl;
                 img.className = "memory-img";
 
+                // ✅ 이미지 클릭 시 상세 정보 fetch & 모달 표시
+                img.addEventListener("click", async () => {
+                    try {
+                        const res = await fetch(`/tasks/${task.taskId}`, {
+                            credentials: "include"
+                        });
 
-                img.addEventListener("click", () => {
-                    document.getElementById("modal-img").src = task.imageUrl;
-                    document.getElementById("modal-date").textContent = task.dueDate?.split("T")[0];
-                    document.getElementById("modal-status").textContent = task.status;
-                    document.getElementById("task-modal").classList.remove("hidden");
+                        if (!res.ok) throw new Error("할 일 정보 로딩 실패");
+
+                        const detail = (await res.json()).data;
+
+                        document.getElementById("modal-img").src = detail.taskImage;
+                        document.getElementById("modal-date").textContent = detail.dueDate?.split("T")[0];
+                        document.getElementById("modal-status").textContent = detail.status;
+                        document.getElementById("modal-content").textContent = detail.content;
+                        document.getElementById("modal-category").textContent = detail.category;
+
+                        document.getElementById("task-modal").classList.remove("hidden");
+                    } catch (err) {
+                        console.error("상세 할 일 조회 실패:", err);
+                        alert("할 일 정보를 불러오지 못했습니다.");
+                    }
                 });
 
                 gallery.appendChild(img);
             });
 
-            // 모달 닫기
+            // ✅ 모달 닫기 이벤트
             document.querySelector(".close-btn").addEventListener("click", () => {
                 document.getElementById("task-modal").classList.add("hidden");
             });
 
-            // 배경 클릭 시 닫기
+            // ✅ 배경 클릭 시 모달 닫기
             document.getElementById("task-modal").addEventListener("click", (e) => {
                 if (e.target.id === "task-modal") {
                     document.getElementById("task-modal").classList.add("hidden");
