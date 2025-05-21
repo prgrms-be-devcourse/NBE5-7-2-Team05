@@ -8,12 +8,24 @@
 </head>
 <body>
 
-<header>
+<header class="header">
     <!-- ✅ 닉네임은 JS로 동적으로 삽입됨 -->
-    <h1><span id="nickname">사용자</span>'s My Page</h1>
-    <a id="home-link" href="/static/index.html">
-        <img src="/images/home-icon.png" alt="홈으로" class="home-icon">
-    </a>
+    <h1><span id="nickname">사용자</span>'s Page</h1>
+    <div class="header-actions">
+        <button class="icon-btn" id="goHomeBtn" title="홈으로">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m0 0h4m-4 0H7m8-8l2 2m0 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"/>
+            </svg>
+        </button>
+
+        <button class="icon-btn" id="logoutBtn" title="로그 아웃">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 42H10C8.9 42 7.9 41.6 7.2 40.8C6.4 40.1 6 39.1 6 38V10C6 8.9 6.4 7.9 7.2 7.2C7.9 6.4 8.9 6 10 6H18M32 34L42 24M42 24L32 14M42 24H18"
+                      stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
 </header>
 
 <div class="layout">
@@ -57,18 +69,16 @@
                 <!-- JS에서 동적으로 삽입 -->
             </div>
         </div>
+        <div class="memory-footer">
+            <!-- 이 버튼은 JS에서 팔로우/언팔로우로 바뀌고, 내 프로필이면 숨겨짐 -->
+            <button id="follow-btn">팔로우</button>
+            <button onclick="history.back()">뒤로 가기</button>
+        </div>
     </section>
 </div>
 
 <!-- ✅ JS는 body 하단에서 로드 -->
 <script type="module" src="/js/user-page.js"></script>
-
-<!-- 🔘 오른쪽 하단 버튼 -->
-<footer>
-    <!-- 이 버튼은 JS에서 팔로우/언팔로우로 바뀌고, 내 프로필이면 숨겨짐 -->
-    <button id="follow-btn">팔로우</button>
-    <button onclick="history.back()">뒤로 가기</button>
-</footer>
 
 </body>
 </html>
