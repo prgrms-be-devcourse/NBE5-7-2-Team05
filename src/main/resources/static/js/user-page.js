@@ -112,12 +112,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ✅ This Month's Memories 불러오기
     try {
-        const imageRes = await apiFetch(`/tasks/${targetUserId}/images`, {
-            credentials: "include"
-        });
+        const res = await apiFetch(`/tasks/${targetUserId}/images`);
 
-        const imageData = await imageRes.json();
-        const taskImages = imageData.data || [];
+        const json = await res.json();
+        const taskImages = json.data || [];
 
 
         const now = new Date();
@@ -127,15 +125,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const memories = taskImages
             .filter(task => {
                 const date = new Date(task.dueDate);
-                const isComplete = task.status?.toUpperCase() === "COMPLETE";
-                const hasImage = !!task.imageUrl;
-                const isThisMonth = date.getMonth() === thisMonth && date.getFullYear() === thisYear;
-                return isComplete && hasImage && isThisMonth;
+                return task.status === "COMPLETE" &&
+                    task.imageUrl &&
+                    date.getMonth() === thisMonth &&
+                    date.getFullYear() === thisYear;
             })
             .sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
-            .reverse()
             .slice(0, 4);
-
 
         const gallery = document.getElementById("memory-gallery");
         gallery.innerHTML = "";
@@ -146,14 +142,45 @@ document.addEventListener("DOMContentLoaded", async () => {
             memories.forEach(task => {
                 const img = document.createElement("img");
                 img.src = task.imageUrl;
-                img.alt = task.content;
                 img.className = "memory-img";
 
-                img.addEventListener("click", () => {
-                    window.open(task.imageUrl, "_blank");
+                // ✅ 이미지 클릭 시 상세 정보 fetch & 모달 표시
+                img.addEventListener("click", async () => {
+                    try {
+                        const res = await apiFetch(`/tasks/${task.taskId}`, {
+                            credentials: "include"
+                        });
+
+                        if (!res.ok) throw new Error("할 일 정보 로딩 실패");
+
+                        const detail = (await res.json()).data;
+
+                        document.getElementById("modal-img").src = detail.taskImage;
+                        document.getElementById("modal-date").textContent = detail.dueDate?.split("T")[0];
+                        document.getElementById("modal-status").textContent = detail.status;
+                        document.getElementById("modal-content").textContent = detail.content;
+                        document.getElementById("modal-category").textContent = detail.category;
+
+                        document.getElementById("task-modal").classList.remove("hidden");
+                    } catch (err) {
+                        console.error("상세 할 일 조회 실패:", err);
+                        alert("할 일 정보를 불러오지 못했습니다.");
+                    }
                 });
 
                 gallery.appendChild(img);
+            });
+
+            // ✅ 모달 닫기 이벤트
+            document.querySelector(".close-btn").addEventListener("click", () => {
+                document.getElementById("task-modal").classList.add("hidden");
+            });
+
+            // ✅ 배경 클릭 시 모달 닫기
+            document.getElementById("task-modal").addEventListener("click", (e) => {
+                if (e.target.id === "task-modal") {
+                    document.getElementById("task-modal").classList.add("hidden");
+                }
             });
         }
     } catch (err) {
@@ -224,8 +251,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = `/index.html?userId=${localStorage.getItem("userId")}`;
     });
 
-    document.getElementById("logoutBtn")?.addEventListener("click", () => {
-        localStorage.clear();
-        window.location.href = "/login";
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        if (!confirm("정말 로그아웃하시겠습니까?")) return;
+
+        apiFetch("/users/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(() => {
+                alert("성공적으로 로그아웃 되었습니다.");
+                localStorage.removeItem("userId");
+                window.location.replace("/loginPage");
+            })
+            .catch(err => {
+                console.error("로그아웃 실패", err);
+                alert("로그아웃 중 문제가 발생했습니다.");
+            });
     });
 });
