@@ -138,4 +138,5 @@ public class FollowService {
                 .followingCount(followingsOfUser)
                 .build();
     }
+
 }

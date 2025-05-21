@@ -1,10 +1,6 @@
 package io.powerrangers.backend.controller;
 
-import io.powerrangers.backend.dto.BaseResponse;
-import io.powerrangers.backend.dto.TaskCreateRequestDto;
-import io.powerrangers.backend.dto.TaskImageResponseDto;
-import io.powerrangers.backend.dto.TaskResponseDto;
-import io.powerrangers.backend.dto.TaskUpdateRequestDto;
+import io.powerrangers.backend.dto.*;
 import io.powerrangers.backend.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +63,16 @@ public class TaskController {
     public ResponseEntity<BaseResponse<Void>> postpone(@PathVariable Long taskId) {
         taskService.postpone(taskId);
         return BaseResponse.success(HttpStatus.OK);
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<BaseResponse<TaskSummaryResponseDto>> getTaskSummary(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam Long userId
+    ) {
+        TaskSummaryResponseDto result = taskService.getMonthlyTaskSummary(userId, year, month);
+        return BaseResponse.success(HttpStatus.OK, result);
     }
 }
 
