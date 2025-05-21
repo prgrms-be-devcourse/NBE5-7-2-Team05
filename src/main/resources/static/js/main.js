@@ -12,11 +12,6 @@ if (!existingUserId && userId) {
     existingUserId = userId;
 }
 
-// 그래도 userId가 없다면 → 로그인 필요
-if (!userId && !existingUserId) {
-    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("taskForm")
     const showFormBtn = document.getElementById("showFormBtn")
