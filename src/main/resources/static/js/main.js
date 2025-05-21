@@ -1,14 +1,20 @@
 import {apiFetch} from "./token-reissue.js";
 
-const urlParams = new URLSearchParams(window.location.search);
-const userId = urlParams.get("userId");
-const existingUserId = localStorage.getItem("userId");
-
-// userId가 아예 없을 때만 저장 (최초 진입 시)
-if (!existingUserId && userId) {
-    localStorage.setItem("userId", userId);
-    console.log("✅ userId 최초 저장됨:", userId);
+// Fetch logged-in user's userId from server
+async function setUserIdFromServer() {
+    try {
+        const res = await fetch('/users/me', { credentials: "include" });
+        if (!res.ok) throw new Error("인증 필요");
+        const response = await res.json();
+        localStorage.setItem("userId", response.data);
+        console.log("✅ userId 저장됨:", response.data);
+    } catch (e) {
+        console.error("로그인 필요:", e);
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login";
+    }
 }
+setUserIdFromServer();
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("taskForm")
@@ -38,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             if (!res.ok) throw new Error("마감일을 지금보다 이후 시간으로 설정해주세요.")
 
-            await fetchAndRenderTasks(new Date(), userId)
+            await fetchAndRenderTasks(new Date(), localStorage.getItem("userId"))
             form.reset()
             form.classList.add("hidden")
         } catch (err) {
@@ -343,7 +349,7 @@ async function toggleTaskStatus(taskId, isChecked) {
     } catch (err) {
         console.error("상태 업데이트 실패:", err)
         // 실패 시 원래 상태로 되돌림
-        await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
+        await fetchAndRenderTasks(dueDateToDate(task.dueDate), localStorage.getItem("userId"))
     }
 }
 
@@ -416,7 +422,7 @@ async function editTask(taskId) {
             }
             const json = await res.json()
             const task = json.data
-            await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
+            await fetchAndRenderTasks(dueDateToDate(task.dueDate), localStorage.getItem("userId"))
         } catch (err) {
             console.error("수정 실패:", err)
             alert(err.message)
@@ -466,7 +472,7 @@ async function deleteTask(taskId) {
 
         if (!res.ok) throw new Error("삭제 실패")
 
-        await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
+        await fetchAndRenderTasks(dueDateToDate(task.dueDate), localStorage.getItem("userId"))
     } catch (err) {
         console.error("삭제 실패:", err)
         alert(err.message)
@@ -507,7 +513,7 @@ async function uploadImage(taskId) {
             const uploadRes = await authUpload(`http://localhost:8080/tasks/${taskId}/image`, formData)
             if (!uploadRes.ok) throw new Error("이미지 업로드 실패")
 
-            await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
+            await fetchAndRenderTasks(dueDateToDate(task.dueDate), localStorage.getItem("userId"))
         } catch (err) {
             console.error("이미지 업로드 실패:", err)
             alert(err.message)
@@ -664,7 +670,7 @@ function bindCommentEvents(commentEl, comment, taskId) {
     const currentUserId = localStorage.getItem("userId");
     const isMyComment = currentUserId && comment.userId == currentUserId
     console.log(comment.id);
-    console.log(userId);
+    console.log(localStorage.getItem("userId"));
     console.log(isMyComment);
 
     if (isMyComment) {
@@ -890,7 +896,7 @@ async function postponeDueDate(taskId) {
         const due = new Date(task.dueDate)
         due.setHours(due.getHours() - 24)
         const targetDate = due.toISOString()
-        await fetchAndRenderTasks(dueDateToDate(targetDate), userId)
+        await fetchAndRenderTasks(dueDateToDate(targetDate), localStorage.getItem("userId"))
     } catch (err) {
         console.error("미루기 실패:", err)
         alert(err.message)

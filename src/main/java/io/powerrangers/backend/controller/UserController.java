@@ -4,6 +4,7 @@ import io.powerrangers.backend.dto.BaseResponse;
 import io.powerrangers.backend.dto.TaskResponseDto;
 import io.powerrangers.backend.dto.UserGetProfileResponseDto;
 import io.powerrangers.backend.dto.UserUpdateProfileRequestDto;
+import io.powerrangers.backend.service.ContextUtil;
 import io.powerrangers.backend.service.CookieFactory;
 import io.powerrangers.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -78,5 +79,11 @@ public class UserController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponse<Long>> getCurrentUserId() {
+        Long userId = ContextUtil.getCurrentUserId();
+        return BaseResponse.success(HttpStatus.OK, userId);
     }
 }
