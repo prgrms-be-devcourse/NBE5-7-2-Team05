@@ -2,14 +2,12 @@ import {apiFetch} from "./token-reissue.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
-let existingUserId;
+const existingUserId = localStorage.getItem("userId");
 
 // userId가 아예 없을 때만 저장 (최초 진입 시)
 if (!existingUserId && userId) {
     localStorage.setItem("userId", userId);
     console.log("✅ userId 최초 저장됨:", userId);
-    // ⬇️ 바로 다시 읽어 두어야 이후 비교에 null이 남지 않습니다.
-    existingUserId = userId;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -161,6 +159,7 @@ function dueDateToDate(dueDateStr) {
 }
 
 function createTaskItem(task, targetUserId) {
+    const existingUserId = localStorage.getItem("userId")
     const isMine = targetUserId === existingUserId;
     console.log("targetUserId: ", targetUserId)
     console.log("existingUserId: ", existingUserId)
@@ -666,7 +665,6 @@ function bindCommentEvents(commentEl, comment, taskId) {
     const isMyComment = currentUserId && comment.userId == currentUserId
     console.log(comment.id);
     console.log(userId);
-    console.log(existingUserId);
     console.log(isMyComment);
 
     if (isMyComment) {
