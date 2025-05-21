@@ -89,7 +89,7 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
     });
 
     render();
-    fetchTodosUntil(state.selected);
+    fetchTodosUntil(state.selected, targetUserId);
 }
 
 
