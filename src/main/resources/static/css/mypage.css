@@ -209,6 +209,12 @@ body {
     margin-bottom: 10px;
 }
 
+.memories-wrapper {
+    position: relative;  /* 버튼의 위치 기준이 되는 박스 */
+    width: 680px; /* ✅ 고정 크기로 설정 */
+}
+
+
 .memories-box {
     background-color: #e0e0e0;
     padding: 16px;
@@ -227,6 +233,8 @@ body {
 
 /* ===== ✅ 회색 박스 바깥 오른쪽 하단 버튼 ===== */
 .memory-footer {
+    right: 0;
+    bottom: -50px;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -305,4 +313,13 @@ body {
     font-size: 24px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.memory-footer .danger-button {
+    background-color: #e74c3c !important;  /* 중요 표시로 override */
+    color: white;
+}
+
+.memory-footer .danger-button:hover {
+    background-color: #c0392b !important;
 }

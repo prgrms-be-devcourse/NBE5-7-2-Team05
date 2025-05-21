@@ -69,18 +69,23 @@
     <section class="memories">
         <h2>This Month's Memories</h2>
 
-        <div class="memories-box">
-            <div class="memory-gallery" id="memory-gallery">
-                <img src="/images/your-image.png" class="memory-img" />
+        <!-- ✅ 새로운 wrapper 추가 -->
+        <div class="memories-wrapper">
+            <div class="memories-box">
+                <div class="memory-gallery" id="memory-gallery">
+                    <img src="/images/your-image.png" class="memory-img" />
+                </div>
+            </div>
+
+            <!-- ✅ 이 버튼은 .memories-box 기준으로 오른쪽 하단에 위치 -->
+            <div class="memory-footer">
+                <button onclick="window.location.href='/mypage/update'">프로필 수정</button>
+                <button onclick="history.back()">뒤로 가기</button>
+                <button id="delete-account-btn" class="danger-button">회원 탈퇴</button>
             </div>
         </div>
-
-        <!-- ✅ 아래쪽에 배치 -->
-        <div class="memory-footer">
-            <button onclick="window.location.href='/mypage/update'">프로필 수정</button>
-            <button onclick="history.back()">뒤로 가기</button>
-        </div>
     </section>
+
 
 </div>
 
@@ -92,6 +97,8 @@
         <p><strong>상태:</strong> <span id="modal-status"></span></p>
     </div>
 </div>
+
+
 
 <!-- ✅ JS -->
 <script src="/js/mypage.js"></script>
