@@ -104,7 +104,7 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
             dateEl.addEventListener("click", () => {
                 state.selected = thisDate;
                 render();
-                fetchTodosUntil(state.selected, targetUserId)
+                fetchAndRenderTasks(state.selected, targetUserId)
             });
 
             grid.appendChild(dateEl);
@@ -121,16 +121,19 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
     });
 
     render();
-    fetchTodosUntil(state.selected, targetUserId);
+
+    fetchAndRenderTasks(state.selected, targetUserId);
 }
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    const currentUserId = localStorage.getItem("userId");
     const calendarContainer = document.getElementById("calendar");
-    buildCalendar(calendarContainer, localStorage.getItem("userId"));
+    buildCalendar(calendarContainer, currentUserId);
 
     // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
-    fetchAndRenderTasks(new Date(), localStorage.getItem("userId"))
+
+    fetchAndRenderTasks(new Date(), currentUserId);
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
         if (confirm("정말 로그아웃하시겠습니까?")) {
@@ -160,34 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
-
-async function fetchTodosUntil(date, targetUserId) {
-    if (!targetUserId) {
-        alert("로그인 정보가 없습니다.");
-        return [];
-    }
-
-    const dateStr = date.getFullYear() + "-" +
-        String(date.getMonth() + 1).padStart(2, '0') + "-" +
-        String(date.getDate()).padStart(2, '0');
-
-    const url = `/users/${targetUserId}/tasks?date=${dateStr}`;
-
-    try {
-        const response = await apiFetch(url, {
-            method: "GET",
-            credentials: "include"
-        });
-
-        if (!response.ok) throw new Error("할 일 조회 실패");
-        await fetchAndRenderTasks(date, targetUserId);
-    } catch (err) {
-        console.error(err);
-        alert("할 일 조회 중 오류 발생");
-    }
-}
-
 
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "/mypage";

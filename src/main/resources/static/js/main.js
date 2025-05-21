@@ -1,17 +1,17 @@
+import {apiFetch} from "./token-reissue.js";
+
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("userId");
-const existingUserId = localStorage.getItem("userId");
+let existingUserId;
 
 // userId가 아예 없을 때만 저장 (최초 진입 시)
 if (!existingUserId && userId) {
     localStorage.setItem("userId", userId);
     console.log("✅ userId 최초 저장됨:", userId);
+    // ⬇️ 바로 다시 읽어 두어야 이후 비교에 null이 남지 않습니다.
+    existingUserId = userId;
 }
 
-// 그래도 userId가 없다면 → 로그인 필요
-if (!userId && !existingUserId) {
-    alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
-}
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("taskForm")
     const showFormBtn = document.getElementById("showFormBtn")
@@ -97,7 +97,7 @@ export async function fetchAndRenderTasks(date, targetUserId) {
 
         const url = `/users/${targetUserId}/tasks?date=${dateStr}`
 
-        const res = await authFetch(url)
+        const res = await apiFetch(url)
         const data = await res.json()
         renderTasksByCategory(data.data || [], targetUserId)
     } catch (err) {
@@ -161,7 +161,9 @@ function dueDateToDate(dueDateStr) {
 }
 
 function createTaskItem(task, targetUserId) {
-    const isMine = targetUserId === userId;
+    const isMine = targetUserId === existingUserId;
+    console.log("targetUserId: ", targetUserId)
+    console.log("existingUserId: ", existingUserId)
     console.log(isMine)
 
     const taskItem = document.createElement("div")
@@ -666,6 +668,7 @@ function bindCommentEvents(commentEl, comment, taskId) {
     console.log(userId);
     console.log(existingUserId);
     console.log(isMyComment);
+
     if (isMyComment) {
         // 수정
         const editBtn = commentEl.querySelector(".edit-comment-btn")
