@@ -3,7 +3,7 @@ import {apiFetch} from "./token-reissue.js";
 // Fetch logged-in user's userId from server
 async function setUserIdFromServer() {
     try {
-        const res = await fetch('/users/me', { credentials: "include" });
+        const res = await apiFetch('/users/me');
         if (!res.ok) throw new Error("인증 필요");
         const response = await res.json();
         localStorage.setItem("userId", response.data);
