@@ -564,3 +564,10 @@ body {
 .reply-form {
     margin-top: 5px;
 }
+
+.icon {
+    width: 70px;     /* 원하는 너비 */
+    height: 70px;    /* 원하는 높이 */
+    vertical-align: middle; /* 텍스트와 세로 정렬 */
+    margin-left: 5px; /* 텍스트와 간격 */
+}
