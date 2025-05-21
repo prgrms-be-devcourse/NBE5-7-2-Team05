@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
             status: "INCOMPLETE",
         }
         try {
-            const res = await authFetch(`http://localhost:8080/tasks`, {
+            const res = await authFetch(`/tasks`, {
                 method: "POST",
                 body: JSON.stringify(taskData),
             })
@@ -302,7 +302,7 @@ function createTaskItem(task, targetUserId) {
 }
 
 async function toggleTaskStatus(taskId, isChecked) {
-    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
+    const res = await authFetch(`/tasks/${taskId}`)
     if (!res.ok) {
         alert("할 일 정보를 불러오는 데 실패했습니다.")
         return
@@ -334,7 +334,7 @@ async function toggleTaskStatus(taskId, isChecked) {
     }
 
     try {
-        const res = await authFetch(`http://localhost:8080/tasks/${taskId}/status`, {
+        const res = await authFetch(`/tasks/${taskId}/status`, {
             method: "PATCH",
             body: JSON.stringify({ status }),
         })
@@ -390,7 +390,7 @@ async function editTask(taskId) {
         const updatedScope = form.scope.value
 
         try {
-            const response = await authFetch(`http://localhost:8080/tasks/${taskId}`, {
+            const response = await authFetch(`/tasks/${taskId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -409,7 +409,7 @@ async function editTask(taskId) {
             taskItem.style.display = ""
 
             // 최신 할 일 목록 다시 불러오기
-            const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
+            const res = await authFetch(`/tasks/${taskId}`)
             if (!res.ok) {
                 alert("할 일 정보를 불러오는 데 실패했습니다.")
                 return
@@ -434,7 +434,7 @@ async function editTask(taskId) {
 }
 
 async function deleteTask(taskId) {
-    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
+    const res = await authFetch(`/tasks/${taskId}`)
     if (!res.ok) {
         alert("할 일 정보를 불러오는 데 실패했습니다.")
         return
@@ -460,7 +460,7 @@ async function deleteTask(taskId) {
     if (!confirmed) return
 
     try {
-        const res = await authFetch(`http://localhost:8080/tasks/${taskId}`, {
+        const res = await authFetch(`/tasks/${taskId}`, {
             method: "DELETE",
         })
 
@@ -475,7 +475,7 @@ async function deleteTask(taskId) {
 
 async function uploadImage(taskId) {
     // 먼저 해당 task의 최신 상태를 가져옴
-    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
+    const res = await authFetch(`/tasks/${taskId}`)
     if (!res.ok) {
         alert("할 일 정보를 불러오는 데 실패했습니다.")
         return
@@ -504,7 +504,7 @@ async function uploadImage(taskId) {
         formData.append("image", file)
 
         try {
-            const uploadRes = await authUpload(`http://localhost:8080/tasks/${taskId}/image`, formData)
+            const uploadRes = await authUpload(`/tasks/${taskId}/image`, formData)
             if (!uploadRes.ok) throw new Error("이미지 업로드 실패")
 
             await fetchAndRenderTasks(dueDateToDate(task.dueDate), userId)
@@ -550,7 +550,7 @@ function createCommentModal() {
 
 async function fetchComments(taskId) {
     try {
-        const res = await authFetch(`http://localhost:8080/comments/${taskId}`)
+        const res = await authFetch(`/comments/${taskId}`)
         if (!res.ok) throw new Error("댓글을 불러오는데 실패했습니다")
 
         const data = await res.json()
@@ -563,7 +563,7 @@ async function fetchComments(taskId) {
 
 async function addComment(request) {
     try {
-        const res = await authFetch(`http://localhost:8080/comments`, {
+        const res = await authFetch(`/comments`, {
             method: "POST",
             body: JSON.stringify(request),
         })
@@ -578,7 +578,7 @@ async function addComment(request) {
 
 async function renderComments(container, taskId, comments = null) {
     if (!comments) {
-        const res = await authFetch(`http://localhost:8080/comments/${taskId}`)
+        const res = await authFetch(`/comments/${taskId}`)
         if (!res.ok) throw new Error("댓글을 불러오는데 실패했습니다")
         const responseData = await res.json()
         comments = responseData.data
@@ -694,7 +694,7 @@ function bindCommentEvents(commentEl, comment, taskId) {
                 const newContent = commentEl.querySelector(".edit-textarea").value.trim()
                 if (!newContent) return
 
-                const res = await authFetch(`http://localhost:8080/comments/${comment.id}`, {
+                const res = await authFetch(`/comments/${comment.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ content: newContent }),
@@ -713,7 +713,7 @@ function bindCommentEvents(commentEl, comment, taskId) {
         if (deleteBtn) {
             deleteBtn.addEventListener("click", async () => {
                 if (!confirm("댓글을 삭제하시겠습니까?")) return
-                const res = await authFetch(`http://localhost:8080/comments/${comment.id}`, {
+                const res = await authFetch(`/comments/${comment.id}`, {
                     method: "DELETE",
                 })
                 if (res.ok) {
@@ -745,7 +745,7 @@ function bindCommentEvents(commentEl, comment, taskId) {
             const replyContent = replyTextarea.value.trim()
             if (!replyContent) return
 
-            const res = await authFetch(`http://localhost:8080/comments`, {
+            const res = await authFetch(`/comments`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -860,7 +860,7 @@ async function refreshCommentCount(taskId) {
 }
 
 async function postponeDueDate(taskId) {
-    const res = await authFetch(`http://localhost:8080/tasks/${taskId}`)
+    const res = await authFetch(`/tasks/${taskId}`)
     if (!res.ok) {
         alert("할 일 정보를 불러오는 데 실패했습니다.")
         return
@@ -881,7 +881,7 @@ async function postponeDueDate(taskId) {
     due.setHours(due.getHours() + 24)
     task.dueDate = due.toISOString()
     try {
-        const res = await authFetch(`http://localhost:8080/tasks/${taskId}/postpone`, {
+        const res = await authFetch(`/tasks/${taskId}/postpone`, {
             method: "PATCH",
         })
 
