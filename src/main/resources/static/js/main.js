@@ -662,7 +662,7 @@ function createCommentElement(comment, taskId, isReply = false) {
 
 function bindCommentEvents(commentEl, comment, taskId) {
     const currentUserId = localStorage.getItem("userId");
-    const isMyComment = currentUserId && comment.userId === currentUserId
+    const isMyComment = currentUserId && comment.userId == currentUserId
     console.log(comment.id);
     console.log(userId);
     console.log(isMyComment);
