@@ -1,6 +1,53 @@
 import {apiFetch} from "./token-reissue.js";
 import {fetchAndRenderTasks} from './main.js';
 
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const currentUserId = localStorage.getItem("userId");
+    console.log("currentUserId:", currentUserId);
+
+    const targetUserId = params.get("userId");
+    console.log("targetUserId:", targetUserId);
+
+    const userIdToShow = targetUserId || currentUserId;
+    console.log("userIdToShow:", userIdToShow);
+
+    const calendarContainer = document.getElementById("calendar");
+    buildCalendar(calendarContainer, userIdToShow);
+
+    // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
+
+    fetchAndRenderTasks(new Date(), userIdToShow);
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        if (confirm("정말 로그아웃하시겠습니까?")) {
+            apiFetch("/users/logout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })  // (로그아웃은 access token 만료여도 재시도 불필요)
+                .finally(() => {
+                    alert("성공적으로 로그아웃 되었습니다.");
+                    localStorage.removeItem("userId");
+                    window.location.replace("/loginPage");
+                });
+        }
+    });
+
+    const logo = document.getElementById('homeLogo');
+    if (logo) {
+        logo.addEventListener('click', () => {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                window.location.href = `/index.html?userId=${userId}`;
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+    }
+});
+
 async function fetchTaskSummary(year, month, userId) {
     const url = `/tasks/summary?userId=${userId}&year=${year}&month=${month}`;
     try {
@@ -124,45 +171,6 @@ export function buildCalendar(container, targetUserId, date = new Date()) {
 
     fetchAndRenderTasks(state.selected, targetUserId);
 }
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const currentUserId = localStorage.getItem("userId");
-    const calendarContainer = document.getElementById("calendar");
-    buildCalendar(calendarContainer, currentUserId);
-
-    // 페이지 로드 시 오늘 날짜의 할 일을 자동으로 가져옵니다
-
-    fetchAndRenderTasks(new Date(), currentUserId);
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-        if (confirm("정말 로그아웃하시겠습니까?")) {
-            apiFetch("/users/logout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })  // (로그아웃은 access token 만료여도 재시도 불필요)
-                .finally(() => {
-                    alert("성공적으로 로그아웃 되었습니다.");
-                    localStorage.removeItem("userId");
-                    window.location.replace("/loginPage");
-                });
-        }
-    });
-
-    const logo = document.getElementById('homeLogo');
-    if (logo) {
-        logo.addEventListener('click', () => {
-            const userId = localStorage.getItem('userId');
-            if (userId) {
-                window.location.href = `/index.html?userId=${userId}`;
-            } else {
-                window.location.href = '/index.html';
-            }
-        });
-    }
-});
 
 document.getElementById("profileBtn").addEventListener("click", () => {
     window.location.href = "/mypage";
