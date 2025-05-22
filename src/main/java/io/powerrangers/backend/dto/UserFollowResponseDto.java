@@ -13,13 +13,15 @@ public class UserFollowResponseDto {
     private String nickname;
     private String intro;
     private String profileImage;
+    private boolean isFollowing;
 
-    public static UserFollowResponseDto from(User user) {
+    public static UserFollowResponseDto from(User user, boolean isFollowing) {
         return UserFollowResponseDto.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .intro(user.getIntro())
                 .profileImage(user.getProfileImage())
+                .isFollowing(isFollowing)
                 .build();
     }
 }

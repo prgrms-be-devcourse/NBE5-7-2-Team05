@@ -67,27 +67,44 @@ public class FollowService {
         followRepository.delete(follow);
     }
 
-    @Transactional(readOnly=true)
-    public List<UserFollowResponseDto> findFollowers(Long userId){
-        userRepository.findById(userId)
+    @Transactional(readOnly = true)
+    public List<UserFollowResponseDto> findFollowers(Long targetUserId) {
+        userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 팔로잉에 userId가 있어야 한다.
-        List<User> users = followRepository.findFollowersByUser(userId);
-        return users.stream()
-                .map(user -> UserFollowResponseDto.from(user))
+        // targetUserId의 팔로워 목록 조회
+        List<User> followers = followRepository.findFollowersByUser(targetUserId);
+
+        Long loginUserId = ContextUtil.getCurrentUserId();
+
+        // 로그인 유저의 팔로잉 목록 조회
+        List<Long> myFollowings = followRepository.findFollowingsByUser(loginUserId)
+                .stream()
+                .map(User::getId)
+                .toList();
+
+        return followers.stream()
+                .map(user -> UserFollowResponseDto.from(user, myFollowings.contains(user.getId())))
                 .toList();
     }
 
-    @Transactional(readOnly=true)
-    public List<UserFollowResponseDto> findFollowings(Long userId) {
-        userRepository.findById(userId)
+    @Transactional(readOnly = true)
+    public List<UserFollowResponseDto> findFollowings(Long targetUserId) {
+        userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // 팔로워 id에 userId가 있어야 한다.
-        List<User> users = followRepository.findFollowingsByUser(userId);
-        return users.stream()
-                .map(user -> UserFollowResponseDto.from(user))
+        List<User> followings = followRepository.findFollowingsByUser(targetUserId);
+
+        Long loginUserId = ContextUtil.getCurrentUserId();
+
+        // 로그인 유저의 팔로잉 목록 조회
+        List<Long> myFollowings = followRepository.findFollowingsByUser(loginUserId)
+                .stream()
+                .map(User::getId)
+                .toList();
+
+        return followings.stream()
+                .map(user -> UserFollowResponseDto.from(user, myFollowings.contains(user.getId())))
                 .toList();
     }
 

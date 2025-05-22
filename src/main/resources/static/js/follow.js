@@ -40,6 +40,7 @@ async function loadFollowList(type) {
 
         targetElement.innerHTML = '';
         users.forEach(user => {
+            // 로그인된 사용자가 현재 이 user를 팔로우 중인지 체크
             const isFollowing = currentUserFollowings.some(f => f.id === user.id);
             const isSelf = user.id.toString() === localStorage.getItem('userId');
 
@@ -123,9 +124,18 @@ function attachFollowButtonListeners() {
                     throw new Error(errorData.message || '팔로우 처리 실패');
                 }
 
+                // 버튼 상태 토글
                 button.classList.toggle('following');
                 button.classList.toggle('not-following');
                 button.textContent = isFollowing ? '팔로우' : '팔로잉';
+
+                // 현재 로그인 사용자 팔로잉 목록 업데이트
+                if (isFollowing) {
+                    currentUserFollowings = currentUserFollowings.filter(f => f.id !== parseInt(userId));
+                } else {
+                    currentUserFollowings.push({ id: parseInt(userId) });
+                }
+
             } catch (error) {
                 console.error('팔로우 처리 중 오류 발생:', error);
                 alert(error.message || '팔로우 처리 중 오류가 발생했습니다.');
@@ -154,7 +164,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!followersListElem && !followingListElem) return;
 
+    // 로그인한 사용자의 팔로잉 목록 먼저 불러오기
     currentUserFollowings = await fetchCurrentUserFollowings();
+    await loadFollowList('followers');
+    await loadFollowList('following');
 
     // 탭 버튼 바인딩
     document.querySelectorAll('.follow-nav-button').forEach(button => {
