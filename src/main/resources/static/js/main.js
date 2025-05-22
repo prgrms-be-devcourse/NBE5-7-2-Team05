@@ -1,4 +1,5 @@
 import {apiFetch} from "./token-reissue.js";
+import {buildCalendar} from "./index.js";
 
 // Fetch logged-in user's userId from server
 async function setUserIdFromServer() {
@@ -45,6 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!res.ok) throw new Error("마감일을 지금보다 이후 시간으로 설정해주세요.")
 
             await fetchAndRenderTasks(new Date(), localStorage.getItem("userId"))
+            const calendarEl = document.getElementById("calendar");
+            if (calendarEl) {
+                buildCalendar(calendarEl, localStorage.getItem("userId"));
+            } else {
+                console.warn("❗ calendar 요소가 없음");
+            }
             form.reset()
             form.classList.add("hidden")
         } catch (err) {
@@ -473,6 +480,12 @@ async function deleteTask(taskId) {
         if (!res.ok) throw new Error("삭제 실패")
 
         await fetchAndRenderTasks(dueDateToDate(task.dueDate), localStorage.getItem("userId"))
+        const calendarEl = document.getElementById("calendar");
+        if (calendarEl) {
+            buildCalendar(calendarEl, localStorage.getItem("userId"));
+        } else {
+            console.warn("❗ calendar 요소가 없음");
+        }
     } catch (err) {
         console.error("삭제 실패:", err)
         alert(err.message)
