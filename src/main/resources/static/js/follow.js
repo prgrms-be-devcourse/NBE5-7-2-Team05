@@ -4,17 +4,16 @@ let followingListElem;
 
 // 팔로워/팔로잉 목록 로드 함수
 async function loadFollowList(type) {
-    // URL에서 사용자 ID 가져오기
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId') || localStorage.getItem('userId');
-    
+
     if (!userId) {
         console.error('사용자 ID를 찾을 수 없습니다.');
         return;
     }
 
     console.log(`${type} 목록 로드 시작:`, userId);
-    
+
     try {
         const response = await fetch(`/follow/${userId}/${type === 'following' ? 'followings' : 'followers'}`, {
             credentials: 'include',
@@ -31,7 +30,7 @@ async function loadFollowList(type) {
 
         const result = await response.json();
         console.log(`${type} 응답 데이터:`, result);
-        
+
         if (!result.data) {
             throw new Error(`${type} 목록 데이터 없음`);
         }
@@ -51,7 +50,7 @@ async function loadFollowList(type) {
 
         // 현재 사용자의 팔로잉 목록 가져오기
         const currentUserFollowings = await getCurrentUserFollowings();
-        
+
         targetElement.innerHTML = users.map(user => {
             const isFollowing = currentUserFollowings.some(following => following.id === user.id);
             const isSelf = user.id.toString() === localStorage.getItem('userId');
@@ -70,7 +69,8 @@ async function loadFollowList(type) {
                         </div>
                         ${!isSelf ? `
                             <button class="follow-button ${isFollowing ? 'following' : 'not-following'}"
-                                    data-user-id="${user.id}">
+                                    data-user-id="${user.id}"
+                                    aria-pressed="${isFollowing}">
                                 ${isFollowing ? '팔로잉' : '팔로우'}
                             </button>
                         ` : ''}
@@ -117,34 +117,75 @@ async function getCurrentUserFollowings() {
 }
 
 // 팔로우 기능 관리
+async function refreshFollowButtons() {
+    const currentUserFollowings = await getCurrentUserFollowings();
+
+    document.querySelectorAll('.follow-button').forEach(button => {
+        const userId = parseInt(button.dataset.userId);
+        const isFollowing = currentUserFollowings.some(user => user.id === userId);
+
+        button.classList.toggle('following', isFollowing);
+        button.classList.toggle('not-following', !isFollowing);
+        button.textContent = isFollowing ? '팔로잉' : '팔로우';
+        button.setAttribute('aria-pressed', isFollowing);
+    });
+}
+
+// 팔로우 버튼 이벤트 리스너 등록 (중복 방지)
 function attachFollowButtonListeners() {
     const followButtons = document.querySelectorAll('.follow-button');
+
     followButtons.forEach(button => {
+        // 기존 이벤트 리스너 제거
+        button.replaceWith(button.cloneNode(true));
+    });
+
+    // 다시 선택 후 이벤트 등록
+    const newButtons = document.querySelectorAll('.follow-button');
+    newButtons.forEach(button => {
         button.addEventListener('click', async () => {
             const userId = button.dataset.userId;
             const isFollowing = button.classList.contains('following');
 
+            if (button.disabled) return;  // 다중 클릭 방지
+
+            button.disabled = true;
+            button.textContent = isFollowing ? '언팔로우 중...' : '팔로우 중...';
+
             try {
-                const response = await fetch(`/follow${isFollowing ? `/${userId}` : ''}`, {
-                    method: isFollowing ? 'DELETE' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: !isFollowing ? JSON.stringify({ followingId: parseInt(userId) }) : null
-                });
+                let response;
+                if (isFollowing) {
+                    // DELETE 요청은 body 없이 보내는 게 안전
+                    response = await fetch(`/follow/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                } else {
+                    response = await fetch(`/follow`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ followingId: parseInt(userId) })
+                    });
+                }
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || '팔로우 처리 실패');
                 }
 
-                button.classList.toggle('following');
-                button.classList.toggle('not-following');
-                button.textContent = isFollowing ? '팔로우' : '팔로잉';
+                // 성공하면 팔로우 목록 상태 갱신
+                await refreshFollowButtons();
             } catch (error) {
                 console.error('팔로우 처리 중 오류 발생:', error);
                 alert(error.message || '팔로우 처리 중 오류가 발생했습니다.');
+            } finally {
+                button.disabled = false;
             }
         });
     });
@@ -155,62 +196,52 @@ function attachProfileClickListeners() {
     const containers = document.querySelectorAll('.user-container');
     containers.forEach(container => {
         container.addEventListener('click', function(e) {
-            // 팔로우 버튼 클릭 시는 무시
             if (e.target.closest('.follow-button')) return;
             const userId = container.dataset.userId;
-            if (userId) {
+            if(userId === localStorage.getItem('userId')) {
+                window.location.href = 'index.html';
+            } else if (userId) {
                 window.location.href = `/user.html?userId=${userId}`;
             }
         });
     });
 }
 
-// 팔로우 목록 관리
+// 팔로우 목록 관리 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM 요소 초기화
     followersListElem = document.getElementById('followers-list');
     followingListElem = document.getElementById('following-list');
-    
+
     if (followersListElem || followingListElem) {
-        // 탭 전환 기능
         document.querySelectorAll('.follow-nav-button').forEach(button => {
             button.addEventListener('click', () => {
-                // 활성 탭 스타일 변경
-                document.querySelectorAll('.follow-nav-button').forEach(btn => {
-                    btn.classList.remove('active');
-                });
+                document.querySelectorAll('.follow-nav-button').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
-                // 목록 표시 전환
                 const targetTab = button.dataset.tab;
                 if (followersListElem) followersListElem.style.display = targetTab === 'followers' ? 'block' : 'none';
                 if (followingListElem) followingListElem.style.display = targetTab === 'following' ? 'block' : 'none';
+                loadFollowList(targetTab);
             });
         });
 
-        // 초기 데이터 로드
         loadFollowList('followers');
         loadFollowList('following');
     }
 
-    // ===== Header actions =====
     const logo = document.getElementById('homeLogo');
     if (logo) {
         logo.addEventListener('click', () => {
             const userId = localStorage.getItem('userId');
-            if (userId) {
-                window.location.href = `/index.html?userId=${userId}`;
-            } else {
-                window.location.href = '/index.html';
-            }
+            window.location.href = userId ? `/index.html?userId=${userId}` : '/index.html';
         });
     }
+
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn) {
-        profileBtn.addEventListener('click', () => {
-            window.location.href = '/mypage';
-        });
+        profileBtn.addEventListener('click', () => window.location.href = '/mypage');
     }
+
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -224,8 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
-        backBtn.addEventListener('click', function() {
-            window.history.back();
-        });
+        backBtn.addEventListener('click', () => window.history.back());
     }
-}); 
+});
