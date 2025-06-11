@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // URL에서 검색 결과를 가져와서 표시
     const urlParams = new URLSearchParams(window.location.search);
     const results = urlParams.get('results');
-    
+
     if (results) {
         try {
             const searchData = JSON.parse(results);
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("검색 결과 user:", user);
             const isFollowing = currentUserFollowings.some(following => following.id === user.userId);
             const isSelf = String(user.userId) === localStorage.getItem('userId');
-            
+
             return `
                 <li class="user-list-item">
                     <div class="user-container" data-user-id="${user.userId}">
@@ -134,7 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 팔로우 버튼 클릭 시는 무시
                 if (e.target.closest('.follow-button')) return;
                 const userId = container.dataset.userId;
-                if (userId) {
+
+                if(userId===localStorage.getItem(`userId`)){
+                    window.location.href = `/index.html`;
+                }
+                else if (userId) {
                     window.location.href = `/user.html?userId=${userId}`;
                 }
             });
@@ -163,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const result = await response.json();
-            
+
             if (result.data && result.data.length > 0) {
                 // 검색 결과가 있으면 검색 결과 페이지로 이동
                 const searchParams = new URLSearchParams();
